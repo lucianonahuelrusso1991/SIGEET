@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Constancia Regular - {{ alumno.apellido }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Fondo gris para la pantalla, pero la hoja es blanca */
+        body { background-color: #e9ecef; }
+        
+        .hoja-a4 {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 25mm 20mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .firma-caja {
+            margin-top: 100px;
+            border-top: 1px dashed #000;
+            width: 250px;
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        /* MAGIA: Todo esto se activa solo cuando le dan a "Imprimir" o "Guardar PDF" */
+        @media print {
+            body { background-color: white; margin: 0; }
+            .hoja-a4 { box-shadow: none; margin: 0; width: 100%; height: auto; }
+            .no-print { display: none !important; } /* Oculta los botones en el papel */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center py-3 bg-dark no-print">
+        <button onclick="window.print()" class="btn btn-light fw-bold me-2">🖨️ Imprimir / Guardar PDF</button>
+        <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-outline-light">Volver al Legajo</a>
+    </div>
+
+    <div class="hoja-a4">
+        <div class="d-flex justify-content-between align-items-end border-bottom border-2 border-dark pb-3 mb-5">
+            <div>
+                <h3 class="fw-bold mb-0">Escuela Secundaria N° XX</h3>
+                <p class="mb-0 text-muted">Ministerio de Educación - Provincia de Buenos Aires</p>
+            </div>
+            <div class="text-end text-muted small">
+                CUE: XXXXXXXX<br>
+                Tel: (011) XXXX-XXXX
+            </div>
+        </div>
+
+        <h2 class="text-center fw-bold text-decoration-underline mb-5">CONSTANCIA DE ALUMNO REGULAR</h2>
+
+        <p class="fs-5 lh-lg mb-4 text-justify">
+            Por la presente se deja constancia de que el/la alumno/a <strong>{{ alumno.apellido|upper }}, {{ alumno.nombre }}</strong>, 
+            Documento Nacional de Identidad N° <strong>{{ alumno.dni }}</strong>, es alumno/a REGULAR de este establecimiento educativo.
+        </p>
+
+        <p class="fs-5 lh-lg mb-5 text-justify">
+            {% if matricula %}
+                Actualmente se encuentra cursando el <strong>{{ matricula.curso.año_de_cursada }}º año, división "{{ matricula.curso.division }}"</strong> 
+                correspondiente al Ciclo Lectivo <strong>{{ matricula.ciclo_lectivo }}</strong>.
+            {% else %}
+                <em>(El alumno se encuentra registrado en la institución pero aún no ha sido matriculado en un curso para el ciclo lectivo actual).</em>
+            {% endif %}
+        </p>
+
+        <p class="fs-5 lh-lg mb-5 text-justify">
+            A pedido de la parte interesada y para ser presentado ante las autoridades de <strong>___________________________________</strong>, 
+            se expide la presente constancia en la ciudad de Villa Tesei, a los {{ fecha_hoy.day }} días del mes de {{ fecha_hoy|date:"F" }} de {{ fecha_hoy.year }}.
+        </p>
+
+        <div class="d-flex justify-content-between mt-5 pt-5">
+            <div class="firma-caja">
+                <strong>Sello del Establecimiento</strong>
+            </div>
+            <div class="firma-caja">
+                <strong>Firma de Secretaría / Dirección</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Descomentá la línea de abajo si querés que salte el cartel de imprimir automático
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

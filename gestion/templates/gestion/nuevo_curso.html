@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <form method="post" class="card shadow-sm border-0 border-top border-primary border-4">
+            {% csrf_token %}
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h4 class="mb-0 text-primary fw-bold">🏫 Crear Nuevo Curso</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted">Año de Cursada *</label>
+                        <input type="number" name="anio_de_cursada" class="form-control" placeholder="Ej: 1, 2, 3..." required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted">División *</label>
+                        <input type="text" name="division" class="form-control" placeholder="Ej: A, B, C..." required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted">Turno *</label>
+                        <select name="turno" class="form-select" required>
+                            <option value="">-- Seleccionar --</option>
+                            <option value="M">Mañana</option>
+                            <option value="T">Tarde</option>
+                            <option value="V">Vespertino</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-muted">Plan de Estudio Asociado *</label>
+                        <select name="plan" class="form-select" required>
+                            <option value="">-- Seleccionar plan vigente --</option>
+                            {% for plan in planes %}
+                                <option value="{{ plan.id }}">{{ plan.nombre }}</option>
+                            {% empty %}
+                                <option value="" disabled>No hay planes creados. Creá uno primero.</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-end py-3 gap-2">
+                <a href="{% url 'lista_cursos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4 fw-bold">Guardar Curso</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

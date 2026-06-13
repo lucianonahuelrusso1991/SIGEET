@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Mesa de Examen{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Cancelar y Volver a la Mesa</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-danger text-white text-center py-3">
+                <h4 class="mb-0">⚠️ Confirmar Eliminación</h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <h5 class="fw-bold mb-3">¿Estás seguro de que deseas eliminar esta mesa de examen?</h5>
+                
+                <div class="alert alert-warning text-start">
+                    <ul class="mb-0">
+                        <li><strong>Materia:</strong> {{ mesa.materia.nombre }}</li>
+                        <li><strong>Fecha:</strong> {{ mesa.fecha_hora|date:"d/m/Y H:i" }}</li>
+                        <li><strong>Turno:</strong> {{ mesa.get_turno_display }} {{ mesa.ciclo_lectivo }}</li>
+                        <li><strong>Alumnos inscriptos:</strong> {{ mesa.inscriptos.count }}</li>
+                    </ul>
+                </div>
+                
+                {% if mesa.inscriptos.count > 0 %}
+                <div class="alert alert-danger text-start">
+                    <strong>¡Atención!</strong> Esta mesa tiene alumnos inscriptos. Si la eliminas, <strong>se borrarán todas las inscripciones y notas cargadas</strong> en ella.
+                </div>
+                {% endif %}
+
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-secondary px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">Sí, Eliminar Mesa Definitivamente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

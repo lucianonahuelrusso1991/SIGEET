@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-secondary shadow-sm">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0"><i class="bi bi-megaphone-fill me-2"></i>Redactar Comunicado</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título o Asunto</label>
+                        <input type="text" name="titulo" class="form-control" required placeholder="Ej: Importante: Fecha de exámenes...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mensaje</label>
+                        <textarea name="mensaje" class="form-control" rows="6" required placeholder="Escribe tu mensaje aquí..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Destinatarios</label>
+                        {% if es_admin %}
+                        <select name="tipo_destinatario" id="tipo_destinatario" class="form-select" onchange="toggleSelectors()">
+                            {% for code, label in opciones_destinatario %}
+                                <option value="{{ code }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <select name="tipo_destinatario" id="tipo_destinatario" class="form-select" readonly>
+                            <option value="COMISION" selected>Alumnos de mis Comisiones</option>
+                        </select>
+                        {% endif %}
+                    </div>
+
+                    {% if es_admin %}
+                    <div class="mb-3" id="div_plan" style="display: none;">
+                        <label class="form-label fw-bold">Seleccionar Carrera (Plan de Estudio)</label>
+                        <select name="plan_estudio" class="form-select">
+                            <option value="">-- Elige un Plan --</option>
+                            {% for plan in planes %}
+                            <option value="{{ plan.id }}">{{ plan.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4" id="div_comision" style="{% if es_admin %}display: none;{% endif %}">
+                        <label class="form-label fw-bold">Seleccionar Comisión / Materia</label>
+                        <select name="comision" class="form-select">
+                            <option value="">-- Elige una Comisión --</option>
+                            {% for com in comisiones %}
+                            <option value="{{ com.id }}">{{ com.materia.nombre }} - {{ com.get_cuatrimestre_display }} {{ com.ciclo_lectivo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                            <i class="bi bi-send-fill me-2"></i>Enviar Comunicado
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSelectors() {
+        const tipo = document.getElementById('tipo_destinatario').value;
+        const divPlan = document.getElementById('div_plan');
+        const divComision = document.getElementById('div_comision');
+        
+        divPlan.style.display = 'none';
+        divComision.style.display = 'none';
+        
+        if (tipo === 'DOCENTES_CARRERA' || tipo === 'ALUMNOS_CARRERA') {
+            divPlan.style.display = 'block';
+        } else if (tipo === 'COMISION') {
+            divComision.style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

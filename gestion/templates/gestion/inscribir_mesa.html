@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Inscribir a Mesa: {{ mesa.materia.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-body p-4">
+                <h4 class="mb-3">Inscribir Alumno al Examen Final</h4>
+                <p class="text-muted">Mesa: <strong>{{ mesa.materia.nombre }}</strong> - {{ mesa.fecha_hora|date:"d/m/Y H:i" }}</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Seleccionar Alumno</label>
+                        <select name="alumno" class="form-select" required>
+                            <option value="">Buscar por apellido...</option>
+                            {% for alumno in alumnos %}
+                                <option value="{{ alumno.id }}">{{ alumno.apellido }}, {{ alumno.nombre }} (DNI: {{ alumno.dni }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="override_admin" id="override_admin">
+                            <label class="form-check-label text-danger" for="override_admin">
+                                Excepción Administrativa (Permitir inscribir aunque no tenga la cursada aprobada/regular en el sistema).
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Guardar Inscripción</button>
+                        <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-light">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

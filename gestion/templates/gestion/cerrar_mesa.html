@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Cerrar Mesa: {{ mesa.materia.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-body p-4 text-center">
+                <h4 class="text-danger mb-3">⚠️ Cierre Definitivo de Mesa</h4>
+                <p>Estás a punto de cerrar la mesa de <strong>{{ mesa.materia.nombre }}</strong>.</p>
+                <p class="text-muted small">Una vez cerrada, las notas de los alumnos pasarán a ser definitivas en su historial y no se podrán modificar. Además, deberás asignar el número de Libro y Folio correspondiente al acta física.</p>
+                
+                <hr>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row mb-4 text-start">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Libro Matriz Nº</label>
+                            <input type="text" name="libro" class="form-control" placeholder="Ej: V" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Folio Nº</label>
+                            <input type="text" name="folio" class="form-control" placeholder="Ej: 124" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger btn-lg w-100">🔒 Confirmar Cierre Definitivo</button>
+                    <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-link mt-2 text-muted">Cancelar y volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

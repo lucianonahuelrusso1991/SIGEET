@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Calificar Mesa: {{ mesa.materia.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Detalle de la Mesa</a>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h4 class="mb-4">Calificar Mesa de Examen: {{ mesa.materia.nombre }}</h4>
+        
+        <form method="POST">
+            {% csrf_token %}
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Alumno</th>
+                        <th class="text-center">Nota Numérica (Dejar vacío si está Ausente)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for insc in inscriptos %}
+                    <tr>
+                        <td class="align-middle fw-bold ps-4">{{ insc.alumno.apellido }}, {{ insc.alumno.nombre }}</td>
+                        <td class="text-center">
+                            <input type="number" step="0.01" min="1" max="10" name="nota_{{ insc.id }}" 
+                                   class="form-control text-center fw-bold w-50 mx-auto" value="{{ insc.nota_final|default_if_none:'' }}" 
+                                   placeholder="-">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No hay alumnos inscriptos para calificar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Guardar Calificaciones</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+{% endblock %}
+
+{% block title %}Seleccionar Comisión para Asistencia{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-11">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="text-primary fw-bold mb-0">✋ Carga de Asistencia Diaria</h2>
+                <p class="text-muted">Seleccione la comisión para tomar lista</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4 bg-light">
+            <div class="card-body p-3">
+                <input type="text" id="filterText" class="form-control" placeholder="🔍 Buscar materia, docente o ciclo lectivo...">
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0" id="comisionesTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-4">Materia / Carrera</th>
+                                <th>Docente</th>
+                                <th>Ciclo</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comision in comisiones %}
+                            {% if not comision.cerrada %}
+                            <tr class="comision-row">
+                                <td class="ps-4 search-target">
+                                    <span class="fw-bold text-dark">{{ comision.materia.nombre }}</span>
+                                    <br>
+                                    <small class="text-muted">{{ comision.materia.plan.nombre }}</small>
+                                </td>
+                                <td class="search-target">
+                                    {% if comision.docente %}
+                                        {{ comision.docente.apellido }}, {{ comision.docente.nombre }}
+                                    {% else %}
+                                        <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Sin Asignar</span>
+                                    {% endif %}
+                                </td>
+                                <td class="search-target fw-bold">{{ comision.ciclo_lectivo }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'cargar_asistencia' comision.id %}" class="btn btn-success btn-sm shadow-sm fw-bold rounded-pill px-3">
+                                        <i class="bi bi-check2-square"></i> Tomar Lista
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    No hay comisiones abiertas para tomar asistencia.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var filterText = document.getElementById('filterText');
+    var rows = document.querySelectorAll('.comision-row');
+
+    function applyFilter() {
+        var text = filterText.value.toLowerCase().trim();
+        var words = text.split(/\s+/); // Separar por espacios para busqueda flexible
+
+        rows.forEach(function(row) {
+            var content = "";
+            // Recopilar el texto de las celdas marcadas como search-target
+            var targets = row.querySelectorAll('.search-target');
+            targets.forEach(function(td) {
+                content += td.textContent.toLowerCase() + " ";
+            });
+            
+            // Verificar si todas las palabras buscadas están en el content
+            var match = true;
+            for(var i=0; i<words.length; i++){
+                if(content.indexOf(words[i]) === -1){
+                    match = false;
+                    break;
+                }
+            }
+
+            if(match) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    filterText.addEventListener('input', applyFilter);
+});
+</script>
+{% endblock %}

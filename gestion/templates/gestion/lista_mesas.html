@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Mesas de Examen{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Inicio</a>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📚 Mesas de Examen (Finales)</h2>
+    <a href="{% url 'alta_mesa' %}" class="btn btn-primary">➕ Nueva Mesa</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Materia</th>
+                    <th>Turno</th>
+                    <th>Fecha y Hora</th>
+                    <th>Tribunal</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mesa in mesas %}
+                <tr>
+                    <td class="fw-bold">{{ mesa.materia.nombre }}</td>
+                    <td><span class="badge bg-secondary">{{ mesa.get_turno_display }} ({{ mesa.ciclo_lectivo }})</span></td>
+                    <td>{{ mesa.fecha_hora|date:"d/m/Y H:i" }}</td>
+                    <td class="small">{% if mesa.presidente_mesa %}{{ mesa.presidente_mesa.apellido }}, {{ mesa.presidente_mesa.nombre }} (Pres.){% else %}<span class="text-danger">Sin asignar</span>{% endif %}</td>
+                    <td>
+                        {% if mesa.cerrada %}
+                            <span class="badge bg-danger">Cerrada</span>
+                        {% else %}
+                            <span class="badge bg-success">Abierta</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-sm btn-outline-primary">Administrar</a>
+                        <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No hay mesas de examen registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

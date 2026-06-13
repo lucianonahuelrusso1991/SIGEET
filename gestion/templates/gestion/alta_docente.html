@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'lista_docentes' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de docentes</a>
+{% endblock %}
+
+{% block title %}Alta de Docente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
+                <h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Ingresar Nuevo Docente</h4>
+            </div>
+            
+            <div class="card-body p-5">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Row 1: Nombre y Apellido -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Nombre/s</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="text" name="nombre" class="form-control bg-light" required>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Apellido/s</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="apellido" class="form-control bg-light" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 2: Email, Telefono y Celular -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Email</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="email" name="email" class="form-control bg-light" required>
+                        </div>
+                        <div class="col-md-1 text-md-end">
+                            <label class="form-label fw-bold mb-0">Teléf.</label>
+                        </div>
+                        <div class="col-md-2 mb-3 mb-md-0">
+                            <input type="text" name="telefono" class="form-control bg-light">
+                        </div>
+                        <div class="col-md-1 text-md-end">
+                            <label class="form-label fw-bold mb-0">Cel.</label>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" name="celular" class="form-control bg-light">
+                        </div>
+                    </div>
+
+                    <!-- Row 3: DNI y Nacionalidad -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">DNI</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="text" name="dni" class="form-control bg-light" required>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Nacionalidad</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="nacionalidad" class="form-control bg-light" value="Argentina">
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Domicilio -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Domicilio</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input type="text" name="direccion" class="form-control bg-light" placeholder="Calle, Número, Piso, Depto">
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Codigo Postal y Comuna -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Cód. Postal</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="text" name="codigo_postal" class="form-control bg-light">
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Comuna/Zona</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="comuna_zona" class="form-control bg-light" placeholder="Nro de Comuna o Zona">
+                        </div>
+                    </div>
+
+                    <!-- Row 6: Provincia y Localidad -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Provincia</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <select name="provincia" class="form-select bg-light">
+                                <option value="">-- Seleccionar --</option>
+                                {% for val, label in provincias %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Localidad</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="localidad" class="form-control bg-light">
+                        </div>
+                    </div>
+
+                    <!-- Row 7: Sexo -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Sexo</label>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="d-flex gap-4">
+                                {% for val, label in sexo_choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="sexo" id="sexo_{{ val }}" value="{{ val }}">
+                                    <label class="form-check-label" for="sexo_{{ val }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 8: Fecha y Lugar de Nacimiento -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Fecha de Nac.</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="date" name="fecha_nacimiento" class="form-control bg-light">
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Lugar de Nac.</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="lugar_nacimiento" class="form-control bg-light">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4 text-muted">
+                    
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill fs-4 me-3 text-primary"></i>
+                        <div>
+                            La contraseña de acceso se generará automáticamente usando el <strong>DNI del docente</strong>. El email será su nombre de usuario.
+                        </div>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success btn-lg px-5 shadow-sm fw-bold rounded-pill">
+                            <i class="bi bi-check-circle-fill me-2"></i>Guardar Docente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        background-color: #fff !important;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Mesa de Examen{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'lista_mesas' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Listado de Mesas</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">Apertura de Mesa de Examen</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Materia</label>
+                            <select name="materia" class="form-select" required>
+                                <option value="">Seleccione una materia...</option>
+                                {% for plan in planes %}
+                                    <optgroup label="{{ plan.nombre }}">
+                                        {% for materia in plan.materias.all %}
+                                            <option value="{{ materia.id }}">{{ materia.nombre }} ({{ materia.año_dictado }}º Año)</option>
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ciclo Lectivo</label>
+                            <input type="number" name="ciclo_lectivo" class="form-control" value="{{ ciclo_actual }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Turno</label>
+                            <select name="turno" class="form-select" required>
+                                <option value="FEB_MAR">Febrero / Marzo</option>
+                                <option value="JUL_AGO">Julio / Agosto</option>
+                                <option value="NOV_DIC" selected>Noviembre / Diciembre</option>
+                                <option value="ESPECIAL">Mesa Especial / Única</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Fecha del Examen</label>
+                            <input type="date" name="fecha" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Hora</label>
+                            <input type="time" name="hora" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Presidente de Mesa</label>
+                            <select name="presidente" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                {% for docente in docentes %}
+                                    <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Vocal 1 (Opcional)</label>
+                            <select name="vocal_1" class="form-select">
+                                <option value="">Ninguno</option>
+                                {% for docente in docentes %}
+                                    <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Vocal 2 (Opcional)</label>
+                            <select name="vocal_2" class="form-select">
+                                <option value="">Ninguno</option>
+                                {% for docente in docentes %}
+                                    <option value="{{ docente.id }}">{{ docente.apellido }}, {{ docente.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Guardar y Crear Mesa</button>
+                        <a href="{% url 'lista_mesas' %}" class="btn btn-light">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta de Examen - {{ mesa.materia.nombre }}</title>
+    <style>
+        body { font-family: 'Times New Roman', Times, serif; font-size: 14px; margin: 30px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 20px; text-transform: uppercase; margin-bottom: 5px; }
+        .header h2 { font-size: 16px; font-weight: normal; margin-top: 0; }
+        
+        .info-box { border: 1px solid #000; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .info-col { width: 48%; }
+        .info-item { margin-bottom: 8px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+        .text-center { text-align: center; }
+        
+        .firmas-container { display: flex; justify-content: space-between; margin-top: 80px; }
+        .firma { text-align: center; width: 30%; }
+        .firma-linea { border-top: 1px solid #000; padding-top: 5px; margin-top: 10px; }
+        
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer; background: #0d6efd; color: white; border: none; border-radius: 5px;">🖨️ Imprimir Acta de Examen</button>
+        <button onclick="window.close()" style="padding: 10px 20px; font-size: 14px; cursor: pointer; background: #6c757d; color: white; border: none; border-radius: 5px; margin-left: 10px;">Cerrar</button>
+    </div>
+
+    <div class="header">
+        <h1>Acta de Examen Final</h1>
+        <h2>Instituto Superior / Nivel Terciario</h2>
+    </div>
+
+    <div class="info-box">
+        <div class="info-col">
+            <div class="info-item"><strong>Materia:</strong> {{ mesa.materia.nombre }}</div>
+            <div class="info-item"><strong>Carrera / Plan:</strong> {{ mesa.materia.plan.nombre }}</div>
+            <div class="info-item"><strong>Turno:</strong> {{ mesa.get_turno_display }} {{ mesa.ciclo_lectivo }}</div>
+            <div class="info-item"><strong>Fecha y Hora:</strong> {{ mesa.fecha_hora|date:"d/m/Y H:i" }} hs</div>
+        </div>
+        <div class="info-col">
+            <div class="info-item"><strong>Tribunal:</strong> {% if mesa.presidente_mesa %}{{ mesa.presidente_mesa.apellido }}{% else %}A designar{% endif %} {% if mesa.vocal_1 %}, {{ mesa.vocal_1.apellido }}{% endif %} {% if mesa.vocal_2 %}, {{ mesa.vocal_2.apellido }}{% endif %}</div>
+            <div class="info-item"><strong>Libro Matriz Nº:</strong> {% if mesa.libro %}{{ mesa.libro }}{% else %}______{% endif %}</div>
+            <div class="info-item"><strong>Folio Nº:</strong> {% if mesa.folio %}{{ mesa.folio }}{% else %}______{% endif %}</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px;">Nº</th>
+                <th>Apellido y Nombre</th>
+                <th style="width: 100px;">DNI</th>
+                <th style="width: 80px;">Nota (Nº)</th>
+                <th style="width: 120px;">Nota (Letras)</th>
+                <th style="width: 120px;">Resultado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in datos_acta %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td>{{ row.alumno.apellido }}, {{ row.alumno.nombre }}</td>
+                    <td class="text-center">{{ row.alumno.dni }}</td>
+                    <td class="text-center fw-bold">{{ row.nota_num }}</td>
+                    <td class="text-center">{{ row.nota_letra }}</td>
+                    <td class="text-center">
+                        {% if row.estado == 'Aprobado' %}
+                            <strong>Aprobado</strong>
+                        {% elif row.estado == 'Reprobado' %}
+                            Reprobado
+                        {% elif row.estado == 'Ausente' %}
+                            Ausente
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center" style="padding: 20px;">No hay inscriptos en esta mesa.</td>
+                </tr>
+            {% endfor %}
+            <!-- Filas en blanco para completar si es necesario -->
+            {% if datos_acta|length < 10 %}
+                {% for i in "1234567"|make_list %}
+                <tr>
+                    <td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="firmas-container">
+        <div class="firma">
+            <div class="firma-linea">Presidente: {% if mesa.presidente_mesa %}{{ mesa.presidente_mesa.apellido }}, {{ mesa.presidente_mesa.nombre }}{% else %}_________________{% endif %}</div>
+        </div>
+        <div class="firma">
+            <div class="firma-linea">Vocal 1: {% if mesa.vocal_1 %}{{ mesa.vocal_1.apellido }}, {{ mesa.vocal_1.nombre }}{% else %}_________________{% endif %}</div>
+        </div>
+        <div class="firma">
+            <div class="firma-linea">Vocal 2: {% if mesa.vocal_2 %}{{ mesa.vocal_2.apellido }}, {{ mesa.vocal_2.nombre }}{% else %}_________________{% endif %}</div>
+        </div>
+    </div>
+</body>
+</html>

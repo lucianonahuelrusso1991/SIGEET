@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Panel Central - Nivel Superior{% endblock %}
+
+{% block content %}
+<div class="container mt-2 mb-5">
+    
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg text-white rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-5 fw-bold mb-3">Panel de Control Académico</h1>
+                            <p class="lead mb-0 opacity-75">Bienvenido al sistema de gestión institucional. Desde aquí podés administrar toda la actividad de alumnos, docentes, comisiones y mesas de examen.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-4 mt-md-0 d-none d-md-block">
+                            <i class="bi bi-mortarboard-fill" style="font-size: 6rem; opacity: 0.8;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <h4 class="fw-bold mb-4 text-secondary">Accesos Rápidos</h4>
+    
+    <!-- Tarjetas de Acceso -->
+    <div class="row g-4 mb-5">
+        
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/alumnos.png' %}" alt="Alumnos" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #0dcaf0;">
+                    </div>
+                    <h5 class="fw-bold mb-3">Alumnos</h5>
+                    <p class="text-muted small flex-grow-1">Gestión de legajos, matriculación al plan de estudios, y seguimiento de Libros Matrices.</p>
+                    <a href="{% url 'lista_alumnos' %}" class="btn btn-outline-info w-100 fw-bold rounded-pill">Gestionar Alumnos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/comisiones.png' %}" alt="Comisiones" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #0d6efd;">
+                    </div>
+                    <h5 class="fw-bold mb-3">Comisiones</h5>
+                    <p class="text-muted small flex-grow-1">Administración de cursadas por cuatrimestre, carga de regularidades y notas diarias.</p>
+                    <a href="{% url 'lista_comisiones' %}" class="btn btn-outline-primary w-100 fw-bold rounded-pill">Gestionar Comisiones</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/mesas.png' %}" alt="Mesas de Examen" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #dc3545;">
+                    </div>
+                    <h5 class="fw-bold mb-3">Mesas de Examen</h5>
+                    <p class="text-muted small flex-grow-1">Configuración de tribunales, inscripción a finales, carga de actas y validación de correlativas.</p>
+                    <a href="{% url 'lista_mesas' %}" class="btn btn-outline-danger w-100 fw-bold rounded-pill">Ir a Mesas (Finales)</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/docentes.png' %}" alt="Docentes" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #ffc107;">
+                    </div>
+                    <h5 class="fw-bold mb-3">Docentes</h5>
+                    <p class="text-muted small flex-grow-1">Administración del plantel docente, legajos y asignación de materias u horas cátedra.</p>
+                    <a href="{% url 'lista_docentes' %}" class="btn btn-outline-warning w-100 fw-bold text-dark rounded-pill">Ver Plantel Docente</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/comunicaciones.png' %}" alt="Comunicaciones" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #198754;">
+                    </div>
+                    <h5 class="fw-bold mb-3">Comunicaciones</h5>
+                    <p class="text-muted small flex-grow-1">Bandeja de entrada y envío de avisos masivos a alumnos, docentes o grupos específicos.</p>
+                    <a href="{% url 'redactar_comunicado' %}" class="btn btn-outline-success w-100 fw-bold rounded-pill">Redactar Mensaje</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aula Virtual (Próximamente) -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift position-relative" style="transition: transform 0.2s;">
+                <div class="position-absolute top-0 end-0 mt-3 me-3">
+                    <span class="badge rounded-pill bg-dark text-white fw-medium shadow-sm"><i class="bi bi-stars me-1"></i>Demo Mode</span>
+                </div>
+                <div class="card-body p-4 text-center d-flex flex-column">
+                    <div class="mb-4 mt-2">
+                        <img src="{% static 'gestion/img/aula_virtual.png' %}" alt="Aula Virtual" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #6f42c1;">
+                    </div>
+                    <h5 class="fw-bold mb-3" style="color: #6f42c1;">Aula Virtual LMS</h5>
+                    <p class="text-muted small flex-grow-1">Campus virtual interactivo. Acceso a material de estudio, clases grabadas y entregas de trabajos prácticos.</p>
+                    <a href="#" class="btn w-100 fw-bold rounded-pill text-white shadow-sm" style="background-color: #6f42c1; border-color: #6f42c1;">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Ingresar al Campus
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Métricas / KPIs -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body text-center p-4">
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Alumnos Activos</h6>
+                    <h2 class="display-6 fw-bold text-primary mb-0">{{ cant_alumnos }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body text-center p-4">
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Docentes</h6>
+                    <h2 class="display-6 fw-bold text-warning mb-0">{{ cant_docentes }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body text-center p-4">
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Cursadas Activas</h6>
+                    <h2 class="display-6 fw-bold text-success mb-0">{{ cant_comisiones }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body text-center p-4">
+                    <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Mesas Abiertas</h6>
+                    <h2 class="display-6 fw-bold text-danger mb-0">{{ cant_mesas }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendario -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-dark text-white shadow-lg border-0 rounded-4 overflow-hidden position-relative">
+                <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                    <i class="bi bi-calendar3" style="font-size: 8rem;"></i>
+                </div>
+                <div class="card-body p-5 position-relative z-1">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="fw-bold mb-2">Calendario Institucional</h3>
+                            <p class="lead mb-0 text-light opacity-75">Visualizá de un vistazo los horarios semanales de todas las comisiones de la institución de forma centralizada.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                            <a href="{% url 'calendario_general' %}" class="btn btn-light text-dark fw-bold px-5 py-3 rounded-pill shadow-sm">Abrir Grilla Horaria</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .hover-lift:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

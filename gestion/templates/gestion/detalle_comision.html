@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'lista_comisiones' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
+{% endblock %}
+
+{% block title %}Comisión: {{ comision.materia.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Columna Izquierda: Información y Tareas Diarias -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-4 border-top border-primary border-4">
+            <div class="card-body">
+                <h5 class="fw-bold">{{ comision.materia.nombre }}</h5>
+                <p class="text-muted small">{{ comision.get_cuatrimestre_display }} {{ comision.ciclo_lectivo }}</p>
+                {% if comision.cerrada %}
+                    <span class="badge bg-danger mb-2">COMISIÓN CERRADA</span>
+                {% elif not comision.inscripciones_abiertas %}
+                    <span class="badge bg-warning text-dark mb-2">INSCRIPCIONES CERRADAS</span>
+                {% else %}
+                    <span class="badge bg-success mb-2">ACTIVA</span>
+                {% endif %}
+                <hr>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><strong>Docente:</strong> {% if comision.docente %}{{ comision.docente.apellido }}, {{ comision.docente.nombre }}{% else %}<span class="text-danger">A designar</span>{% endif %}</li>
+                    <li class="mb-2"><strong>Días y Horas:</strong>
+                        <ul class="mb-0">
+                        {% for h in comision.horarios.all %}
+                            <li>{{ h.get_dia_display }} de {{ h.hora_inicio|time:"H:i" }} a {{ h.hora_fin|time:"H:i" }}</li>
+                        {% empty %}
+                            <li>A coordinar</li>
+                        {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="mb-2"><strong>Aprobación:</strong> {{ comision.get_tipo_aprobacion_display }}</li>
+                    <li><strong>Modalidad:</strong> {{ comision.get_modalidad_display }}</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm border-0 mb-4 bg-light">
+            <div class="card-body">
+                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-check"></i> Gestión Diaria</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'cargar_asistencia' comision.id %}" class="btn btn-outline-primary shadow-sm">📋 Tomar Asistencia</a>
+                    <a href="{% url 'cargar_notas' comision.id %}" class="btn btn-outline-info shadow-sm">📝 Cargar Notas</a>
+                    {% if comision.modalidad == 'P' or comision.modalidad == 'B' %}
+                        <a href="{% url 'imprimir_lista_asistencia' comision.id %}" target="_blank" class="btn btn-outline-secondary shadow-sm">🖨️ Lista de Asistencia Física</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Columna Derecha: Administración y Alumnos -->
+    <div class="col-md-8">
+        <!-- Panel de Administración Avanzada -->
+        <div class="card shadow-sm border-0 mb-4 bg-white border border-danger border-opacity-25">
+            <div class="card-body">
+                <h6 class="text-danger fw-bold mb-3"><i class="bi bi-gear-fill"></i> Administración Avanzada</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'editar_comision' comision.id %}" class="btn btn-outline-secondary btn-sm shadow-sm">✏️ Editar Datos</a>
+                    <a href="{% url 'inscribir_alumno_comision' comision.id %}" class="btn btn-success btn-sm shadow-sm">➕ Inscribir Alumno</a>
+                    
+                    <a href="{% url 'toggle_inscripcion_comision' comision.id %}" class="btn btn-{% if comision.inscripciones_abiertas %}warning{% else %}success{% endif %} btn-sm shadow-sm">
+                        {% if comision.inscripciones_abiertas %}🚫 Cerrar Inscripciones{% else %}✅ Abrir Inscripciones{% endif %}
+                    </a>
+                    
+                    {% if not comision.cerrada %}
+                        <button onclick="confirmarCierre('{% url 'cerrar_comision' comision.id %}')" class="btn btn-danger btn-sm shadow-sm">🔒 Cierre Definitivo</button>
+                    {% endif %}
+                    
+                    <a href="{% url 'acta_volante' comision.id %}" target="_blank" class="btn btn-dark btn-sm shadow-sm">📑 Acta Volante</a>
+                    <button onclick="confirmarEliminacion('{% url 'eliminar_comision' comision.id %}')" class="btn btn-outline-danger btn-sm shadow-sm ms-auto">🗑️ Eliminar</button>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Lista de Alumnos -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Alumnos Inscriptos <span class="badge bg-secondary rounded-pill ms-2">{{ comision.alumnos_inscriptos.count }}</span></h5>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" style="border-collapse: collapse;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>DNI</th>
+                                <th>Apellido y Nombre</th>
+                                <th>Estado</th>
+                                <th>Fecha Inscripción</th>
+                                <th>Historial Académico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for insc in comision.alumnos_inscriptos.all %}
+                            <tr>
+                                <td>{{ insc.alumno.dni }}</td>
+                                <td class="fw-bold">{{ insc.alumno.apellido }}, {{ insc.alumno.nombre }}</td>
+                                <td>
+                                    {% if insc.estado == 'REG' %}
+                                        <span class="badge bg-primary">Regular</span>
+                                    {% elif insc.estado == 'LIB' %}
+                                        <span class="badge bg-danger">Libre</span>
+                                    {% elif insc.estado == 'APR' %}
+                                        <span class="badge bg-success">Aprobado</span>
+                                    {% elif insc.estado == 'PROM' %}
+                                        <span class="badge bg-success">Promocionado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ insc.fecha_inscripcion|date:"d/m/Y" }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#historial-{{ insc.id }}" aria-expanded="false" aria-controls="historial-{{ insc.id }}">
+                                        Ver Notas ▼
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="collapse" id="historial-{{ insc.id }}">
+                                <td colspan="5" class="p-0 border-0">
+                                    <div class="bg-light p-3 border-start border-4 border-info">
+                                        <h6 class="fw-bold text-muted mb-2">Notas Cargadas:</h6>
+                                        {% if insc.notas.all %}
+                                            <ul class="list-group list-group-flush shadow-sm rounded">
+                                            {% for nota in insc.notas.all %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+                                                    <span><strong>{{ nota.instancia }}</strong> <span class="text-muted small ms-2">({{ nota.fecha|date:"d/m/Y" }})</span></span>
+                                                    <span class="d-flex align-items-center">
+                                                        <span class="badge {% if nota.valor_nota >= 7 %}bg-success{% elif nota.valor_nota >= 4 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill fs-6 me-3">{{ nota.valor_nota }}</span>
+                                                        
+                                                        {% if not comision.cerrada %}
+                                                        <form method="POST" action="{% url 'eliminar_nota' nota.id %}" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar esta nota?');">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Nota">🗑️</button>
+                                                        </form>
+                                                        {% endif %}
+                                                    </span>
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p class="text-muted small mb-0">Aún no hay calificaciones cargadas.</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="bi bi-person-x fs-3 d-block mb-2"></i>
+                                    No hay alumnos inscriptos en esta comisión.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmarCierre(url) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Al cerrar la comisión de forma definitiva ya NO se podrán cargar ni modificar notas o asistencias. Esta acción es permanente.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, cerrar definitivamente',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        })
+    }
+
+    function confirmarEliminacion(url) {
+        Swal.fire({
+            title: '¿Eliminar Comisión?',
+            text: "Se eliminarán permanentemente todos los datos: alumnos inscriptos, notas, asistencias, etc. ¡No se puede revertir!",
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar todo',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                
+                let csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = '{{ csrf_token }}';
+                
+                form.appendChild(csrfToken);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        })
+    }
+</script>
+{% endblock %}

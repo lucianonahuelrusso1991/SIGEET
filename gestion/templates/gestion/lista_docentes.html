@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Plantel Docente{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al inicio</a>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-primary fw-bold">Plantel Docente</h2>
+        <p class="text-muted">Gestión de profesores</p>
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="me-3" style="width: 300px;">
+            <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
+        </div>
+        <a href="{% url 'alta_docente' %}" class="btn btn-success shadow-sm">+ Nuevo Docente</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0" id="docentesTable">
+            <thead class="table-dark">
+                <tr>
+                    <th class="ps-4">DNI</th>
+                    <th>Nombre y Apellido</th>
+                    <th>Email</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for docente in docentes %}
+                <tr class="docente-row">
+                    <td class="ps-4 docente-dni">{{ docente.dni }}</td>
+                    <td class="docente-nombre"><strong>{{ docente.apellido }}</strong>, {{ docente.nombre }}</td>
+                    <td>{{ docente.email }}</td>
+                    <td class="text-end pe-4">
+                        <a href="{% url 'editar_docente' docente.id %}" class="btn btn-sm btn-outline-warning">Editar</a>
+                        <a href="{% url 'legajo_docente' docente.id %}" class="btn btn-sm btn-outline-info">Ver Perfil</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr id="emptyRow">
+                    <td colspan="4" class="text-center py-4">No hay docentes registrados.</td>
+                </tr>
+                {% endfor %}
+                <tr id="noResultsRow" class="d-none">
+                    <td colspan="4" class="text-center py-4 text-muted">No se encontraron docentes que coincidan con la búsqueda.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterText = document.getElementById('filterText');
+    const rows = document.querySelectorAll('.docente-row');
+    const noResultsRow = document.getElementById('noResultsRow');
+
+    filterText.addEventListener('input', function() {
+        const text = filterText.value.toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const nombre = row.querySelector('.docente-nombre').textContent.toLowerCase();
+            const dni = row.querySelector('.docente-dni').textContent.toLowerCase();
+            
+            if (nombre.includes(text) || dni.includes(text)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            noResultsRow.classList.remove('d-none');
+        } else {
+            noResultsRow.classList.add('d-none');
+        }
+    });
+});
+</script>
+{% endblock %}

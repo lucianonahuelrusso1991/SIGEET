@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        
+        <form method="post" class="card shadow-sm border-0 mb-5 border-top border-primary border-4">
+            {% csrf_token %}
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 text-primary fw-bold">Otorgar Equivalencia</h5>
+                <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-outline-secondary fw-bold">Volver al Legajo</a>
+            </div>
+            
+            <div class="card-body p-4">
+                <div class="alert alert-info mb-4">
+                    <strong>Alumno:</strong> {{ alumno.apellido }}, {{ alumno.nombre }}<br>
+                    <strong>Plan de Estudio:</strong> {{ alumno.plan.nombre }}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Materia a Reconocer *</label>
+                    <select name="materia" class="form-select" required>
+                        <option value="">Seleccione la materia del plan...</option>
+                        {% for materia in materias %}
+                            <option value="{{ materia.id }}">{{ materia.nombre }} ({{ materia.año_dictado }}º Año)</option>
+                        {% empty %}
+                            <option value="" disabled>No hay materias disponibles o ya se otorgaron todas.</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nº de Resolución *</label>
+                        <input type="text" name="resolucion" class="form-control" required placeholder="Ej: Disp. 45/2026">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Fecha de Otorgamiento *</label>
+                        <input type="date" name="fecha" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Institución de Origen</label>
+                        <input type="text" name="institucion" class="form-control" placeholder="Ej: Instituto Superior Técnico...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Nota (Opcional)</label>
+                        <input type="number" step="0.01" name="nota" class="form-control" placeholder="Ej: 8.00">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light d-flex justify-content-end py-3">
+                <button type="submit" class="btn btn-primary fw-bold shadow-sm">Guardar Equivalencia</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

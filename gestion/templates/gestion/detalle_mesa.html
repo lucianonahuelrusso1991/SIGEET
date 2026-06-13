@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Mesa: {{ mesa.materia.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'lista_mesas' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Listado de Mesas</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-4 border-top border-warning border-4">
+            <div class="card-body">
+                <h5 class="fw-bold">{{ mesa.materia.nombre }}</h5>
+                <p class="text-muted small mb-1">Turno: {{ mesa.get_turno_display }} {{ mesa.ciclo_lectivo }}</p>
+                {% if mesa.cerrada %}
+                    <span class="badge bg-danger mb-2">MESA CERRADA</span>
+                {% else %}
+                    <span class="badge bg-success mb-2">MESA ABIERTA</span>
+                {% endif %}
+                <hr>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><strong>Fecha y Hora:</strong> {{ mesa.fecha_hora|date:"d/m/Y H:i" }}</li>
+                    <li class="mb-2"><strong>Presidente:</strong> {% if mesa.presidente_mesa %}{{ mesa.presidente_mesa.apellido }}, {{ mesa.presidente_mesa.nombre }}{% else %}<span class="text-danger">Sin asignar</span>{% endif %}</li>
+                    {% if mesa.vocal_1 %}<li class="mb-2"><strong>Vocal 1:</strong> {{ mesa.vocal_1.apellido }}, {{ mesa.vocal_1.nombre }}</li>{% endif %}
+                    {% if mesa.vocal_2 %}<li class="mb-2"><strong>Vocal 2:</strong> {{ mesa.vocal_2.apellido }}, {{ mesa.vocal_2.nombre }}</li>{% endif %}
+                    {% if mesa.libro %}
+                        <li class="mb-2"><strong>Libro / Folio:</strong> {{ mesa.libro }} / {{ mesa.folio }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2">
+            {% if not mesa.cerrada %}
+                <a href="{% url 'inscribir_alumno_mesa' mesa.id %}" class="btn btn-success shadow-sm">➕ Inscribir Alumno al Final</a>
+                <a href="{% url 'cargar_notas_mesa' mesa.id %}" class="btn btn-primary shadow-sm">📝 Cargar Notas de Examen</a>
+                <a href="{% url 'cerrar_mesa' mesa.id %}" class="btn btn-danger shadow-sm">🔒 Cerrar Mesa Definitivamente</a>
+            {% endif %}
+            <a href="{% url 'acta_examen' mesa.id %}" target="_blank" class="btn btn-dark shadow-sm">📑 Imprimir Acta de Examen</a>
+            <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn btn-outline-danger shadow-sm mt-2">🗑️ Eliminar Mesa</a>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Alumnos Inscriptos a la Mesa</h5>
+                
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>DNI</th>
+                            <th>Apellido y Nombre</th>
+                            <th>Nota Final</th>
+                            <th>Condición</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for insc in mesa.inscriptos.all %}
+                        <tr>
+                            <td>{{ insc.alumno.dni }}</td>
+                            <td class="fw-bold">{{ insc.alumno.apellido }}, {{ insc.alumno.nombre }}</td>
+                            <td>
+                                {% if insc.estado == 'PEND' %}
+                                    <span class="text-muted">-</span>
+                                {% elif insc.estado == 'AUS' %}
+                                    <span class="text-muted">Ausente</span>
+                                {% else %}
+                                    <strong>{{ insc.nota_final|default:"-" }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if insc.estado == 'PEND' %}
+                                    <span class="badge bg-secondary">Pendiente</span>
+                                {% elif insc.estado == 'APR' %}
+                                    <span class="badge bg-success">Aprobado</span>
+                                {% elif insc.estado == 'REP' %}
+                                    <span class="badge bg-danger">Reprobado</span>
+                                {% elif insc.estado == 'AUS' %}
+                                    <span class="badge bg-warning text-dark">Ausente</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No hay alumnos inscriptos en esta mesa.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

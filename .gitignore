@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+entorno_escuela/
+
+# Django
+*.log
+local_settings.py
+
+# Si querés subir la base de datos de prueba para la demo, podés comentar la línea de abajo. 
+# Si no la comentás, no se sube la DB y allá vas a tener que crear usuarios y datos de cero.
+# db.sqlite3
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo

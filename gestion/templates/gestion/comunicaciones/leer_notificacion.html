@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block back_button %}
+<a href="{% url 'mis_notificaciones' %}" class="btn btn-secondary shadow-sm">
+    <i class="bi bi-arrow-left"></i> Volver a Bandeja de Entrada
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h3 class="mb-0 text-primary">{{ notificacion.comunicado.titulo }}</h3>
+                    <span class="badge bg-light text-dark border"><i class="bi bi-clock me-1"></i> {{ notificacion.comunicado.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="text-muted small">
+                    <i class="bi bi-person-circle me-1"></i> De: <strong>{{ notificacion.comunicado.autor.first_name }} {{ notificacion.comunicado.autor.last_name }}</strong> ({{ notificacion.comunicado.autor.username }})<br>
+                    <i class="bi bi-people-fill me-1"></i> Para: {{ notificacion.comunicado.get_tipo_destinatario_display }}
+                    {% if notificacion.comunicado.plan_estudio %} - {{ notificacion.comunicado.plan_estudio.nombre }}{% endif %}
+                    {% if notificacion.comunicado.comision %} - {{ notificacion.comunicado.comision.materia.nombre }}{% endif %}
+                </div>
+            </div>
+            <div class="card-body p-4 bg-light">
+                <p class="fs-5" style="white-space: pre-wrap;">{{ notificacion.comunicado.mensaje }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al detalle de la comisión</a>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Tomar Lista: {{ comision.materia.nombre }}</h2>
+            <p class="text-muted fs-5 mb-0">Docente: {% if comision.docente %}{{ comision.docente }}{% else %}A designar{% endif %} | {{ comision.get_cuatrimestre_display }} {{ comision.ciclo_lectivo }}</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 border-0 bg-light">
+        <div class="card-body">
+            <form method="get" class="d-flex align-items-center">
+                <label class="fw-bold me-3">Elegí la fecha:</label>
+                <input type="date" name="fecha" class="form-control w-auto border-primary" value="{{ fecha_elegida|date:'Y-m-d' }}" onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+
+    {% if not se_pudo_crear %}
+        <div class="alert alert-warning shadow-sm p-4 text-center">
+            <h4 class="alert-heading fw-bold">🛑 No se toma asistencia hoy</h4>
+            <p class="fs-5 mb-0">{{ mensaje_estado }}</p>
+        </div>
+    {% else %}
+        <form method="post" class="card shadow-sm border-0">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">Alumno</th>
+                            <th class="text-center">Presente</th>
+                            <th class="text-center">Ausente</th>
+                            <th class="text-center">Tarde</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in planilla.registros.all %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ registro.alumno.apellido }}, {{ registro.alumno.nombre }}</td>
+                            <td class="text-center">
+                                <input class="form-check-input fs-4 border-success" type="radio" name="asistencia_{{ registro.id }}" value="P" {% if registro.estado == 'P' %}checked{% endif %} required>
+                            </td>
+                            <td class="text-center">
+                                <input class="form-check-input fs-4 border-danger" type="radio" name="asistencia_{{ registro.id }}" value="A" {% if registro.estado == 'A' %}checked{% endif %}>
+                            </td>
+                            <td class="text-center">
+                                <input class="form-check-input fs-4 border-warning" type="radio" name="asistencia_{{ registro.id }}" value="T" {% if registro.estado == 'T' %}checked{% endif %}>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white text-end py-3">
+                <button type="submit" class="btn btn-success px-5 fw-bold">Guardar Asistencia</button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-secondary shadow-sm">
+    <i class="bi bi-arrow-left"></i> Volver al Inicio
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="text-primary mb-0"><i class="bi bi-bell-fill me-2"></i>Bandeja de Entrada</h2>
+        {% if user.is_staff or user.perfil_docente %}
+        <a href="{% url 'redactar_comunicado' %}" class="btn btn-success shadow-sm">
+            <i class="bi bi-pencil-fill me-2"></i>Nuevo Mensaje
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for noti in notificaciones %}
+            <a href="{% url 'leer_notificacion' noti.id %}" class="list-group-item list-group-item-action p-4 border-bottom {% if not noti.leida %}bg-light border-start border-4 border-primary{% endif %}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 {% if not noti.leida %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                        {{ noti.comunicado.titulo }}
+                    </h5>
+                    <small class="text-muted">{{ noti.comunicado.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                </div>
+                <p class="mb-1 text-truncate text-secondary" style="max-width: 80%;">
+                    {{ noti.comunicado.mensaje }}
+                </p>
+                <small class="text-muted">De: {{ noti.comunicado.autor.first_name }} {{ noti.comunicado.autor.last_name }} ({{ noti.comunicado.autor.username }})</small>
+            </a>
+            {% empty %}
+            <div class="p-5 text-center text-muted">
+                <i class="bi bi-envelope-open display-1 mb-3"></i>
+                <p class="lead">No tienes nuevas notificaciones.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

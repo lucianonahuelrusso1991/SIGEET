@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín - {{ alumno.apellido }}, {{ alumno.nombre }}</title>
+    <!-- Usamos el CDN directo para que funcione al imprimir -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos específicos para que en papel salga perfecto */
+        @media print {
+            body {
+                background-color: white;
+                margin: 0;
+                padding: 1cm;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .table {
+                border-color: #000 !important;
+            }
+            th, td {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+            }
+        }
+        
+        .header-institucion {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .marca-agua {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            font-size: 150px;
+            font-weight: bold;
+            z-index: -1;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        
+        <!-- Botones de Acción (Se ocultan al imprimir) -->
+        <div class="row mb-4 no-print text-center">
+            <div class="col">
+                <button class="btn btn-primary btn-lg" onclick="window.print()">🖨️ Imprimir Boletín</button>
+                <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-outline-secondary btn-lg">Volver al legajo</a>
+            </div>
+        </div>
+
+        <div class="marca-agua">BOLETÍN OFICIAL</div>
+
+        <!-- Encabezado -->
+        <div class="header-institucion text-center">
+            <h2 class="fw-bold mb-1">SISTEMA DE GESTIÓN ESCOLAR</h2>
+            <h5 class="text-uppercase text-secondary mb-0">Boletín de Calificaciones - Ciclo Lectivo {{ ciclo_lectivo }}</h5>
+        </div>
+
+        <!-- Datos del Alumno -->
+        <div class="row mb-4">
+            <div class="col-8">
+                <p class="mb-1"><strong>Alumno/a:</strong> {{ alumno.apellido }}, {{ alumno.nombre }}</p>
+                <p class="mb-1"><strong>DNI:</strong> {{ alumno.dni }}</p>
+                <p class="mb-1"><strong>Fecha de Nacimiento:</strong> {{ alumno.fecha_nacimiento|date:"d/m/Y" }}</p>
+            </div>
+            <div class="col-4 text-end">
+                <p class="mb-1"><strong>Fecha de Emisión:</strong> {{ fecha_hoy|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Tabla de Calificaciones -->
+        <h4 class="mb-3">Detalle Académico</h4>
+        {% if datos_boletin %}
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-start">Materia</th>
+                        {% for inst in instancias %}
+                            <th>{{ inst }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fila in datos_boletin %}
+                        <tr>
+                            <td class="text-start fw-bold">{{ fila.materia }}</td>
+                            {% for inst in instancias %}
+                                {% for key, val in fila.notas.items %}
+                                    {% if key == inst %}
+                                        <td>{{ val }}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-warning text-center">
+                El alumno no registra inscripciones ni calificaciones para el ciclo lectivo {{ ciclo_lectivo }}.
+            </div>
+        {% endif %}
+
+        <!-- Firmas -->
+        <div class="row mt-5 pt-5 text-center">
+            <div class="col-6">
+                <hr style="width: 60%; margin: 0 auto; border-color: #000;">
+                <p class="mt-2">Firma y Aclaración Tutor/a</p>
+            </div>
+            <div class="col-6">
+                <hr style="width: 60%; margin: 0 auto; border-color: #000;">
+                <p class="mt-2">Firma Institución / Sello</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

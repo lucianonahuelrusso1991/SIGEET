@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Planilla de Asistencia - {{ comision.materia.nombre }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 18px; margin: 0; }
+        .header h2 { font-size: 14px; margin: 5px 0; font-weight: normal; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .col-dia { width: 20px; text-align: center; font-size: 10px; }
+        .text-center { text-align: center; }
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 14px; cursor: pointer;">🖨️ Imprimir Planilla</button>
+        <button onclick="window.close()" style="padding: 10px 20px; font-size: 14px; cursor: pointer;">Cerrar</button>
+    </div>
+
+    <div class="header">
+        <h1>Planilla de Asistencia ({{ comision.fecha_inicio|date:"d/m/Y" }} al {{ comision.fecha_fin|date:"d/m/Y" }})</h1>
+        <h2>Materia: <strong>{{ comision.materia.nombre }}</strong> | Docente: <strong>{{ comision.docente.apellido|default:"A designar" }}, {{ comision.docente.nombre|default:"" }}</strong></h2>
+        <h2>Ciclo: {{ comision.ciclo_lectivo }} ({{ comision.get_cuatrimestre_display }}) | Modalidad: {{ comision.get_modalidad_display }}</h2>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;" class="text-center">Nº</th>
+                <th style="width: 250px;">Apellido y Nombre</th>
+                {% for c in fechas_clases %}
+                    <th class="col-dia" {% if c.modalidad == 'Virtual' %}style="background-color: #e2e3e5;"{% endif %}>
+                        {{ c.fecha|date:"d/m" }}<br>
+                        <small style="font-size: 8px;">{{ c.modalidad|slice:":1" }}</small>
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for inscripcion in inscripciones %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td>{{ inscripcion.alumno.apellido }}, {{ inscripcion.alumno.nombre }}</td>
+                    {% for c in fechas_clases %}
+                        <td {% if c.modalidad == 'Virtual' %}style="background-color: #e2e3e5;"{% endif %}></td>
+                    {% endfor %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="100" class="text-center" style="padding: 20px;">No hay alumnos inscriptos en esta comisión.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
+{% endblock %}
+
+{% block title %}Editar Comisión{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h3 class="mb-4 text-primary fw-bold">Editar Comisión: {{ comision.materia.nombre }}</h3>
+        
+        <form method="post" class="card shadow-sm border-0 mb-5">
+            {% csrf_token %}
+            
+            <div class="card-body p-4">
+                <h5 class="border-bottom pb-2 mb-3 text-secondary">1. Datos Generales</h5>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Materia (No se puede cambiar)</label>
+                        <input type="text" class="form-control" value="{{ comision.materia.nombre }} ({{ comision.materia.año_dictado }}º Año)" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Docente a Cargo (Opcional)</label>
+                        <select name="docente" class="form-select">
+                            <option value="">-- A designar --</option>
+                            {% for d in docentes %}
+                                <option value="{{ d.id }}" {% if comision.docente and d.id == comision.docente.id %}selected{% endif %}>{{ d.apellido }}, {{ d.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Ciclo Lectivo</label>
+                        <input type="number" name="ciclo_lectivo" class="form-control" value="{{ comision.ciclo_lectivo }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Cuatrimestre</label>
+                        <select name="cuatrimestre" class="form-select" required>
+                            <option value="1C" {% if comision.cuatrimestre == "1C" %}selected{% endif %}>1er Cuatrimestre</option>
+                            <option value="2C" {% if comision.cuatrimestre == "2C" %}selected{% endif %}>2do Cuatrimestre</option>
+                            <option value="AN" {% if comision.cuatrimestre == "AN" %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Fecha de Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control" value="{{ comision.fecha_inicio|date:'Y-m-d' }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Fecha de Fin</label>
+                        <input type="date" name="fecha_fin" class="form-control" value="{{ comision.fecha_fin|date:'Y-m-d' }}" required>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Aprobación</label>
+                        <select name="tipo_aprobacion" class="form-select" required>
+                            <option value="FIN">Final Obligatorio</option>
+                            <option value="PROM" {% if comision.tipo_aprobacion == "PROM" %}selected{% endif %}>Promocionable</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Modalidad</label>
+                        <select name="modalidad" id="select-modalidad" class="form-select" required>
+                            <option value="P" {% if comision.modalidad == "P" %}selected{% endif %}>Presencial</option>
+                            <option value="V" {% if comision.modalidad == "V" %}selected{% endif %}>Virtual</option>
+                            <option value="B" {% if comision.modalidad == "B" %}selected{% endif %}>Bimodal (Mixta)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4" id="div-inicio-bimodal" style="display: none;">
+                        <label class="form-label fw-bold text-primary">Inicia la semana del:</label>
+                        <select name="semana_inicio_bimodal" class="form-select">
+                            <option value="P" {% if comision.semana_inicio_bimodal == "P" %}selected{% endif %}>Presencial</option>
+                            <option value="V" {% if comision.semana_inicio_bimodal == "V" %}selected{% endif %}>Virtual</option>
+                        </select>
+                        <small class="text-muted">Aplica si es Bimodal</small>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var selectModalidad = document.getElementById('select-modalidad');
+                        selectModalidad.addEventListener('change', function() {
+                            var inicioBimodal = document.getElementById('div-inicio-bimodal');
+                            if (this.value === 'B') {
+                                inicioBimodal.style.display = 'block';
+                            } else {
+                                inicioBimodal.style.display = 'none';
+                            }
+                        });
+                        // Disparar en carga
+                        selectModalidad.dispatchEvent(new Event('change'));
+                    });
+                </script>
+
+                <h5 class="border-bottom pb-2 mb-3 mt-4 text-secondary">2. Módulos Horarios (40 min)</h5>
+                <p class="text-muted small">Selecciona los bloques horarios en los que se dictará esta comisión.</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm text-center align-middle bg-white">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Horario</th>
+                                <th>Lunes</th>
+                                <th>Martes</th>
+                                <th>Miércoles</th>
+                                <th>Jueves</th>
+                                <th>Viernes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Modulo 1 -->
+                            <tr>
+                                <td class="fw-bold bg-light">17:20 a 18:00</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_17:20_18:00" {% if "1_17:20_18:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_17:20_18:00" {% if "2_17:20_18:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_17:20_18:00" {% if "3_17:20_18:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_17:20_18:00" {% if "4_17:20_18:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_17:20_18:00" {% if "5_17:20_18:00" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 2 -->
+                            <tr>
+                                <td class="fw-bold bg-light">18:00 a 18:40</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_18:00_18:40" {% if "1_18:00_18:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_18:00_18:40" {% if "2_18:00_18:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_18:00_18:40" {% if "3_18:00_18:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_18:00_18:40" {% if "4_18:00_18:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_18:00_18:40" {% if "5_18:00_18:40" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 3 -->
+                            <tr>
+                                <td class="fw-bold bg-light">18:40 a 19:20</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_18:40_19:20" {% if "1_18:40_19:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_18:40_19:20" {% if "2_18:40_19:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_18:40_19:20" {% if "3_18:40_19:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_18:40_19:20" {% if "4_18:40_19:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_18:40_19:20" {% if "5_18:40_19:20" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 4 -->
+                            <tr>
+                                <td class="fw-bold bg-light">19:20 a 20:00</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_19:20_20:00" {% if "1_19:20_20:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_19:20_20:00" {% if "2_19:20_20:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_19:20_20:00" {% if "3_19:20_20:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_19:20_20:00" {% if "4_19:20_20:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_19:20_20:00" {% if "5_19:20_20:00" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 5 -->
+                            <tr>
+                                <td class="fw-bold bg-light">20:00 a 20:40</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_20:00_20:40" {% if "1_20:00_20:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_20:00_20:40" {% if "2_20:00_20:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_20:00_20:40" {% if "3_20:00_20:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_20:00_20:40" {% if "4_20:00_20:40" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_20:00_20:40" {% if "5_20:00_20:40" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 6 -->
+                            <tr>
+                                <td class="fw-bold bg-light">20:40 a 21:20</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_20:40_21:20" {% if "1_20:40_21:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_20:40_21:20" {% if "2_20:40_21:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_20:40_21:20" {% if "3_20:40_21:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_20:40_21:20" {% if "4_20:40_21:20" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_20:40_21:20" {% if "5_20:40_21:20" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                            <!-- Modulo 7 -->
+                            <tr>
+                                <td class="fw-bold bg-light">21:20 a 22:00</td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="1_21:20_22:00" {% if "1_21:20_22:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="2_21:20_22:00" {% if "2_21:20_22:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="3_21:20_22:00" {% if "3_21:20_22:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="4_21:20_22:00" {% if "4_21:20_22:00" in horarios_actuales %}checked{% endif %}></td>
+                                <td><input type="checkbox" class="form-check-input" name="horarios" value="5_21:20_22:00" {% if "5_21:20_22:00" in horarios_actuales %}checked{% endif %}></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            
+            <div class="card-footer bg-light d-flex justify-content-between p-3">
+                <a href="{% url 'detalle_comision' comision.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary fw-bold px-4">Abrir Comisión</button>
+            </div>
+        <input type="hidden" name="materia" value="{{ comision.materia.id }}"></form>
+    </div>
+</div>
+{% endblock %}

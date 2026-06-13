@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-11">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h2 class="text-primary fw-bold mb-0">📅 {{ titulo }}</h2>
+        </div>
+        
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body p-4">
+                <div id="calendario"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts de FullCalendar -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendario');
+        
+        var eventos = JSON.parse('{{ eventos_json|escapejs }}');
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            locale: 'es',
+            slotMinTime: '17:00:00', // Turno noche
+            slotMaxTime: '22:30:00',
+            allDaySlot: false,
+            hiddenDays: [0], // Ocultar domingo
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'timeGridWeek,timeGridDay'
+            },
+            buttonText: {
+                today: 'Hoy',
+                week: 'Semana',
+                day: 'Día'
+            },
+            events: eventos,
+            eventClick: function(info) {
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                    info.jsEvent.preventDefault();
+                }
+            }
+        });
+        
+        calendar.render();
+    });
+</script>
+{% endblock %}

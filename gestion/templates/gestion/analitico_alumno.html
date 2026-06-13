@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Analítico Parcial - {{ alumno.apellido }}</title>
+    <!-- Bootstrap para simplificar estilos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #e9ecef;
+            color: #000;
+        }
+        .acta-hoja {
+            background-color: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header-title {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .table-analitico {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .table-analitico th, .table-analitico td {
+            border: 1px solid #000;
+            padding: 6px;
+        }
+        .table-analitico th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-weight: bold;
+        }
+        .firmas {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .firma-box {
+            text-align: center;
+            width: 30%;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
+        }
+        @media print {
+            body { background-color: transparent; }
+            .acta-hoja { margin: 0; box-shadow: none; width: auto; padding: 0; }
+            .no-print { display: none !important; }
+        }
+        .estado-pendiente { color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container mb-3 no-print text-center pt-3">
+    <button onclick="window.print()" class="btn btn-primary btn-lg shadow-sm">🖨️ Imprimir Analítico Parcial</button>
+</div>
+
+<div class="acta-hoja">
+    <div class="header-title">
+        <h2 class="mb-0 text-uppercase fw-bold">Certificado Analítico Parcial</h2>
+        <p class="mb-0 mt-2 fs-5">Instituto Superior de Formación</p>
+    </div>
+
+    <div class="mb-4">
+        <p><strong>ALUMNO/A:</strong> {{ alumno.apellido|upper }}, {{ alumno.nombre }} &nbsp;&nbsp;&nbsp;&nbsp; <strong>DNI:</strong> {{ alumno.dni }}</p>
+        <p><strong>CARRERA/PLAN DE ESTUDIO:</strong> {{ plan.nombre }}</p>
+        <p><strong>RESOLUCIÓN:</strong> {{ plan.resolucion_ministerial }}</p>
+    </div>
+
+    <table class="table-analitico">
+        <thead>
+            <tr>
+                <th style="width: 5%;">AÑO</th>
+                <th style="width: 35%;">ASIGNATURA</th>
+                <th style="width: 15%;">CONDICIÓN</th>
+                <th style="width: 10%;">NOTA</th>
+                <th style="width: 15%;">FECHA</th>
+                <th style="width: 20%;">LIBRO/FOLIO / RES.</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fila in filas %}
+            <tr class="{% if fila.condicion == 'Pendiente' %}estado-pendiente{% endif %}">
+                <td class="text-center">{{ fila.materia.año_dictado }}º</td>
+                <td>{{ fila.materia.nombre }}</td>
+                <td class="text-center">{{ fila.condicion }}</td>
+                <td class="text-center fw-bold">{{ fila.nota }}</td>
+                <td class="text-center">{{ fila.fecha }}</td>
+                <td class="text-center">{{ fila.libro_folio }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="mt-4">
+        <p>Se extiende el presente certificado a pedido del interesado en la ciudad de _______________, a los {{ fecha_actual.day }} días del mes de {{ fecha_actual|date:"F" }} de {{ fecha_actual.year }}.</p>
+    </div>
+
+    <div class="firmas">
+        <div class="firma-box">
+            <br>Sello del Establecimiento
+        </div>
+        <div class="firma-box">
+            Firma Secretario/a<br>Aclaración
+        </div>
+        <div class="firma-box">
+            Firma Director/a<br>Aclaración
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

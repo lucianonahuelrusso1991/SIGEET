@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'lista_alumnos' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de alumnos</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        
+        <!-- Mensajes ahora manejados por SweetAlert en base.html -->
+
+        <form method="post" class="card shadow-sm border-0 mb-5">
+            {% csrf_token %}
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                <h4 class="mb-0">Alta de Estudiante</h4>
+            </div>
+            
+            <div class="card-body p-4">
+                <h5 class="text-primary border-bottom pb-2 mb-3">1. Datos Personales y Demográficos</h5>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Nombre/s *</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Apellido/s *</label>
+                        <input type="text" name="apellido" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Correo Electrónico (Será su Usuario) *</label>
+                        <input type="email" name="email" class="form-control" placeholder="ejemplo@mail.com" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold">Teléfono Fijo</label>
+                        <input type="text" name="telefono" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-bold">Celular *</label>
+                        <input type="text" name="celular" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">DNI *</label>
+                        <input type="text" name="dni" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Nacionalidad</label>
+                        <input type="text" name="nacionalidad" class="form-control" value="Argentina">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label text-muted small fw-bold">Domicilio *</label>
+                        <input type="text" name="direccion" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Código Postal</label>
+                        <input type="text" name="codigo_postal" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Comuna o zona</label>
+                        <input type="text" name="comuna_zona" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Provincia</label>
+                        <select name="provincia" class="form-select">
+                            <option value="">Seleccione...</option>
+                            <option value="Buenos Aires">Buenos Aires</option>
+                            <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+                            <option value="Catamarca">Catamarca</option>
+                            <option value="Chaco">Chaco</option>
+                            <option value="Chubut">Chubut</option>
+                            <option value="Córdoba">Córdoba</option>
+                            <option value="Corrientes">Corrientes</option>
+                            <option value="Entre Ríos">Entre Ríos</option>
+                            <option value="Formosa">Formosa</option>
+                            <option value="Jujuy">Jujuy</option>
+                            <option value="La Pampa">La Pampa</option>
+                            <option value="La Rioja">La Rioja</option>
+                            <option value="Mendoza">Mendoza</option>
+                            <option value="Misiones">Misiones</option>
+                            <option value="Neuquén">Neuquén</option>
+                            <option value="Río Negro">Río Negro</option>
+                            <option value="Salta">Salta</option>
+                            <option value="San Juan">San Juan</option>
+                            <option value="San Luis">San Luis</option>
+                            <option value="Santa Cruz">Santa Cruz</option>
+                            <option value="Santa Fe">Santa Fe</option>
+                            <option value="Santiago del Estero">Santiago del Estero</option>
+                            <option value="Tierra del Fuego">Tierra del Fuego</option>
+                            <option value="Tucumán">Tucumán</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Localidad</label>
+                        <input type="text" name="localidad" class="form-control">
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-2">
+                        <label class="form-label text-muted small fw-bold mb-0">Sexo</label>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexo" id="sexoM" value="M">
+                            <label class="form-check-label" for="sexoM">Masculino</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexo" id="sexoF" value="F">
+                            <label class="form-check-label" for="sexoF">Femenino</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="fecha_nacimiento" class="form-label text-muted small fw-bold">Fecha de Nacimiento</label>
+                        <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Lugar de Nacimiento</label>
+                        <input type="text" name="lugar_nacimiento" class="form-control">
+                    </div>
+                </div>
+                
+                <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">2. Datos Académicos</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="plan" class="form-label fw-bold text-muted small">Plan de Estudio Asignado *</label>
+                        <select name="plan" id="plan" class="form-select" required>
+                            <option value="">Seleccione el plan de estudios...</option>
+                            {% for plan in planes %}
+                                <option value="{{ plan.id }}">{{ plan.nombre }} (Res: {{ plan.resolucion_ministerial }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="estado_alumno" class="form-label fw-bold text-muted small">Estado del Alumno *</label>
+                        <select name="estado_alumno" id="estado_alumno" class="form-select" required>
+                            <option value="ACT" selected>Activo (Normal)</option>
+                            <option value="INA">Inactivo / Abandonó</option>
+                            <option value="EGR">Egresado</option>
+                            <option value="COND_DOC">Condicionado (Falta Documentación)</option>
+                            <option value="COND_PAG">Condicionado (Falta de Pago)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">3. Documentación Entregada</h5>
+                <div class="row mb-4 bg-light p-3 rounded">
+                    <div class="col-md-4">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="doc_dni" id="checkDni">
+                            <label class="form-check-label" for="checkDni">Fotocopia de DNI</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="doc_vacunas" id="checkVacunas">
+                            <label class="form-check-label" for="checkVacunas">Certificado de Vacunas</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="doc_partida" id="checkPartida">
+                            <label class="form-check-label" for="checkPartida">Partida de Nacimiento</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="doc_primaria" id="checkPrimaria">
+                            <label class="form-check-label" for="checkPrimaria">Título Secundario</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="doc_pase" id="checkPase">
+                            <label class="form-check-label" for="checkPase">Pase Escuela / Terciario Anterior</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Información de Acceso:</strong> Se creará un usuario automáticamente. El usuario será el Email del estudiante y su contraseña inicial será su DNI.
+                </div>
+            </div>
+            
+            <div class="card-footer bg-white d-flex justify-content-end py-3">
+                <button type="submit" class="btn btn-success px-5 fw-bold">Guardar Estudiante</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

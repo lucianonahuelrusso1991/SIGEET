@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Inscribir Alumno{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Nueva Inscripción a Curso</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Seleccionar Alumno</label>
+                        <select name="alumno" class="form-select" required>
+                            <option value="">--- Buscar alumno ---</option>
+                            {% for a in alumnos %}
+                                <option value="{{ a.id }}">{{ a.apellido }}, {{ a.nombre }} (DNI: {{ a.dni }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Curso / División</label>
+                        <select name="curso" class="form-select" required>
+                            {% for c in cursos %}
+                                <option value="{{ c.id }}">{{ c.año_de_cursada }}º "{{ c.division }}" - {{ c.get_turno_display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ciclo Lectivo</label>
+                        <input type="number" name="ciclo" class="form-control" value="{{ anio_actual }}" required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Confirmar Inscripción</button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
