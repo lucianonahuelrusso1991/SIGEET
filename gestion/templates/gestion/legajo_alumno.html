@@ -41,6 +41,7 @@
             <a href="{% url 'constancia_alumno' alumno.id %}" target="_blank" class="btn btn-outline-dark shadow-sm fw-bold me-2">📄 Generar Constancia</a>
             <a href="{% url 'analitico_alumno' alumno.id %}" target="_blank" class="btn btn-primary shadow-sm fw-bold me-2">🎓 Analítico Parcial</a>
             <a href="{% url 'alta_equivalencia' alumno.id %}" class="btn btn-success shadow-sm fw-bold me-2">✨ Cargar Equivalencia</a>
+            <a href="{% url 'resetear_password_alumno' alumno.id %}" class="btn btn-danger shadow-sm fw-bold me-2" onclick="return confirm('¿Estás seguro de que deseas resetear la contraseña de este alumno a su DNI?');">🔐 Resetear Clave</a>
             <a href="{% url 'editar_alumno' alumno.id %}" class="btn btn-warning shadow-sm fw-bold">✏️ Editar Datos</a>
         </div>
     </div>

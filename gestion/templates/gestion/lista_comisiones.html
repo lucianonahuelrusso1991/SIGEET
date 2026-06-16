@@ -44,6 +44,7 @@
     </div>
 </div>
 
+<div class="table-responsive">
 <table class="table table-striped mt-3" id="comisionesTable">
     <thead class="table-dark">
         <tr>
@@ -59,7 +60,10 @@
         {% for comision in comisiones %}
         <tr class="comision-row" data-plan="{{ comision.materia.plan_id }}" data-ciclo="{{ comision.ciclo_lectivo }}">
             <td class="fw-bold materia-nombre">{{ comision.materia.nombre }}</td>
-            <td class="docente-nombre">{% if comision.docente %}{{ comision.docente.apellido }}, {{ comision.docente.nombre }}{% else %}<span class="text-danger">A designar</span>{% endif %}</td>
+            <td class="docente-nombre">
+                {% if comision.docente %}{{ comision.docente.apellido }}, {{ comision.docente.nombre }}{% else %}<span class="text-danger">A designar</span>{% endif %}
+                {% if comision.docente_auxiliar %}<br><small class="text-muted">y {{ comision.docente_auxiliar.apellido }}, {{ comision.docente_auxiliar.nombre }}</small>{% endif %}
+            </td>
             <td>{{ comision.ciclo_lectivo }} - {{ comision.get_cuatrimestre_display }}</td>
             <td>
                 {% for h in comision.horarios.all %}
@@ -83,6 +87,7 @@
         </tr>
     </tbody>
 </table>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {

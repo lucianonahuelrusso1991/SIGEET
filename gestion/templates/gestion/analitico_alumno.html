@@ -76,7 +76,8 @@
         <p><strong>RESOLUCIÓN:</strong> {{ plan.resolucion_ministerial }}</p>
     </div>
 
-    <table class="table-analitico">
+    <div class="table-responsive">
+<table class="table-analitico">
         <thead>
             <tr>
                 <th style="width: 5%;">AÑO</th>
@@ -100,6 +101,7 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 
     <div class="mt-4">
         <p>Se extiende el presente certificado a pedido del interesado en la ciudad de _______________, a los {{ fecha_actual.day }} días del mes de {{ fecha_actual|date:"F" }} de {{ fecha_actual.year }}.</p>

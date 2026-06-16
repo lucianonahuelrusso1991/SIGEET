@@ -13,7 +13,8 @@
         
         <form method="POST">
             {% csrf_token %}
-            <table class="table table-bordered">
+            <div class="table-responsive">
+<table class="table table-bordered">
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4">Alumno</th>
@@ -37,6 +38,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+</div>
             
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">Guardar Calificaciones</button>

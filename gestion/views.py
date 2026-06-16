@@ -8,16 +8,64 @@ from .models import Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripci
 
 @login_required
 def dashboard(request):
-    from .models import MesaExamen
+    from .models import MesaExamen, Notificacion
     cant_alumnos = Alumno.objects.filter(estado_alumno='ACT').count()
     cant_docentes = Docente.objects.count()
     cant_comisiones = Comision.objects.filter(cerrada=False).count()
     cant_mesas = MesaExamen.objects.filter(cerrada=False).count()
+    
+    # Obtener notificaciones no leídas para el hero banner
+    if request.user.is_authenticated:
+        unread_notifications = Notificacion.objects.filter(usuario=request.user, leida=False).select_related('comunicado').order_by('-comunicado__fecha_creacion')
+    else:
+        unread_notifications = []
+
+    # Bifurcación para panel de alumno
+    if hasattr(request.user, 'perfil_alumno'):
+        alumno = request.user.perfil_alumno
+        
+        # Calcular porcentaje de avance
+        total_materias = alumno.plan.materias.count() if alumno.plan else 0
+        total_acreditadas = alumno.equivalencias.count() + alumno.inscripciones.filter(estado='PROM').count() + alumno.mesas_inscriptas.filter(estado='APR').count()
+        porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
+        
+        # Materias cursando
+        cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+        
+        return render(request, 'gestion/alumnos/dashboard_alumno.html', {
+            'alumno': alumno,
+            'unread_notifications': unread_notifications,
+            'porcentaje_avance': round(porcentaje_avance, 1),
+            'cursando': cursando,
+        })
+
+    # Bifurcación para panel de docente
+    if hasattr(request.user, 'perfil_docente'):
+        docente = request.user.perfil_docente
+        from django.db.models import Q
+        
+        # Comisiones asignadas activas
+        comisiones_activas = Comision.objects.filter(Q(docente=docente) | Q(docente_auxiliar=docente), cerrada=False).select_related('materia')
+        
+        # Mesas de examen asignadas (como presidente o vocal) que no estén cerradas
+        mesas_asignadas = MesaExamen.objects.filter(
+            Q(presidente_mesa=docente) | Q(vocal_1=docente) | Q(vocal_2=docente),
+            cerrada=False
+        ).select_related('materia').order_by('fecha_hora')
+        
+        return render(request, 'gestion/docentes/dashboard_docente.html', {
+            'docente': docente,
+            'unread_notifications': unread_notifications,
+            'comisiones': comisiones_activas,
+            'mesas': mesas_asignadas,
+        })
+
     return render(request, 'gestion/dashboard.html', {
         'cant_alumnos': cant_alumnos,
         'cant_docentes': cant_docentes,
         'cant_comisiones': cant_comisiones,
         'cant_mesas': cant_mesas,
+        'unread_notifications': unread_notifications,
     })
 
 from django.db.models import Q
@@ -51,8 +99,8 @@ def alta_alumno(request):
         
         try:
             from django.contrib.auth.models import User, Group
-            # Creamos el usuario (username=email, pass=dni)
-            usuario, creado = User.objects.get_or_create(username=email, defaults={'email': email})
+            # Creamos el usuario (username=dni, pass=dni)
+            usuario, creado = User.objects.get_or_create(username=dni, defaults={'email': email or f'{dni}@test.com'})
             if creado:
                 usuario.set_password(dni)
                 grp, _ = Group.objects.get_or_create(name='Estudiantes')
@@ -335,8 +383,8 @@ def alta_docente(request):
         
         try:
             from django.contrib.auth.models import User, Group
-            # Creamos el usuario (username=email, pass=dni) si hay email, si no, username=dni
-            username_base = email if email else dni
+            # Siempre usamos el DNI como nombre de usuario para evitar confusiones
+            username_base = dni
             usuario, creado = User.objects.get_or_create(username=username_base, defaults={'email': email or ''})
             if creado:
                 usuario.set_password(dni)
@@ -539,6 +587,7 @@ def alta_comision(request):
     if request.method == 'POST':
         materia_id = request.POST.get('materia')
         docente_id = request.POST.get('docente')
+        docente_aux_id = request.POST.get('docente_auxiliar')
         ciclo = request.POST.get('ciclo_lectivo')
         cuatrimestre = request.POST.get('cuatrimestre')
         tipo_aprobacion = request.POST.get('tipo_aprobacion')
@@ -551,10 +600,12 @@ def alta_comision(request):
         try:
             materia = get_object_or_404(Materia, id=materia_id)
             docente = Docente.objects.filter(id=docente_id).first() if docente_id else None
+            docente_aux = Docente.objects.filter(id=docente_aux_id).first() if docente_aux_id else None
             
             comision = Comision.objects.create(
                 materia=materia,
                 docente=docente,
+                docente_auxiliar=docente_aux,
                 ciclo_lectivo=ciclo,
                 cuatrimestre=cuatrimestre,
                 fecha_inicio=fecha_inicio,
@@ -590,6 +641,19 @@ def alta_comision(request):
 @login_required
 def detalle_comision(request, comision_id):
     comision = get_object_or_404(Comision, id=comision_id)
+    
+    # Validar permisos
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        if comision.docente == request.user.perfil_docente or comision.docente_auxiliar == request.user.perfil_docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para acceder a esta comisión.')
+        return redirect('dashboard')
+        
     return render(request, 'gestion/detalle_comision.html', {'comision': comision})
 
 @login_required
@@ -672,6 +736,17 @@ def cargar_asistencia(request, comision_id):
     from datetime import datetime
     comision = get_object_or_404(Comision, id=comision_id)
     
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        if comision.docente == request.user.perfil_docente or comision.docente_auxiliar == request.user.perfil_docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para cargar asistencia en esta comisión.')
+        return redirect('dashboard')
+    
     fecha_str = request.GET.get('fecha')
     if fecha_str:
         try:
@@ -680,6 +755,13 @@ def cargar_asistencia(request, comision_id):
             fecha_elegida = date.today()
     else:
         fecha_elegida = date.today()
+        
+    # Validar que los docentes no puedan editar asistencias muy antiguas (ej: más de 30 días)
+    if not (request.user.is_staff or request.user.is_superuser):
+        dias_diferencia = (date.today() - fecha_elegida).days
+        if dias_diferencia > 30 or dias_diferencia < 0:
+            messages.error(request, 'No tienes permiso para modificar o crear asistencias fuera del mes actual. Contacta a secretaría.')
+            return redirect('detalle_comision', comision_id=comision.id)
 
     se_pudo_crear, mensaje_estado = generar_planilla_del_dia(comision, fecha_elegida)
     planilla = PlanillaDiaria.objects.filter(comision=comision, fecha=fecha_elegida).first()
@@ -704,6 +786,17 @@ def cargar_asistencia(request, comision_id):
 @login_required
 def cargar_notas(request, comision_id):
     comision = get_object_or_404(Comision, id=comision_id)
+    
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        if comision.docente == request.user.perfil_docente or comision.docente_auxiliar == request.user.perfil_docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para cargar notas en esta comisión.')
+        return redirect('dashboard')
     
     if comision.cerrada:
         messages.error(request, 'La comisión está cerrada. No se pueden modificar las notas.')
@@ -755,6 +848,8 @@ def cargar_notas(request, comision_id):
                     insc.save()
                 
         if cerrar_cursada:
+            comision.cerrada = True
+            comision.save()
             messages.success(request, f"¡Notas de '{instancia_post}' guardadas y cursada CERRADA automáticamente para los alumnos evaluados!")
         else:
             messages.success(request, f"¡Se guardaron {notas_guardadas} notas para la instancia '{instancia_post}'!")
@@ -946,7 +1041,7 @@ def calendario_docente(request, docente_id):
     docente = get_object_or_404(Docente, id=docente_id)
     
     from .models import HorarioComision
-    horarios = HorarioComision.objects.filter(comision__docente=docente).select_related('comision__materia')
+    horarios = HorarioComision.objects.filter(Q(comision__docente=docente) | Q(comision__docente_auxiliar=docente)).select_related('comision__materia')
     
     eventos = []
     for h in horarios:
@@ -1018,6 +1113,7 @@ def editar_comision(request, comision_id):
     
     if request.method == 'POST':
         docente_id = request.POST.get('docente')
+        docente_aux_id = request.POST.get('docente_auxiliar')
         ciclo = request.POST.get('ciclo_lectivo')
         cuatrimestre = request.POST.get('cuatrimestre')
         tipo_aprobacion = request.POST.get('tipo_aprobacion')
@@ -1029,8 +1125,10 @@ def editar_comision(request, comision_id):
         
         try:
             docente = Docente.objects.filter(id=docente_id).first() if docente_id else None
+            docente_aux = Docente.objects.filter(id=docente_aux_id).first() if docente_aux_id else None
             
             comision.docente = docente
+            comision.docente_auxiliar = docente_aux
             comision.ciclo_lectivo = ciclo
             comision.cuatrimestre = cuatrimestre
             comision.fecha_inicio = fecha_inicio if fecha_inicio else None
@@ -1351,6 +1449,18 @@ def cargar_notas_mesa(request, mesa_id):
     from .models import MesaExamen, InscripcionMesa
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
     
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        docente = request.user.perfil_docente
+        if mesa.presidente_mesa == docente or mesa.vocal_1 == docente or mesa.vocal_2 == docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para cargar notas en esta mesa de examen.')
+        return redirect('dashboard')
+    
     if mesa.cerrada:
         messages.error(request, 'La mesa está cerrada, ya no se pueden modificar actas ni notas.')
         return redirect('detalle_mesa', mesa_id=mesa.id)
@@ -1489,6 +1599,11 @@ def alta_equivalencia(request, alumno_id):
 
 @login_required
 def analitico_alumno(request, alumno_id):
+    if hasattr(request.user, 'perfil_alumno'):
+        from django.contrib import messages
+        messages.error(request, 'No tienes permiso para imprimir analíticos parciales oficiales. Por favor solicítalo en secretaría.')
+        return redirect('dashboard')
+        
     from .models import Alumno, Equivalencia, Inscripcion, InscripcionMesa
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
@@ -1591,7 +1706,7 @@ def redactar_comunicado(request):
             if not comision_id:
                 messages.error(request, 'Debes seleccionar una comisión.')
                 return redirect('redactar_comunicado')
-            comision = Comision.objects.filter(id=comision_id, docente=docente, cerrada=False).first()
+            comision = Comision.objects.filter(Q(docente=docente) | Q(docente_auxiliar=docente), id=comision_id, cerrada=False).first()
             if not comision:
                 messages.error(request, 'Comisión inválida o cerrada.')
                 return redirect('redactar_comunicado')
@@ -1614,7 +1729,7 @@ def redactar_comunicado(request):
         return redirect('dashboard')
 
     planes = PlanDeEstudio.objects.all() if es_admin else []
-    comisiones = Comision.objects.filter(cerrada=False) if es_admin else Comision.objects.filter(docente=docente, cerrada=False)
+    comisiones = Comision.objects.filter(cerrada=False) if es_admin else Comision.objects.filter(Q(docente=docente) | Q(docente_auxiliar=docente), cerrada=False)
 
     return render(request, 'gestion/comunicaciones/redactar.html', {
         'es_admin': es_admin,
@@ -1644,4 +1759,248 @@ def leer_notificacion(request, notificacion_id):
         
     return render(request, 'gestion/comunicaciones/leer_notificacion.html', {
         'notificacion': notificacion
+    })
+
+@login_required
+def resetear_password_alumno(request, alumno_id):
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para realizar esta acción.')
+        return redirect('dashboard')
+        
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    if alumno.usuario:
+        alumno.usuario.set_password(alumno.dni)
+        alumno.usuario.save()
+        messages.success(request, f'Se ha reseteado la contraseña del alumno {alumno.nombre} {alumno.apellido} a su DNI ({alumno.dni}).')
+    else:
+        messages.error(request, 'El alumno no tiene un usuario asociado.')
+        
+    return redirect('legajo_alumno', alumno_id=alumno.id)
+
+@login_required
+def perfil_alumno(request):
+    if not hasattr(request.user, 'perfil_alumno'):
+        messages.error(request, 'No tienes un perfil de alumno asociado.')
+        return redirect('dashboard')
+        
+    alumno = request.user.perfil_alumno
+    
+    if request.method == 'POST':
+        # Cambio de contraseña
+        nueva_clave = request.POST.get('nueva_clave')
+        confirmar_clave = request.POST.get('confirmar_clave')
+        
+        if nueva_clave and nueva_clave == confirmar_clave:
+            request.user.set_password(nueva_clave)
+            request.user.save()
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            messages.success(request, 'Contraseña actualizada correctamente.')
+            
+        # Actualización de datos
+        email = request.POST.get('email')
+        celular = request.POST.get('celular')
+        direccion = request.POST.get('direccion')
+        
+        if email: 
+            request.user.email = email
+            request.user.save()
+            alumno.email = email
+        if celular: alumno.celular = celular
+        if direccion: alumno.direccion = direccion
+        alumno.save()
+        
+        messages.success(request, 'Datos de contacto actualizados.')
+        return redirect('perfil_alumno')
+        
+    return render(request, 'gestion/alumnos/perfil_alumno.html', {'alumno': alumno})
+
+@login_required
+def libro_matriz_alumno(request):
+    if not hasattr(request.user, 'perfil_alumno'):
+        return redirect('dashboard')
+    
+    from .models import Alumno, Equivalencia, Inscripcion, InscripcionMesa
+    from datetime import date
+    alumno = request.user.perfil_alumno
+    
+    if not alumno.plan:
+        from django.contrib import messages
+        messages.error(request, "No tienes plan de estudio asignado.")
+        return redirect('dashboard')
+        
+    # Recopilar todo el plan
+    materias_plan = alumno.plan.materias.all().order_by('año_dictado', 'nombre')
+    
+    # Traer todos los registros aprobatorios
+    equivalencias = Equivalencia.objects.filter(alumno=alumno)
+    finales_aprobados = InscripcionMesa.objects.filter(alumno=alumno, estado='APR').select_related('mesa')
+    cursadas_promocionadas = Inscripcion.objects.filter(alumno=alumno, estado='PROM').select_related('comision')
+    
+    dict_equiv = {eq.materia_id: eq for eq in equivalencias}
+    dict_finales = {fin.mesa.materia_id: fin for fin in finales_aprobados}
+    dict_promociones = {cur.comision.materia_id: cur for cur in cursadas_promocionadas}
+    
+    filas_analitico = []
+    
+    for materia in materias_plan:
+        if materia.id in dict_equiv:
+            eq = dict_equiv[materia.id]
+            filas_analitico.append({
+                'materia': materia, 'condicion': 'Equivalencia', 'nota': eq.nota if eq.nota else '-',
+                'fecha': eq.fecha_otorgamiento.strftime('%d/%m/%Y'), 'libro_folio': f'Res: {eq.resolucion}'
+            })
+        elif materia.id in dict_finales:
+            fin = dict_finales[materia.id]
+            filas_analitico.append({
+                'materia': materia, 'condicion': 'Examen Final', 'nota': fin.nota_final,
+                'fecha': fin.mesa.fecha_hora.strftime('%d/%m/%Y'), 'libro_folio': f'L:{fin.mesa.libro or "-"} F:{fin.mesa.folio or "-"}'
+            })
+        elif materia.id in dict_promociones:
+            cur = dict_promociones[materia.id]
+            filas_analitico.append({
+                'materia': materia, 'condicion': 'Promoción Directa', 'nota': 'PROM',
+                'fecha': cur.comision.fecha_fin.strftime('%d/%m/%Y') if cur.comision.fecha_fin else '-', 'libro_folio': 'S/Libro'
+            })
+        else:
+            filas_analitico.append({
+                'materia': materia, 'condicion': 'Pendiente', 'nota': '-', 'fecha': '-', 'libro_folio': '-'
+            })
+            
+    return render(request, 'gestion/alumnos/libro_matriz.html', {
+        'alumno': alumno, 'plan': alumno.plan, 'filas': filas_analitico, 'fecha_actual': date.today()
+    })
+
+@login_required
+def alumno_inscripcion_cursada(request):
+    if not hasattr(request.user, 'perfil_alumno'):
+        messages.error(request, 'Acceso denegado. Esta sección es solo para alumnos.')
+        return redirect('dashboard')
+        
+    alumno = request.user.perfil_alumno
+    if not alumno.plan:
+        messages.error(request, 'No tienes un plan de estudios asignado.')
+        return redirect('dashboard')
+        
+    # Obtener comisiones abiertas del plan del alumno
+    comisiones_abiertas = Comision.objects.filter(
+        materia__plan=alumno.plan, 
+        inscripciones_abiertas=True, 
+        cerrada=False
+    ).select_related('materia', 'docente', 'docente_auxiliar').order_by('materia__año_dictado', 'materia__nombre')
+    
+    # Procesar petición POST (Inscripción)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        comision_id = request.POST.get('comision_id')
+        
+        try:
+            comision = Comision.objects.get(id=comision_id, inscripciones_abiertas=True, cerrada=False)
+            
+            if action == 'inscribir':
+                # Validar que no esté inscripto a otra comisión de la misma materia en el mismo ciclo
+                ya_inscripto = Inscripcion.objects.filter(
+                    alumno=alumno,
+                    comision__materia=comision.materia,
+                    comision__ciclo_lectivo=comision.ciclo_lectivo
+                ).exists()
+                
+                if ya_inscripto:
+                    messages.error(request, f'Ya estás inscripto en una comisión de {comision.materia.nombre} este año.')
+                else:
+                    # Chequeo rápido de correlativas (si se implementara acá a futuro). 
+                    # El template ya desactiva el botón, pero hacemos una validación básica en backend.
+                    # Se requiere iterar Correlatividad
+                    from .models import Correlatividad, InscripcionMesa, Equivalencia
+                    correlativas = Correlatividad.objects.filter(materia=comision.materia)
+                    cumple_todas = True
+                    motivo_rechazo = ""
+                    
+                    for corr in correlativas:
+                        req_materia = corr.requisito
+                        if corr.tipo == 'CUR':
+                            # Necesita Regular, Aprobada o Promocionada
+                            tiene_cursada = Inscripcion.objects.filter(
+                                alumno=alumno, comision__materia=req_materia, estado__in=['REG', 'APR', 'PROM']
+                            ).exists()
+                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                            if not (tiene_cursada or tiene_equiv):
+                                cumple_todas = False
+                                motivo_rechazo = f"Falta cursada de {req_materia.nombre}."
+                                break
+                        elif corr.tipo == 'APR':
+                            # Necesita Promocionada, Final Aprobado o Equivalencia
+                            tiene_prom = Inscripcion.objects.filter(
+                                alumno=alumno, comision__materia=req_materia, estado='PROM'
+                            ).exists()
+                            tiene_final = InscripcionMesa.objects.filter(
+                                alumno=alumno, mesa__materia=req_materia, estado='APR'
+                            ).exists()
+                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                            if not (tiene_prom or tiene_final or tiene_equiv):
+                                cumple_todas = False
+                                motivo_rechazo = f"Falta final de {req_materia.nombre}."
+                                break
+                                
+                    if cumple_todas:
+                        Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
+                        messages.success(request, f'Te inscribiste correctamente en {comision.materia.nombre}.')
+                    else:
+                        messages.error(request, f'No cumples con las correlativas: {motivo_rechazo}')
+                        
+        except Comision.DoesNotExist:
+            messages.error(request, 'La comisión no existe o ya cerró su inscripción.')
+            
+        return redirect('alumno_inscripcion_cursada')
+
+    # Preparar datos para el template
+    inscripciones_actuales = Inscripcion.objects.filter(alumno=alumno).values_list('comision_id', flat=True)
+    
+    from .models import Correlatividad, InscripcionMesa, Equivalencia
+    
+    # Agrupar comisiones por año y evaluar correlativas
+    comisiones_por_año = {}
+    for com in comisiones_abiertas:
+        año = com.materia.año_dictado
+        if año not in comisiones_por_año:
+            comisiones_por_año[año] = []
+            
+        # Evaluar correlatividades para mostrar en UI
+        correlativas = Correlatividad.objects.filter(materia=com.materia)
+        cumple_correlativas = True
+        motivo = ""
+        
+        for corr in correlativas:
+            req_materia = corr.requisito
+            if corr.tipo == 'CUR':
+                tiene_cursada = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado__in=['REG', 'APR', 'PROM']).exists()
+                tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                if not (tiene_cursada or tiene_equiv):
+                    cumple_correlativas = False
+                    motivo = f"Requiere cursar {req_materia.nombre}"
+                    break
+            elif corr.tipo == 'APR':
+                tiene_prom = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado='PROM').exists()
+                tiene_final = InscripcionMesa.objects.filter(alumno=alumno, mesa__materia=req_materia, estado='APR').exists()
+                tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                if not (tiene_prom or tiene_final or tiene_equiv):
+                    cumple_correlativas = False
+                    motivo = f"Requiere aprobar final de {req_materia.nombre}"
+                    break
+                    
+        ya_inscripto_a_otra_comision = Inscripcion.objects.filter(
+            alumno=alumno, comision__materia=com.materia, comision__ciclo_lectivo=com.ciclo_lectivo
+        ).exclude(comision_id=com.id).exists()
+        
+        comisiones_por_año[año].append({
+            'comision': com,
+            'esta_inscripto': com.id in inscripciones_actuales,
+            'ya_inscripto_otra': ya_inscripto_a_otra_comision,
+            'cumple_correlativas': cumple_correlativas,
+            'motivo_correlativa': motivo
+        })
+        
+    return render(request, 'gestion/alumnos/inscripcion_cursada.html', {
+        'comisiones_por_año': dict(sorted(comisiones_por_año.items())),
+        'alumno': alumno,
     })

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Libro Matriz Digital - {{ alumno.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-dark text-white border-bottom p-4">
+            <h3 class="mb-0 fw-bold"><i class="bi bi-journal-text me-2 text-info"></i>Libro Matriz Digital</h3>
+            <p class="mb-0 mt-2 opacity-75">Registro de Trayectoria Académica - {{ plan.nombre }}</p>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%;" class="text-center">AÑO</th>
+                            <th style="width: 35%;">ASIGNATURA</th>
+                            <th style="width: 15%;" class="text-center">CONDICIÓN</th>
+                            <th style="width: 10%;" class="text-center">NOTA</th>
+                            <th style="width: 15%;" class="text-center">FECHA</th>
+                            <th style="width: 20%;" class="text-center">LIBRO/FOLIO / RES.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fila in filas %}
+                        <tr class="{% if fila.condicion == 'Pendiente' %}text-muted{% endif %}">
+                            <td class="text-center fw-bold">{{ fila.materia.año_dictado }}º</td>
+                            <td>{{ fila.materia.nombre }}</td>
+                            <td class="text-center">
+                                {% if fila.condicion == 'Pendiente' %}
+                                    <span class="badge bg-secondary text-white">{{ fila.condicion }}</span>
+                                {% elif fila.condicion == 'Examen Final' or fila.condicion == 'Promoción Directa' or fila.condicion == 'Equivalencia' %}
+                                    <span class="badge bg-success text-white">{{ fila.condicion }}</span>
+                                {% else %}
+                                    {{ fila.condicion }}
+                                {% endif %}
+                            </td>
+                            <td class="text-center fw-bold {% if fila.nota != '-' %}text-primary fs-5{% endif %}">
+                                {{ fila.nota }}
+                            </td>
+                            <td class="text-center">{{ fila.fecha }}</td>
+                            <td class="text-center small">{{ fila.libro_folio }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle-fill me-2"></i> <strong>Nota:</strong> Este es un documento digital de carácter informativo. Para solicitar un certificado analítico parcial oficial, por favor dirigirse a la Secretaría del Instituto.
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

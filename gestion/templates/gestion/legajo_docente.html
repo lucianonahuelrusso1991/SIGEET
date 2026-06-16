@@ -80,7 +80,8 @@
     <h4 class="mt-5 mb-3 text-secondary">Comisiones Asignadas</h4>
     {% if docente.comisiones_asignadas.all %}
         <div class="table-responsive shadow-sm">
-            <table class="table table-bordered table-hover bg-white mb-0">
+            <div class="table-responsive">
+<table class="table table-bordered table-hover bg-white mb-0">
                 <thead class="table-dark">
                     <tr>
                         <th>Materia</th>
@@ -111,6 +112,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+</div>
         </div>
     {% else %}
         <div class="alert alert-info shadow-sm">

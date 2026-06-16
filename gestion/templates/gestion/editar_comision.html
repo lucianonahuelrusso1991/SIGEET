@@ -21,12 +21,21 @@
                         <label class="form-label fw-bold">Materia (No se puede cambiar)</label>
                         <input type="text" class="form-control" value="{{ comision.materia.nombre }} ({{ comision.materia.año_dictado }}º Año)" disabled>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Docente a Cargo (Opcional)</label>
                         <select name="docente" class="form-select">
                             <option value="">-- A designar --</option>
                             {% for d in docentes %}
                                 <option value="{{ d.id }}" {% if comision.docente and d.id == comision.docente.id %}selected{% endif %}>{{ d.apellido }}, {{ d.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Pareja Pedagógica (Opcional)</label>
+                        <select name="docente_auxiliar" class="form-select">
+                            <option value="">-- Ninguna --</option>
+                            {% for d in docentes %}
+                                <option value="{{ d.id }}" {% if comision.docente_auxiliar and d.id == comision.docente_auxiliar.id %}selected{% endif %}>{{ d.apellido }}, {{ d.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>

@@ -30,10 +30,19 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Docente a Cargo (Opcional)</label>
                         <select name="docente" class="form-select">
                             <option value="">-- A designar --</option>
+                            {% for d in docentes %}
+                                <option value="{{ d.id }}">{{ d.apellido }}, {{ d.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Pareja Pedagógica (Opcional)</label>
+                        <select name="docente_auxiliar" class="form-select">
+                            <option value="">-- Ninguna --</option>
                             {% for d in docentes %}
                                 <option value="{{ d.id }}">{{ d.apellido }}, {{ d.nombre }}</option>
                             {% endfor %}

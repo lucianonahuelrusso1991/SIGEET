@@ -14,7 +14,8 @@ from gestion.views import (
     inscribir_alumno_mesa, cargar_notas_mesa, cerrar_mesa,
     acta_examen,
     alta_equivalencia, analitico_alumno,
-    redactar_comunicado, mis_notificaciones, leer_notificacion
+    redactar_comunicado, mis_notificaciones, leer_notificacion,
+    resetear_password_alumno, perfil_alumno, libro_matriz_alumno, alumno_inscripcion_cursada
 )
 
 urlpatterns = [
@@ -35,9 +36,13 @@ urlpatterns = [
     path('alumnos/<int:alumno_id>/analitico/', analitico_alumno, name='analitico_alumno'),
 
     path('alumnos/<int:alumno_id>/editar/', editar_alumno, name='editar_alumno'), 
+    path('alumnos/<int:alumno_id>/reset-password/', resetear_password_alumno, name='resetear_password_alumno'),
     path('alumnos/<int:alumno_id>/constancia/', constancia_alumno, name='constancia_alumno'),
     path('alumnos/<int:alumno_id>/boletin/<int:ciclo_lectivo>/', boletin_alumno, name='boletin_alumno'),
     path('alumnos/<int:alumno_id>/calendario/', calendario_alumno, name='calendario_alumno'),
+    path('mi-perfil/', perfil_alumno, name='perfil_alumno'),
+    path('mi-libro-matriz/', libro_matriz_alumno, name='libro_matriz_alumno'),
+    path('mi-inscripcion-cursadas/', alumno_inscripcion_cursada, name='alumno_inscripcion_cursada'),
 
     # DOCENTES
     path('docentes/', lista_docentes, name='lista_docentes'),

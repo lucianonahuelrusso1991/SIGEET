@@ -166,6 +166,7 @@ class Comision(models.Model):
     
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE, related_name='comisiones')
     docente = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True, blank=True, related_name='comisiones_asignadas')
+    docente_auxiliar = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True, blank=True, related_name='comisiones_auxiliares', verbose_name="Pareja Pedagógica")
     ciclo_lectivo = models.IntegerField('Ciclo Lectivo (Año)', default=2026)
     cuatrimestre = models.CharField('Cuatrimestre', max_length=2, choices=CUATRIMESTRES)
     fecha_inicio = models.DateField('Fecha de Inicio', null=True, blank=True)

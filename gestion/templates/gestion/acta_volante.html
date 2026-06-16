@@ -34,7 +34,8 @@
         <p><strong>Fecha de Emisión:</strong> {{ fecha_actual|date:"d/m/Y" }}</p>
     </div>
 
-    <table>
+    <div class="table-responsive">
+<table>
         <thead>
             <tr>
                 <th style="width: 30px;">Nº</th>
@@ -66,6 +67,7 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 
     <div class="firma">
         <div class="firma-linea">

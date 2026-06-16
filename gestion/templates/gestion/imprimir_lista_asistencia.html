@@ -31,7 +31,8 @@
         <h2>Ciclo: {{ comision.ciclo_lectivo }} ({{ comision.get_cuatrimestre_display }}) | Modalidad: {{ comision.get_modalidad_display }}</h2>
     </div>
 
-    <table>
+    <div class="table-responsive">
+<table>
         <thead>
             <tr>
                 <th style="width: 30px;" class="text-center">Nº</th>
@@ -60,5 +61,6 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 </body>
 </html>

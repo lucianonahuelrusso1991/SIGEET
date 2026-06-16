@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil - {{ alumno.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Mis Datos Personales</h3>
+                </div>
+                <div class="card-body p-4">
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <h5 class="fw-bold text-secondary mb-3">Actualización de Contacto</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" class="form-control" name="email" value="{{ alumno.email|default:'' }}" placeholder="tu@email.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Celular</label>
+                                <input type="text" class="form-control" name="celular" value="{{ alumno.celular|default:'' }}" placeholder="Ej: 11 5555-5555">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Dirección</label>
+                                <input type="text" class="form-control" name="direccion" value="{{ alumno.direccion|default:'' }}">
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <h5 class="fw-bold text-danger mb-3 mt-4">Cambio de Contraseña</h5>
+                        <p class="text-muted small">Dejá estos campos en blanco si no querés cambiar tu contraseña.</p>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nueva Contraseña</label>
+                                <input type="password" class="form-control" name="nueva_clave" minlength="6">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Confirmar Nueva Contraseña</label>
+                                <input type="password" class="form-control" name="confirmar_clave" minlength="6">
+                            </div>
+                        </div>
+
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold px-4 rounded-pill">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -78,7 +78,8 @@
         <!-- Tabla de Calificaciones -->
         <h4 class="mb-3">Detalle Académico</h4>
         {% if datos_boletin %}
-            <table class="table table-bordered text-center align-middle">
+            <div class="table-responsive">
+<table class="table table-bordered text-center align-middle">
                 <thead class="table-light">
                     <tr>
                         <th class="text-start">Materia</th>
@@ -102,6 +103,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+</div>
         {% else %}
             <div class="alert alert-warning text-center">
                 El alumno no registra inscripciones ni calificaciones para el ciclo lectivo {{ ciclo_lectivo }}.
