@@ -2045,9 +2045,9 @@ def alumno_inscripcion_finales(request):
                 if ya_inscripto:
                     messages.error(request, f'Ya estás inscripto en un llamado de {mesa.materia.nombre} para este turno.')
                 else:
-                    # Validar Cursada Regular
+                    # Validar Cursada Regular (debe haber finalizado la cursada)
                     tiene_cursada = Inscripcion.objects.filter(
-                        alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR']
+                        alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR'], comision__cerrada=True
                     ).exists()
                     tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=mesa.materia).exists()
                     
@@ -2092,7 +2092,7 @@ def alumno_inscripcion_finales(request):
             mesas_por_turno[turno] = []
             
         # Evaluar Cursada
-        tiene_cursada = Inscripcion.objects.filter(alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR']).exists()
+        tiene_cursada = Inscripcion.objects.filter(alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR'], comision__cerrada=True).exists()
         tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=mesa.materia).exists()
         
         cumple_requisitos = True
