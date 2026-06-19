@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel Principal</a>
+{% endblock %}
+
+{% block title %}Inscripción a Finales{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-11">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="text-danger fw-bold mb-0"><i class="bi bi-award-fill"></i> Inscripción a Finales</h3>
+                <p class="text-muted mb-0">Selecciona las mesas de examen a las que deseas presentarte este turno.</p>
+            </div>
+            <div>
+                <span class="badge bg-info text-dark fs-6">{{ alumno.plan.nombre }}</span>
+            </div>
+        </div>
+
+        {% if not mesas_por_turno %}
+        <div class="alert alert-warning text-center shadow-sm">
+            <i class="bi bi-exclamation-triangle fs-4 d-block mb-2"></i>
+            <strong>No hay mesas de examen abiertas en este momento para tu plan de estudios.</strong>
+        </div>
+        {% else %}
+            
+            {% for turno, mesas in mesas_por_turno.items %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-event"></i> Turno: {{ turno }}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Tribunal Docente</th>
+                                    <th class="text-end">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in mesas %}
+                                <tr>
+                                    <td class="fw-bold text-danger">{{ item.mesa.materia.nombre }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary fs-6"><i class="bi bi-calendar3"></i> {{ item.mesa.fecha_hora|date:"d/m/Y H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0 small">
+                                            <li><strong>P:</strong> {% if item.mesa.presidente_mesa %}{{ item.mesa.presidente_mesa.apellido }}, {{ item.mesa.presidente_mesa.nombre }}{% else %}A designar{% endif %}</li>
+                                            {% if item.mesa.vocal_1 %}<li><strong>V1:</strong> {{ item.mesa.vocal_1.apellido }}, {{ item.mesa.vocal_1.nombre }}</li>{% endif %}
+                                            {% if item.mesa.vocal_2 %}<li><strong>V2:</strong> {{ item.mesa.vocal_2.apellido }}, {{ item.mesa.vocal_2.nombre }}</li>{% endif %}
+                                        </ul>
+                                    </td>
+                                    <td class="text-end">
+                                        {% if item.esta_inscripto %}
+                                            <span class="badge bg-success py-2 px-3"><i class="bi bi-check-circle"></i> Inscripto al Final</span>
+                                        {% elif item.ya_inscripto_otra %}
+                                            <span class="badge bg-warning text-dark py-2 px-3" data-bs-toggle="tooltip" title="Ya estás inscripto en otra mesa de esta materia para este turno">⚠️ Otra Mesa</span>
+                                        {% elif not item.cumple_requisitos %}
+                                            <button type="button" class="btn btn-sm btn-secondary opacity-50" disabled data-bs-toggle="tooltip" title="{{ item.motivo_bloqueo }}">
+                                                <i class="bi bi-lock-fill"></i> Bloqueada
+                                            </button>
+                                        {% else %}
+                                            <form method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro que deseas inscribirte a esta mesa de examen final?');">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="inscribir">
+                                                <input type="hidden" name="mesa_id" value="{{ item.mesa.id }}">
+                                                <button type="submit" class="btn btn-sm btn-danger fw-bold px-3">
+                                                    <i class="bi bi-plus-circle"></i> Inscribirse a Mesa
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Enable tooltips
+    document.addEventListener("DOMContentLoaded", function(){
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %}

@@ -2004,3 +2004,129 @@ def alumno_inscripcion_cursada(request):
         'comisiones_por_año': dict(sorted(comisiones_por_año.items())),
         'alumno': alumno,
     })
+
+@login_required
+def alumno_inscripcion_finales(request):
+    if not hasattr(request.user, 'perfil_alumno'):
+        messages.error(request, 'Acceso denegado. Esta sección es solo para alumnos.')
+        return redirect('dashboard')
+        
+    alumno = request.user.perfil_alumno
+    if not alumno.plan:
+        messages.error(request, 'No tienes un plan de estudios asignado.')
+        return redirect('dashboard')
+        
+    # Obtener mesas abiertas del plan del alumno
+    from .models import MesaExamen, InscripcionMesa, Correlatividad, Equivalencia, Inscripcion
+    
+    mesas_abiertas = MesaExamen.objects.filter(
+        materia__plan=alumno.plan, 
+        inscripciones_abiertas=True, 
+        cerrada=False
+    ).select_related('materia', 'presidente_mesa', 'vocal_1', 'vocal_2').order_by('turno', 'fecha_hora')
+    
+    # Procesar petición POST (Inscripción)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        mesa_id = request.POST.get('mesa_id')
+        
+        try:
+            mesa = MesaExamen.objects.get(id=mesa_id, inscripciones_abiertas=True, cerrada=False)
+            
+            if action == 'inscribir':
+                # Validar inscripción única en este turno y materia
+                ya_inscripto = InscripcionMesa.objects.filter(
+                    alumno=alumno,
+                    mesa__materia=mesa.materia,
+                    mesa__turno=mesa.turno,
+                    mesa__ciclo_lectivo=mesa.ciclo_lectivo
+                ).exists()
+                
+                if ya_inscripto:
+                    messages.error(request, f'Ya estás inscripto en un llamado de {mesa.materia.nombre} para este turno.')
+                else:
+                    # Validar Cursada Regular
+                    tiene_cursada = Inscripcion.objects.filter(
+                        alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR']
+                    ).exists()
+                    tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=mesa.materia).exists()
+                    
+                    if not (tiene_cursada or tiene_equiv):
+                        messages.error(request, 'Debes tener la cursada regularizada o aprobada para rendir el final.')
+                    else:
+                        # Validar Correlativas de Final (APR)
+                        correlativas = Correlatividad.objects.filter(materia=mesa.materia, tipo='APR')
+                        cumple_todas = True
+                        motivo_rechazo = ""
+                        
+                        for corr in correlativas:
+                            req_materia = corr.requisito
+                            tiene_prom = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado='PROM').exists()
+                            tiene_final = InscripcionMesa.objects.filter(alumno=alumno, mesa__materia=req_materia, estado='APR').exists()
+                            tiene_equiv_req = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                            
+                            if not (tiene_prom or tiene_final or tiene_equiv_req):
+                                cumple_todas = False
+                                motivo_rechazo = f"Falta final de {req_materia.nombre}."
+                                break
+                                
+                        if cumple_todas:
+                            InscripcionMesa.objects.create(alumno=alumno, mesa=mesa, estado='PEND')
+                            messages.success(request, f'Te inscribiste correctamente al final de {mesa.materia.nombre}.')
+                        else:
+                            messages.error(request, f'No cumples con las correlativas: {motivo_rechazo}')
+                        
+        except MesaExamen.DoesNotExist:
+            messages.error(request, 'La mesa de examen no existe o ya cerró su inscripción.')
+            
+        return redirect('alumno_inscripcion_finales')
+
+    # Preparar datos para el template
+    inscripciones_actuales = InscripcionMesa.objects.filter(alumno=alumno).values_list('mesa_id', flat=True)
+    
+    # Agrupar mesas por Turno
+    mesas_por_turno = {}
+    for mesa in mesas_abiertas:
+        turno = mesa.get_turno_display()
+        if turno not in mesas_por_turno:
+            mesas_por_turno[turno] = []
+            
+        # Evaluar Cursada
+        tiene_cursada = Inscripcion.objects.filter(alumno=alumno, comision__materia=mesa.materia, estado__in=['REG', 'APR']).exists()
+        tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=mesa.materia).exists()
+        
+        cumple_requisitos = True
+        motivo = ""
+        
+        if not (tiene_cursada or tiene_equiv):
+            cumple_requisitos = False
+            motivo = "Requiere cursada regular"
+        else:
+            # Evaluar Correlativas
+            correlativas = Correlatividad.objects.filter(materia=mesa.materia, tipo='APR')
+            for corr in correlativas:
+                req_materia = corr.requisito
+                tiene_prom = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado='PROM').exists()
+                tiene_final = InscripcionMesa.objects.filter(alumno=alumno, mesa__materia=req_materia, estado='APR').exists()
+                tiene_equiv_req = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                if not (tiene_prom or tiene_final or tiene_equiv_req):
+                    cumple_requisitos = False
+                    motivo = f"Requiere aprobar final de {req_materia.nombre}"
+                    break
+                    
+        ya_inscripto_a_otra_mesa = InscripcionMesa.objects.filter(
+            alumno=alumno, mesa__materia=mesa.materia, mesa__turno=mesa.turno, mesa__ciclo_lectivo=mesa.ciclo_lectivo
+        ).exclude(mesa_id=mesa.id).exists()
+        
+        mesas_por_turno[turno].append({
+            'mesa': mesa,
+            'esta_inscripto': mesa.id in inscripciones_actuales,
+            'ya_inscripto_otra': ya_inscripto_a_otra_mesa,
+            'cumple_requisitos': cumple_requisitos,
+            'motivo_bloqueo': motivo
+        })
+        
+    return render(request, 'gestion/alumnos/inscripcion_finales.html', {
+        'mesas_por_turno': mesas_por_turno,
+        'alumno': alumno,
+    })

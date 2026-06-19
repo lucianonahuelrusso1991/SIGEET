@@ -295,6 +295,7 @@ class MesaExamen(models.Model):
     vocal_1 = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True, blank=True, related_name='mesas_vocal1')
     vocal_2 = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True, blank=True, related_name='mesas_vocal2')
     ciclo_lectivo = models.IntegerField('Ciclo Lectivo', default=2026)
+    inscripciones_abiertas = models.BooleanField('Inscripciones Abiertas', default=True)
     cerrada = models.BooleanField('Mesa Cerrada', default=False)
     libro = models.CharField('Libro', max_length=50, null=True, blank=True)
     folio = models.CharField('Folio', max_length=50, null=True, blank=True)
