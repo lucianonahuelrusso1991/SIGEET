@@ -66,9 +66,11 @@
                                         {% elif item.ya_inscripto_otra %}
                                             <span class="badge bg-warning text-dark py-2 px-3" data-bs-toggle="tooltip" title="Ya estás inscripto en otra comisión de esta materia">⚠️ Otra Comisión</span>
                                         {% elif not item.cumple_correlativas %}
-                                            <button type="button" class="btn btn-sm btn-secondary opacity-50" disabled data-bs-toggle="tooltip" title="{{ item.motivo_correlativa }}">
-                                                <i class="bi bi-lock-fill"></i> Bloqueada
-                                            </button>
+                                            <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="{{ item.motivo_correlativa }}">
+                                                <button type="button" class="btn btn-sm btn-secondary opacity-50" disabled style="pointer-events: none;">
+                                                    <i class="bi bi-lock-fill"></i> Bloqueada
+                                                </button>
+                                            </span>
                                         {% else %}
                                             <form method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro que deseas inscribirte en esta comisión?');">
                                                 {% csrf_token %}
