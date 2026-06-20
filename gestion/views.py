@@ -784,6 +784,73 @@ def cargar_asistencia(request, comision_id):
     })
 
 @login_required
+def subir_justificativo(request):
+    if not hasattr(request.user, 'perfil_alumno'):
+        return redirect('dashboard')
+    
+    from .forms import JustificativoAsistenciaForm
+    from django.contrib import messages
+    from .models import Comision
+    
+    if request.method == 'POST':
+        form = JustificativoAsistenciaForm(request.POST, request.FILES)
+        if form.is_valid():
+            justificativo = form.save(commit=False)
+            justificativo.alumno = request.user.perfil_alumno
+            justificativo.save()
+            messages.success(request, 'Certificado médico subido correctamente. En revisión por Bedelía.')
+            return redirect('dashboard')
+    else:
+        form = JustificativoAsistenciaForm()
+        # Filtrar comisiones a las que está inscripto actualmente
+        form.fields['comision'].queryset = Comision.objects.filter(
+            inscripciones__alumno=request.user.perfil_alumno, 
+            cerrada=False
+        )
+
+    return render(request, 'gestion/alumnos/subir_justificativo.html', {'form': form})
+
+@login_required
+def revisar_justificativos(request):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+        
+    from .models import JustificativoAsistencia, RegistroAsistencia, PlanillaDiaria
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        justificativo_id = request.POST.get('justificativo_id')
+        accion = request.POST.get('accion')
+        
+        try:
+            justificativo = JustificativoAsistencia.objects.get(id=justificativo_id)
+            if accion == 'aprobar':
+                justificativo.estado = 'APR'
+                # Convertir Ausente a Justificada si existe la planilla
+                try:
+                    planilla = PlanillaDiaria.objects.get(comision=justificativo.comision, fecha=justificativo.fecha_ausencia)
+                    registro = RegistroAsistencia.objects.get(planilla=planilla, alumno=justificativo.alumno)
+                    if registro.estado == 'A':
+                        registro.estado = 'J'
+                        registro.save()
+                except (PlanillaDiaria.DoesNotExist, RegistroAsistencia.DoesNotExist):
+                    pass # Puede que no se haya tomado asistencia ese día aún
+                    
+                messages.success(request, f'Justificativo de {justificativo.alumno} aprobado.')
+            elif accion == 'rechazar':
+                justificativo.estado = 'RECH'
+                messages.error(request, f'Justificativo de {justificativo.alumno} rechazado.')
+            
+            justificativo.save()
+        except JustificativoAsistencia.DoesNotExist:
+            pass
+            
+        return redirect('revisar_justificativos')
+        
+    justificativos = JustificativoAsistencia.objects.filter(estado='PEND').order_by('-fecha_carga')
+    return render(request, 'gestion/bedelia/revisar_justificativos.html', {'justificativos': justificativos})
+
+@login_required
 def cargar_notas(request, comision_id):
     comision = get_object_or_404(Comision, id=comision_id)
     

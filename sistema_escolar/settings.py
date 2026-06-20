@@ -128,5 +128,9 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # Configuración de Sesiones e Inactividad
 SESSION_COOKIE_AGE = 1800  # 30 minutos (1800 segundos)
-SESSION_SAVE_EVERY_REQUEST = True  # Renueva el tiempo con cada clic/acción
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+import os
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Renueva el tiempo con cada clic/acción
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cierra la sesión si el usuario cierra el navegador

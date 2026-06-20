@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Bedelía - Revisión de Justificativos{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 fw-bold"><i class="bi bi-file-medical-fill text-success me-2"></i>Revisión de Justificativos</h2>
+    </div>
+
+    {% if justificativos %}
+    <div class="row">
+        {% for j in justificativos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Pendiente de Revisión</span>
+                        <small class="text-muted">{{ j.fecha_carga|date:"d/m/Y" }}</small>
+                    </div>
+                    
+                    <h5 class="fw-bold">{{ j.alumno.apellido }}, {{ j.alumno.nombre }}</h5>
+                    <p class="text-muted mb-1"><i class="bi bi-journal-bookmark me-1"></i> {{ j.comision.materia.nombre }}</p>
+                    <p class="text-muted mb-3"><i class="bi bi-calendar-x me-1"></i> Fecha Inasistencia: <strong>{{ j.fecha_ausencia|date:"d/m/Y" }}</strong></p>
+                    
+                    <div class="mb-4">
+                        <a href="{{ j.archivo.url }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 fw-bold rounded-pill">
+                            <i class="bi bi-search me-1"></i> Ver Certificado Médico
+                        </a>
+                    </div>
+                    
+                    <div class="mt-auto pt-3 border-top">
+                        <form method="post" class="d-flex justify-content-between">
+                            {% csrf_token %}
+                            <input type="hidden" name="justificativo_id" value="{{ j.id }}">
+                            <button type="submit" name="accion" value="rechazar" class="btn btn-danger btn-sm px-4 rounded-pill fw-bold" onclick="return confirm('¿Seguro que deseas rechazar este justificativo?');">
+                                Rechazar
+                            </button>
+                            <button type="submit" name="accion" value="aprobar" class="btn btn-success btn-sm px-4 rounded-pill fw-bold" onclick="return confirm('¿Seguro que deseas aprobar este justificativo? Se cambiará la falta a J.');">
+                                Aprobar Justificativo
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-5 text-center">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 fw-bold">¡Todo al día!</h4>
+            <p class="text-muted">No hay certificados médicos pendientes de revisión.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

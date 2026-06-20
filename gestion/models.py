@@ -225,15 +225,38 @@ class Inscripcion(models.Model):
     estado = models.CharField('Estado', max_length=4, choices=ESTADOS_POSIBLES, default='REG')
     fecha_inscripcion = models.DateField(auto_now_add=True)
 
+    def faltas_acumuladas(self):
+        from decimal import Decimal
+        registros = self.alumno.asistencias.filter(planilla__comision=self.comision)
+        total = Decimal('0.0')
+        for r in registros:
+            if r.estado == 'A':
+                total += Decimal('1.0')
+            elif r.estado == 'T':
+                total += Decimal('0.5')
+        return float(total)
+
+    def faltas_permitidas(self):
+        if self.comision.get_cuatrimestre_display() == 'Anual':
+            return 8
+        return 4
+
+    def porcentaje_asistencia_restante(self):
+        permitidas = self.faltas_permitidas()
+        acumuladas = self.faltas_acumuladas()
+        if acumuladas >= permitidas:
+            return 0
+        return int(((permitidas - acumuladas) / permitidas) * 100)
+        
     class Meta:
         unique_together = ['alumno', 'comision']
 
     def __str__(self):
-        return f"{self.alumno.apellido} -> {self.comision}"
+        return f"{self.alumno} en {self.comision}"
 
 class Nota(models.Model):
     inscripcion = models.ForeignKey(Inscripcion, on_delete=models.CASCADE, related_name='notas')
-    valor_nota = models.DecimalField('Nota', max_digits=4, decimal_places=2) 
+    valor_nota = models.DecimalField('Nota', max_digits=4, decimal_places=2)
     instancia = models.CharField('Instancia (Ej: 1er Parcial, TP1)', max_length=50)
     fecha = models.DateField('Fecha de Carga', default=date.today)
 
@@ -242,7 +265,7 @@ class Nota(models.Model):
 
 
 # ==========================================
-# 4. ASISTENCIAS
+# 4. ASISTENCIAS Y JUSTIFICATIVOS
 # ==========================================
 
 class PlanillaDiaria(models.Model):
@@ -268,7 +291,24 @@ class RegistroAsistencia(models.Model):
 
     def __str__(self):
         return f"{self.alumno.apellido} - {self.get_estado_display()}"
-    
+        
+class JustificativoAsistencia(models.Model):
+    ESTADOS = [
+        ('PEND', 'Pendiente de Revisión'),
+        ('APR', 'Aprobado'),
+        ('RECH', 'Rechazado'),
+    ]
+    alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='justificativos')
+    comision = models.ForeignKey(Comision, on_delete=models.CASCADE, related_name='justificativos')
+    fecha_ausencia = models.DateField('Fecha de Inasistencia')
+    archivo = models.FileField('Certificado Médico/Laboral', upload_to='justificativos/')
+    fecha_carga = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField('Estado', max_length=4, choices=ESTADOS, default='PEND')
+    observaciones = models.TextField('Observaciones (Bedelía)', blank=True, null=True)
+
+    def __str__(self):
+        return f"Justificativo {self.alumno} - {self.fecha_ausencia}"
+
 class Feriado(models.Model):
     fecha = models.DateField(unique=True, verbose_name="Fecha del Feriado")
     motivo = models.CharField(max_length=200, verbose_name="Motivo (ej: Día del Trabajador)")
