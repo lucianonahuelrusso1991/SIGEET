@@ -1681,12 +1681,19 @@ def analitico_alumno(request, alumno_id):
                 'fecha': '',
                 'libro_folio': ''
             })
+    # Calcular Porcentaje de Avance
+    total_materias = materias_plan.count()
+    materias_aprobadas = sum(1 for fila in filas_analitico if fila['condicion'] in ['Equivalencia', 'Examen Final', 'Promoción Directa'])
+    porcentaje_avance = int((materias_aprobadas / total_materias * 100)) if total_materias > 0 else 0
             
     return render(request, 'gestion/analitico_alumno.html', {
         'alumno': alumno,
         'plan': alumno.plan,
         'filas': filas_analitico,
-        'fecha_actual': date.today()
+        'fecha_actual': date.today(),
+        'porcentaje_avance': porcentaje_avance,
+        'total_materias': total_materias,
+        'materias_aprobadas': materias_aprobadas
     })
 
 # ==========================================
@@ -1880,9 +1887,14 @@ def libro_matriz_alumno(request):
             filas_analitico.append({
                 'materia': materia, 'condicion': 'Pendiente', 'nota': '-', 'fecha': '-', 'libro_folio': '-'
             })
+    # Calcular Porcentaje de Avance
+    total_materias = materias_plan.count()
+    materias_aprobadas = sum(1 for fila in filas_analitico if fila['condicion'] in ['Equivalencia', 'Examen Final', 'Promoción Directa'])
+    porcentaje_avance = int((materias_aprobadas / total_materias * 100)) if total_materias > 0 else 0
             
     return render(request, 'gestion/alumnos/libro_matriz.html', {
-        'alumno': alumno, 'plan': alumno.plan, 'filas': filas_analitico, 'fecha_actual': date.today()
+        'alumno': alumno, 'plan': alumno.plan, 'filas': filas_analitico, 'fecha_actual': date.today(),
+        'porcentaje_avance': porcentaje_avance, 'total_materias': total_materias, 'materias_aprobadas': materias_aprobadas
     })
 
 @login_required

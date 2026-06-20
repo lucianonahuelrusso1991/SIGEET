@@ -3,18 +3,70 @@
 
 {% block title %}Libro Matriz Digital - {{ alumno.nombre }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media print {
+        body { background-color: #fff !important; }
+        .navbar, .btn, .d-print-none, .sidebar { display: none !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .card-header { background-color: transparent !important; color: #000 !important; border-bottom: 2px solid #000 !important; padding-left: 0 !important; }
+        .badge { color: #000 !important; background-color: transparent !important; border: 1px solid #000 !important; }
+        .table { width: 100% !important; margin-bottom: 1rem; color: #212529; border-collapse: collapse !important; }
+        .table th, .table td { padding: 0.5rem !important; border: 1px solid #dee2e6 !important; }
+        .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .print-header { display: block !important; margin-bottom: 20px; }
+    }
+    .print-header { display: none; }
+</style>
+{% endblock %}
+
 {% block back_button %}
-<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold d-print-none">⬅ Volver al Panel</a>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+        <h4 class="mb-0 text-muted">Situación Académica</h4>
+        <button onclick="window.print()" class="btn btn-primary fw-bold shadow-sm">🖨️ Descargar como PDF / Imprimir</button>
+    </div>
+
     <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-dark text-white border-bottom p-4">
-            <h3 class="mb-0 fw-bold"><i class="bi bi-journal-text me-2 text-info"></i>Libro Matriz Digital</h3>
-            <p class="mb-0 mt-2 opacity-75">Registro de Trayectoria Académica - {{ plan.nombre }}</p>
+        
+        <!-- Cabecera Oficial (Solo visible al imprimir) -->
+        <div class="print-header text-center">
+            <h2 class="fw-bold">Instituto Superior Pío IX</h2>
+            <h4 class="text-muted">Libro Matriz - Analítico Parcial Informativo</h4>
+            <hr>
+            <div class="d-flex justify-content-between text-start mt-3 mb-4">
+                <div>
+                    <p class="mb-1"><strong>Alumno:</strong> {{ alumno.apellido }}, {{ alumno.nombre }}</p>
+                    <p class="mb-1"><strong>DNI:</strong> {{ alumno.dni }}</p>
+                </div>
+                <div>
+                    <p class="mb-1"><strong>Plan de Estudios:</strong> {{ plan.nombre }}</p>
+                    <p class="mb-1"><strong>Fecha de Emisión:</strong> {{ fecha_actual|date:"d/m/Y" }}</p>
+                </div>
+            </div>
         </div>
+
+        <div class="card-header bg-dark text-white border-bottom p-4 d-print-none d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="mb-0 fw-bold"><i class="bi bi-journal-text me-2 text-info"></i>Libro Matriz Digital</h3>
+                <p class="mb-0 mt-2 opacity-75">Registro de Trayectoria Académica - {{ plan.nombre }}</p>
+            </div>
+            <div class="text-end">
+                <div class="fs-1 fw-bold text-info">{{ porcentaje_avance }}%</div>
+                <div class="small opacity-75">de la carrera aprobada</div>
+                <div class="small opacity-75">({{ materias_aprobadas }} de {{ total_materias }} materias)</div>
+            </div>
+        </div>
+        
         <div class="card-body p-4 p-md-5">
+            <!-- Info Header para Impresión -->
+            <div class="d-none d-print-block mb-4 text-end">
+                <strong>Porcentaje de Avance:</strong> {{ porcentaje_avance }}% ({{ materias_aprobadas }} de {{ total_materias }} materias)
+            </div>
             
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -42,7 +94,7 @@
                                     {{ fila.condicion }}
                                 {% endif %}
                             </td>
-                            <td class="text-center fw-bold {% if fila.nota != '-' %}text-primary fs-5{% endif %}">
+                            <td class="text-center fw-bold {% if fila.nota != '-' and fila.nota != '' %}text-primary fs-5{% endif %}">
                                 {{ fila.nota }}
                             </td>
                             <td class="text-center">{{ fila.fecha }}</td>
@@ -53,8 +105,12 @@
                 </table>
             </div>
 
-            <div class="mt-4 alert alert-info border-0 shadow-sm">
+            <div class="mt-4 alert alert-info border-0 shadow-sm d-print-none">
                 <i class="bi bi-info-circle-fill me-2"></i> <strong>Nota:</strong> Este es un documento digital de carácter informativo. Para solicitar un certificado analítico parcial oficial, por favor dirigirse a la Secretaría del Instituto.
+            </div>
+            
+            <div class="d-none d-print-block mt-5 pt-5 text-center">
+                <p class="text-muted small">Este documento es de carácter informativo y no reemplaza al certificado analítico oficial firmado por las autoridades competentes.</p>
             </div>
 
         </div>

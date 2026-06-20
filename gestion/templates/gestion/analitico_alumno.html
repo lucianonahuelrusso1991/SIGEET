@@ -73,7 +73,10 @@
     <div class="mb-4">
         <p><strong>ALUMNO/A:</strong> {{ alumno.apellido|upper }}, {{ alumno.nombre }} &nbsp;&nbsp;&nbsp;&nbsp; <strong>DNI:</strong> {{ alumno.dni }}</p>
         <p><strong>CARRERA/PLAN DE ESTUDIO:</strong> {{ plan.nombre }}</p>
-        <p><strong>RESOLUCIÓN:</strong> {{ plan.resolucion_ministerial }}</p>
+        <p>
+            <strong>RESOLUCIÓN:</strong> {{ plan.resolucion_ministerial }} &nbsp;&nbsp;&nbsp;&nbsp; 
+            <strong>PORCENTAJE DE AVANCE:</strong> {{ porcentaje_avance }}% ({{ materias_aprobadas }} de {{ total_materias }} materias aprobadas)
+        </p>
     </div>
 
     <div class="table-responsive">
