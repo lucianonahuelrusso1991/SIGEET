@@ -20,9 +20,17 @@
         </div>
 
         {% if not mesas_por_turno %}
-        <div class="alert alert-warning text-center shadow-sm">
-            <i class="bi bi-exclamation-triangle fs-4 d-block mb-2"></i>
-            <strong>No hay mesas de examen abiertas en este momento para tu plan de estudios.</strong>
+        <div class="card border-0 shadow-sm rounded-4 py-5 mt-4 text-center fade-in-up">
+            <div class="card-body">
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-4">
+                    <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="fw-bold text-dark">Sin mesas de examen abiertas</h4>
+                <p class="text-muted mx-auto" style="max-width: 500px;">
+                    En este momento no hay turnos de examen activos para tu plan de estudios. Te notificaremos cuando se abran nuevas fechas.
+                </p>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill mt-2 px-4">Volver al inicio</a>
+            </div>
         </div>
         {% else %}
             
@@ -68,12 +76,12 @@
                                                 </button>
                                             </span>
                                         {% else %}
-                                            <form method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro que deseas inscribirte a esta mesa de examen final?');">
+                                            <form method="post" class="d-inline form-inscripcion">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="action" value="inscribir">
                                                 <input type="hidden" name="mesa_id" value="{{ item.mesa.id }}">
-                                                <button type="submit" class="btn btn-sm btn-danger fw-bold px-3">
-                                                    <i class="bi bi-plus-circle"></i> Inscribirse a Mesa
+                                                <button type="button" class="btn btn-sm btn-danger fw-bold px-3 btn-inscribir hover-lift shadow-sm">
+                                                    <i class="bi bi-plus-circle me-1"></i>Inscribirse a Mesa
                                                 </button>
                                             </form>
                                         {% endif %}
@@ -97,7 +105,28 @@
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        });
+
+        // SweetAlert2 para confirmación de inscripción
+        document.querySelectorAll('.btn-inscribir').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const form = this.closest('.form-inscripcion');
+                Swal.fire({
+                    title: '¿Confirmar inscripción a mesa?',
+                    text: "Te estás por inscribir a este examen final.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, inscribirme',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                })
+            });
+        });
     });
 </script>
 {% endblock %}
