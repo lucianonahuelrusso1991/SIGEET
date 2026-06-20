@@ -56,7 +56,40 @@
                         <a href="{% url 'imprimir_lista_asistencia' comision.id %}" target="_blank" class="btn btn-outline-secondary shadow-sm">🖨️ Lista de Asistencia Física</a>
                     {% endif %}
                     <a href="{% url 'acta_volante' comision.id %}" target="_blank" class="btn btn-dark shadow-sm">📑 Acta Volante</a>
+                    <a href="{% url 'subir_programa' comision.id %}" class="btn btn-outline-success shadow-sm">📚 Subir Programa de Estudios</a>
                 </div>
+            </div>
+        </div>
+
+        <!-- Programa y Libro de Temas -->
+        <div class="card shadow-sm border-0 mb-4 bg-white border-top border-success border-4">
+            <div class="card-body">
+                <h6 class="text-success fw-bold mb-3"><i class="bi bi-book-half"></i> Academia y Temas</h6>
+                
+                <div class="mb-4">
+                    <strong>Programa de Estudios:</strong><br>
+                    {% if comision.programa.archivo %}
+                        <a href="{{ comision.programa.archivo.url }}" target="_blank" class="btn btn-sm btn-success mt-2 rounded-pill fw-bold"><i class="bi bi-download me-1"></i> Descargar Programa</a>
+                    {% else %}
+                        <span class="text-muted small">No se ha subido el programa aún.</span>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <h6 class="fw-bold text-dark mt-3">Libro de Temas Recientes</h6>
+                <ul class="list-group list-group-flush mt-2">
+                    {% for planilla in comision.planillas_asistencia.all|dictsortreversed:"fecha" %}
+                        {% if planilla.tema_dictado %}
+                        <li class="list-group-item px-0 py-2 border-bottom">
+                            <small class="text-muted fw-bold d-block"><i class="bi bi-calendar-event me-1"></i>{{ planilla.fecha|date:"d/m/Y" }}</small>
+                            <span class="text-dark">{{ planilla.tema_dictado }}</span>
+                        </li>
+                        {% endif %}
+                    {% empty %}
+                        <li class="list-group-item px-0 py-2 text-muted small border-0">No hay temas registrados aún.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>

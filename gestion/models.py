@@ -271,12 +271,21 @@ class Nota(models.Model):
 class PlanillaDiaria(models.Model):
     comision = models.ForeignKey(Comision, on_delete=models.CASCADE, related_name='planillas_asistencia')
     fecha = models.DateField('Fecha', default=date.today)
+    tema_dictado = models.TextField('Tema de la Clase (Libro de Temas)', blank=True, null=True)
     
     class Meta:
         unique_together = ['comision', 'fecha']
 
     def __str__(self):
         return f"Asistencia: {self.comision} - {self.fecha.strftime('%d/%m/%Y')}"
+
+class ProgramaComision(models.Model):
+    comision = models.OneToOneField(Comision, on_delete=models.CASCADE, related_name='programa')
+    archivo = models.FileField('Archivo del Programa', upload_to='programas/')
+    fecha_subida = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Programa - {self.comision}"
 
 class RegistroAsistencia(models.Model):
     ESTADOS_ASISTENCIA = [

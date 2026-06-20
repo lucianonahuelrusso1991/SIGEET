@@ -89,6 +89,11 @@
                                         <div>
                                             <strong class="d-block text-dark">{{ insc.comision.materia.nombre }}</strong>
                                             <small class="text-muted"><i class="bi bi-people me-1"></i>Comisión: {{ insc.comision.ciclo_lectivo }}</small>
+                                            
+                                            {% if insc.comision.programa.archivo %}
+                                                <a href="{{ insc.comision.programa.archivo.url }}" target="_blank" class="badge bg-success text-decoration-none mt-1 d-inline-block"><i class="bi bi-download me-1"></i>Programa</a>
+                                            {% endif %}
+                                            
                                             <div class="mt-2">
                                                 <small class="fw-bold {% if insc.faltas_acumuladas >= insc.faltas_permitidas %}text-danger{% else %}text-warning{% endif %}">
                                                     <i class="bi bi-calendar-x"></i> Faltas: {{ insc.faltas_acumuladas }} / {{ insc.faltas_permitidas }}
@@ -108,8 +113,32 @@
                                                     <span class="badge bg-light text-dark rounded-pill border px-3 py-2 fs-6">-</span>
                                                 {% endif %}
                                             {% endwith %}
+                                            <br>
+                                            <button class="btn btn-sm btn-outline-secondary mt-2 shadow-sm rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#temas-{{ insc.id }}">
+                                                <i class="bi bi-book-half me-1"></i>Ver Temas
+                                            </button>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Collapse Libro de Temas -->
+                                    <div class="collapse mt-3" id="temas-{{ insc.id }}">
+                                        <div class="card card-body bg-light border-0 shadow-sm rounded-3 p-3">
+                                            <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-journal-text me-2"></i>Libro de Temas:</h6>
+                                            <ul class="list-group list-group-flush">
+                                                {% for planilla in insc.comision.planillas_asistencia.all|dictsortreversed:"fecha" %}
+                                                    {% if planilla.tema_dictado %}
+                                                        <li class="list-group-item bg-transparent px-0 py-2 border-bottom border-secondary border-opacity-10">
+                                                            <small class="text-primary fw-bold">{{ planilla.fecha|date:"d/m/Y" }}</small><br>
+                                                            <span class="text-dark small">{{ planilla.tema_dictado }}</span>
+                                                        </li>
+                                                    {% endif %}
+                                                {% empty %}
+                                                    <li class="list-group-item bg-transparent px-0 py-2 border-0 text-muted small">Aún no hay temas registrados.</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
                                 </li>
                                 {% endfor %}
                             </ul>

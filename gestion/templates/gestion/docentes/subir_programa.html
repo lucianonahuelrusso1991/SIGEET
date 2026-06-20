@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Subir Programa - {{ comision.materia.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver a la comisión</a>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-primary text-white border-bottom p-4">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-pdf-fill me-2"></i>Subir Programa de Estudios</h4>
+                    <p class="mb-0 mt-2 opacity-75">{{ comision.materia.nombre }} - {{ comision.get_cuatrimestre_display }} {{ comision.ciclo_lectivo }}</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    {% if form.instance.archivo %}
+                        <div class="alert alert-success d-flex align-items-center mb-4 border-0 shadow-sm rounded-3">
+                            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+                            <div>
+                                <strong>Ya existe un programa subido.</strong><br>
+                                <a href="{{ form.instance.archivo.url }}" target="_blank" class="text-success text-decoration-underline">Ver archivo actual</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Archivo PDF <span class="text-danger">*</span></label>
+                            {{ form.archivo }}
+                            <div class="form-text">Si subís un nuevo archivo, reemplazará al programa anterior.</div>
+                            {% if form.archivo.errors %}
+                                <div class="text-danger small mt-1">{{ form.archivo.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-3 rounded-pill shadow-sm">
+                            <i class="bi bi-cloud-arrow-up-fill me-2"></i> Subir Programa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

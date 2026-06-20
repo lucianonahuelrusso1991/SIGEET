@@ -16,7 +16,8 @@ from gestion.views import (
     alta_equivalencia, analitico_alumno,
     redactar_comunicado, mis_notificaciones, leer_notificacion,
     resetear_password_alumno, perfil_alumno, libro_matriz_alumno, alumno_inscripcion_cursada,
-    alumno_inscripcion_finales, subir_justificativo, revisar_justificativos
+    alumno_inscripcion_finales, subir_justificativo, revisar_justificativos,
+    subir_programa
 )
 
 urlpatterns = [
@@ -103,6 +104,9 @@ urlpatterns = [
     # JUSTIFICATIVOS DE ASISTENCIA
     path('mi-asistencia/subir-justificativo/', subir_justificativo, name='subir_justificativo'),
     path('bedelia/revisar-justificativos/', revisar_justificativos, name='revisar_justificativos'),
+    
+    # PROGRAMAS Y TEMAS
+    path('comisiones/<int:comision_id>/subir-programa/', subir_programa, name='subir_programa'),
 ]
 
 from django.conf import settings

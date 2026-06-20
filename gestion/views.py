@@ -772,7 +772,37 @@ def cargar_asistencia(request, comision_id):
             if nuevo_estado:
                 registro.estado = nuevo_estado
                 registro.save()
-        messages.success(request, f"¡Asistencia del {fecha_elegida.strftime('%d/%m/%Y')} guardada con éxito!")
+                
+        # Procesar Libro de Temas
+        nuevo_tema = request.POST.get('tema_dictado', '').strip()
+        tema_anterior = planilla.tema_dictado or ''
+        
+        if nuevo_tema != tema_anterior:
+            planilla.tema_dictado = nuevo_tema
+            planilla.save()
+            
+            # Si se agregó un tema nuevo y antes estaba vacío, enviar notificación
+            if nuevo_tema and not tema_anterior.strip():
+                from .models import Comunicado, Notificacion, Alumno
+                from django.contrib.auth.models import User
+                # Intentar usar un usuario 'Sistema' si existe, si no, el usuario actual
+                autor = User.objects.filter(is_superuser=True).first() or request.user
+                
+                comunicado = Comunicado.objects.create(
+                    titulo=f"Nuevo tema en {comision.materia.nombre}",
+                    mensaje=f"Se ha registrado un nuevo tema de clase dictado el {fecha_elegida.strftime('%d/%m/%Y')}:\n\n{nuevo_tema}",
+                    autor=autor,
+                    alcance='ALUMNOS'
+                )
+                
+                # Enviar a todos los inscriptos
+                for inscripcion in comision.alumnos_inscriptos.filter(estado='REG'):
+                    Notificacion.objects.create(
+                        alumno=inscripcion.alumno,
+                        comunicado=comunicado
+                    )
+        
+        messages.success(request, f"¡Asistencia y Libro de Temas del {fecha_elegida.strftime('%d/%m/%Y')} guardados con éxito!")
         return redirect('detalle_comision', comision_id=comision.id)
 
     return render(request, 'gestion/asistencia_form.html', {
@@ -804,7 +834,7 @@ def subir_justificativo(request):
         form = JustificativoAsistenciaForm()
         # Filtrar comisiones a las que está inscripto actualmente
         form.fields['comision'].queryset = Comision.objects.filter(
-            inscripciones__alumno=request.user.perfil_alumno, 
+            alumnos_inscriptos__alumno=request.user.perfil_alumno, 
             cerrada=False
         )
 
@@ -849,6 +879,39 @@ def revisar_justificativos(request):
         
     justificativos = JustificativoAsistencia.objects.filter(estado='PEND').order_by('-fecha_carga')
     return render(request, 'gestion/bedelia/revisar_justificativos.html', {'justificativos': justificativos})
+
+@login_required
+def subir_programa(request, comision_id):
+    from django.contrib import messages
+    from .models import Comision, ProgramaComision
+    from .forms import ProgramaComisionForm
+    
+    comision = get_object_or_404(Comision, id=comision_id)
+    
+    # Check authorization
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        if comision.docente == request.user.perfil_docente or comision.docente_auxiliar == request.user.perfil_docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para cargar el programa en esta comisión.')
+        return redirect('dashboard')
+        
+    programa, created = ProgramaComision.objects.get_or_create(comision=comision)
+    
+    if request.method == 'POST':
+        form = ProgramaComisionForm(request.POST, request.FILES, instance=programa)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Programa subido correctamente.')
+            return redirect('detalle_comision', comision_id=comision.id)
+    else:
+        form = ProgramaComisionForm(instance=programa)
+        
+    return render(request, 'gestion/docentes/subir_programa.html', {'form': form, 'comision': comision})
 
 @login_required
 def cargar_notas(request, comision_id):
