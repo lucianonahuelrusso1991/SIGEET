@@ -123,8 +123,7 @@
                                                 <span class="badge bg-info bg-opacity-10 text-info border border-info">Vocal</span>
                                             {% endif %}
                                         </div>
-                                        <!-- TODO: Redirigir a vista especifica de mesa -->
-                                        <button class="btn btn-outline-danger btn-sm w-100 rounded-pill" disabled>Ver Mesa</button>
+                                        <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-outline-danger btn-sm w-100 rounded-pill">Ver Mesa</a>
                                     </div>
                                     {% endfor %}
                                 </div>

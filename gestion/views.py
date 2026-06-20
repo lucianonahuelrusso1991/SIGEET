@@ -1316,6 +1316,20 @@ def eliminar_mesa(request, mesa_id):
 def detalle_mesa(request, mesa_id):
     from .models import MesaExamen
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
+    
+    # Validar permisos
+    is_authorized = False
+    if request.user.is_staff or request.user.is_superuser:
+        is_authorized = True
+    elif hasattr(request.user, 'perfil_docente'):
+        docente = request.user.perfil_docente
+        if mesa.presidente_mesa == docente or mesa.vocal_1 == docente or mesa.vocal_2 == docente:
+            is_authorized = True
+            
+    if not is_authorized:
+        messages.error(request, 'No tienes permiso para acceder a esta mesa de examen.')
+        return redirect('dashboard')
+        
     return render(request, 'gestion/detalle_mesa.html', {'mesa': mesa})
 
 from datetime import timedelta, date

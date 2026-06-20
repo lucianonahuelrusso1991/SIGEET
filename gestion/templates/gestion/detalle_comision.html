@@ -55,6 +55,7 @@
                     {% if comision.modalidad == 'P' or comision.modalidad == 'B' %}
                         <a href="{% url 'imprimir_lista_asistencia' comision.id %}" target="_blank" class="btn btn-outline-secondary shadow-sm">🖨️ Lista de Asistencia Física</a>
                     {% endif %}
+                    <a href="{% url 'acta_volante' comision.id %}" target="_blank" class="btn btn-dark shadow-sm">📑 Acta Volante</a>
                 </div>
             </div>
         </div>
@@ -79,7 +80,6 @@
                         <button onclick="confirmarCierre('{% url 'cerrar_comision' comision.id %}')" class="btn btn-danger btn-sm shadow-sm">🔒 Cierre Definitivo</button>
                     {% endif %}
                     
-                    <a href="{% url 'acta_volante' comision.id %}" target="_blank" class="btn btn-dark btn-sm shadow-sm">📑 Acta Volante</a>
                     <button onclick="confirmarEliminacion('{% url 'eliminar_comision' comision.id %}')" class="btn btn-outline-danger btn-sm shadow-sm ms-auto">🗑️ Eliminar</button>
                 </div>
             </div>

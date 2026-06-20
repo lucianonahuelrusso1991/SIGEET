@@ -32,13 +32,15 @@
         </div>
         
         <div class="d-grid gap-2">
-            {% if not mesa.cerrada %}
+            {% if not mesa.cerrada and user.is_staff %}
                 <a href="{% url 'inscribir_alumno_mesa' mesa.id %}" class="btn btn-success shadow-sm">➕ Inscribir Alumno al Final</a>
                 <a href="{% url 'cargar_notas_mesa' mesa.id %}" class="btn btn-primary shadow-sm">📝 Cargar Notas de Examen</a>
                 <a href="{% url 'cerrar_mesa' mesa.id %}" class="btn btn-danger shadow-sm">🔒 Cerrar Mesa Definitivamente</a>
             {% endif %}
             <a href="{% url 'acta_examen' mesa.id %}" target="_blank" class="btn btn-dark shadow-sm">📑 Imprimir Acta de Examen</a>
-            <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn btn-outline-danger shadow-sm mt-2">🗑️ Eliminar Mesa</a>
+            {% if user.is_staff %}
+                <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn btn-outline-danger shadow-sm mt-2">🗑️ Eliminar Mesa</a>
+            {% endif %}
         </div>
     </div>
     
