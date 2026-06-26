@@ -36,13 +36,27 @@
             </h2>
             <p class="text-muted mb-0">DNI: {{ alumno.dni }} | Nacimiento: {{ alumno.fecha_nacimiento|date:"d/m/Y" }}</p>
         </div>
-        <div>
-            <a href="{% url 'calendario_alumno' alumno.id %}" class="btn btn-dark shadow-sm fw-bold me-2">📅 Ver Mi Calendario</a>
-            <a href="{% url 'constancia_alumno' alumno.id %}" target="_blank" class="btn btn-outline-dark shadow-sm fw-bold me-2">📄 Generar Constancia</a>
-            <a href="{% url 'analitico_alumno' alumno.id %}" target="_blank" class="btn btn-primary shadow-sm fw-bold me-2">🎓 Analítico Parcial</a>
-            <a href="{% url 'alta_equivalencia' alumno.id %}" class="btn btn-success shadow-sm fw-bold me-2">✨ Cargar Equivalencia</a>
-            <a href="{% url 'resetear_password_alumno' alumno.id %}" class="btn btn-danger shadow-sm fw-bold me-2" onclick="return confirm('¿Estás seguro de que deseas resetear la contraseña de este alumno a su DNI?');">🔐 Resetear Clave</a>
-            <a href="{% url 'editar_alumno' alumno.id %}" class="btn btn-warning shadow-sm fw-bold">✏️ Editar Datos</a>
+        <div class="d-flex flex-wrap justify-content-end gap-2 mt-3 mt-md-0">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle shadow-sm fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ⚙️ Acciones Rápidas
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="{% url 'calendario_alumno' alumno.id %}">📅 Ver Mi Calendario</a></li>
+                    <li><a class="dropdown-item" href="{% url 'constancia_alumno' alumno.id %}" target="_blank">📄 Generar Constancia</a></li>
+                    <li><a class="dropdown-item" href="{% url 'analitico_alumno' alumno.id %}" target="_blank">🎓 Analítico Parcial</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-success" href="{% url 'alta_equivalencia' alumno.id %}">✨ Cargar Equivalencia</a></li>
+                </ul>
+            </div>
+            
+            <a href="{% url 'editar_alumno' alumno.id %}" class="btn btn-warning shadow-sm fw-bold">
+                <i class="bi bi-pencil-square"></i> Editar Datos
+            </a>
+            
+            <a href="{% url 'resetear_password_alumno' alumno.id %}" class="btn btn-danger shadow-sm fw-bold" onclick="return confirm('¿Estás seguro de que deseas resetear la contraseña de este alumno a su DNI?');">
+                <i class="bi bi-key"></i> Reset Clave
+            </a>
         </div>
     </div>
 
@@ -128,147 +142,169 @@
         </div>
     </div>
 
-    <hr class="my-5">
+    <hr class="my-4">
 
-    <!-- Libro Matriz -->
-    <h3 class="mb-4 text-success fw-bold"><i class="bi bi-book-half"></i> Libro Matriz: Materias Acreditadas</h3>
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-success">
-                    <tr>
-                        <th>Materia</th>
-                        <th>Tipo de Aprobación</th>
-                        <th class="text-center">Nota</th>
-                        <th>Fecha</th>
-                        <th>Detalle (Acta/Resolución)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in acreditadas %}
-                        <tr>
-                            <td class="fw-bold">{{ item.materia.nombre }}</td>
-                            <td>
-                                {% if item.tipo == 'Promoción' %}
-                                    <span class="badge bg-success">Promoción Directa</span>
-                                {% elif item.tipo == 'Final' %}
-                                    <span class="badge bg-primary">Final Aprobado</span>
-                                {% elif item.tipo == 'Equivalencia' %}
-                                    <span class="badge bg-info text-dark">Equivalencia</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center fw-bold fs-5">{{ item.nota }}</td>
-                            <td class="text-muted">{{ item.fecha|date:"d/m/Y" }}</td>
-                            <td class="text-muted small">{{ item.detalle }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Aún no hay materias acreditadas.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs fw-bold mb-4" id="legajoTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="matriz-tab" data-bs-toggle="tab" data-bs-target="#matriz" type="button" role="tab"><i class="bi bi-book-half"></i> Acreditadas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-primary" id="cursando-tab" data-bs-toggle="tab" data-bs-target="#cursando" type="button" role="tab"><i class="bi bi-pencil-square"></i> Cursando</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-warning" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab"><i class="bi bi-clock-history"></i> Finales Pendientes</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-danger" id="recursar-tab" data-bs-toggle="tab" data-bs-target="#recursar" type="button" role="tab"><i class="bi bi-exclamation-triangle"></i> Recursar</button>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content" id="legajoTabsContent">
+        <!-- Libro Matriz -->
+        <div class="tab-pane fade show active" id="matriz" role="tabpanel" tabindex="0">
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Materia</th>
+                                <th>Tipo de Aprobación</th>
+                                <th class="text-center">Nota</th>
+                                <th>Fecha</th>
+                                <th>Detalle (Acta/Resolución)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in acreditadas %}
+                                <tr>
+                                    <td class="fw-bold">{{ item.materia.nombre }}</td>
+                                    <td>
+                                        {% if item.tipo == 'Promoción' %}
+                                            <span class="badge bg-success">Promoción Directa</span>
+                                        {% elif item.tipo == 'Final' %}
+                                            <span class="badge bg-primary">Final Aprobado</span>
+                                        {% elif item.tipo == 'Equivalencia' %}
+                                            <span class="badge bg-info text-dark">Equivalencia</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center fw-bold fs-5">{{ item.nota }}</td>
+                                    <td class="text-muted">{{ item.fecha|date:"d/m/Y" }}</td>
+                                    <td class="text-muted small">{{ item.detalle }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Aún no hay materias acreditadas.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cursando Actualmente -->
+        <div class="tab-pane fade" id="cursando" role="tabpanel" tabindex="0">
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Materia</th>
+                                <th>Comisión / Docente</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for insc in cursando %}
+                                <tr>
+                                    <td class="fw-bold">{{ insc.comision.materia.nombre }}</td>
+                                    <td>{{ insc.comision.get_cuatrimestre_display }} {{ insc.comision.ciclo_lectivo }} - {% if insc.comision.docente %}{{ insc.comision.docente }}{% else %}Sin asignar{% endif %}</td>
+                                    <td><span class="badge bg-primary">Regular (En curso)</span></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-muted">No está cursando ninguna materia actualmente.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regulares (Final Pendiente) -->
+        <div class="tab-pane fade" id="pendientes" role="tabpanel" tabindex="0">
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>Materia</th>
+                                <th>Cursada Finalizada</th>
+                                <th class="text-center">Intentos Usados</th>
+                                <th>Vencimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in regulares %}
+                                <tr>
+                                    <td class="fw-bold">{{ reg.materia.nombre }}</td>
+                                    <td class="text-muted">{{ reg.inscripcion.comision.ciclo_lectivo }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {% if reg.intentos == 0 %}bg-success{% elif reg.intentos == 1 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                                            {{ reg.intentos }} / 3
+                                        </span>
+                                    </td>
+                                    <td>
+                                        📅 {{ reg.vencimiento|date:"d/m/Y" }}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No hay finales pendientes.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- A Recursar -->
+        <div class="tab-pane fade" id="recursar" role="tabpanel" tabindex="0">
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-danger">
+                            <tr>
+                                <th>Materia</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in recursar %}
+                                <tr>
+                                    <td class="fw-bold">{{ rec.comision.materia.nombre }}</td>
+                                    <td>
+                                        {% if rec.estado == 'LIB' %}
+                                            <span class="badge bg-danger">Quedó Libre en cursada</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Regularidad Vencida</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center py-4 text-muted">No tiene materias para recursar.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Cursando Actualmente -->
-    <h3 class="mb-4 text-primary fw-bold"><i class="bi bi-pencil-square"></i> Cursando Actualmente</h3>
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Materia</th>
-                        <th>Comisión / Docente</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for insc in cursando %}
-                        <tr>
-                            <td class="fw-bold">{{ insc.comision.materia.nombre }}</td>
-                            <td>{{ insc.comision.get_cuatrimestre_display }} {{ insc.comision.ciclo_lectivo }} - {% if insc.comision.docente %}{{ insc.comision.docente }}{% else %}Sin asignar{% endif %}</td>
-                            <td><span class="badge bg-primary">Regular (En curso)</span></td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center py-4 text-muted">No está cursando ninguna materia actualmente.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Regulares (Final Pendiente) -->
-    <h3 class="mb-4 text-warning fw-bold"><i class="bi bi-clock-history"></i> Regulares (Final Pendiente)</h3>
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-warning">
-                    <tr>
-                        <th>Materia</th>
-                        <th>Cursada Finalizada</th>
-                        <th class="text-center">Intentos Usados</th>
-                        <th>Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for reg in regulares %}
-                        <tr>
-                            <td class="fw-bold">{{ reg.materia.nombre }}</td>
-                            <td class="text-muted">{{ reg.inscripcion.comision.ciclo_lectivo }}</td>
-                            <td class="text-center">
-                                <span class="badge {% if reg.intentos == 0 %}bg-success{% elif reg.intentos == 1 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
-                                    {{ reg.intentos }} / 3
-                                </span>
-                            </td>
-                            <td>
-                                📅 {{ reg.vencimiento|date:"d/m/Y" }}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-muted">No hay finales pendientes.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- A Recursar -->
-    <h3 class="mb-4 text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Materias a Recursar</h3>
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-danger">
-                    <tr>
-                        <th>Materia</th>
-                        <th>Motivo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rec in recursar %}
-                        <tr>
-                            <td class="fw-bold">{{ rec.comision.materia.nombre }}</td>
-                            <td>
-                                {% if rec.estado == 'LIB' %}
-                                    <span class="badge bg-danger">Quedó Libre en cursada</span>
-                                {% else %}
-                                    <span class="badge bg-danger">Regularidad Vencida</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="2" class="text-center py-4 text-muted">No tiene materias para recursar.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
 {% endblock %}

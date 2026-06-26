@@ -17,7 +17,7 @@ from gestion.views import (
     redactar_comunicado, mis_notificaciones, leer_notificacion,
     resetear_password_alumno, perfil_alumno, libro_matriz_alumno, alumno_inscripcion_cursada,
     alumno_inscripcion_finales, subir_justificativo, revisar_justificativos,
-    subir_programa
+    subir_programa, panel_contable
 )
 
 urlpatterns = [
@@ -107,6 +107,9 @@ urlpatterns = [
     
     # PROGRAMAS Y TEMAS
     path('comisiones/<int:comision_id>/subir-programa/', subir_programa, name='subir_programa'),
+    
+    # CONTABLE
+    path('panel-contable/', panel_contable, name='panel_contable'),
 ]
 
 from django.conf import settings

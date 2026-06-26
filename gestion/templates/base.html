@@ -52,6 +52,22 @@
         .text-info { color: var(--bs-secondary) !important; }
         .btn-info { background-color: var(--bs-secondary); border-color: var(--bs-secondary); color: #fff; }
         .btn-info:hover { background-color: #1D797A; border-color: #1D797A; color: #fff; }
+
+        /* Dark mode overrides */
+        [data-bs-theme="dark"] {
+            --bs-primary: #5a9bd5;
+            --bs-primary-rgb: 90, 155, 213;
+            --bs-secondary: #40c6c8;
+            --bs-secondary-rgb: 64, 198, 200;
+            --bs-info: #40c6c8;
+            --bs-info-rgb: 64, 198, 200;
+            --bg-color: #121212;
+        }
+
+        /* Fix forced text-dark on dark mode, but leave it dark on light backgrounds like warnings */
+        [data-bs-theme="dark"] .text-dark:not(.badge):not(.bg-warning):not(.bg-light):not(.bg-info):not(.btn-light) {
+            color: #f8f9fa !important;
+        }
         
         .navbar-brand img {
             max-height: 55px;

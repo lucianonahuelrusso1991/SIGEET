@@ -87,4 +87,39 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterInput = document.getElementById('filterText');
+    const rows = document.querySelectorAll('.alumno-row');
+    const noResultsRow = document.getElementById('noResultsRow');
+
+    if(filterInput) {
+        filterInput.addEventListener('keyup', function() {
+            const filterValue = filterInput.value.toLowerCase();
+            let hasVisibleRows = false;
+
+            rows.forEach(row => {
+                const nombre = row.querySelector('.alumno-nombre').textContent.toLowerCase();
+                const dni = row.querySelector('.alumno-dni').textContent.toLowerCase();
+
+                if (nombre.includes(filterValue) || dni.includes(filterValue)) {
+                    row.classList.remove('d-none');
+                    hasVisibleRows = true;
+                } else {
+                    row.classList.add('d-none');
+                }
+            });
+
+            if (noResultsRow) {
+                if (!hasVisibleRows && rows.length > 0) {
+                    noResultsRow.classList.remove('d-none');
+                } else {
+                    noResultsRow.classList.add('d-none');
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -8,6 +8,11 @@ from .models import Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripci
 
 @login_required
 def dashboard(request):
+    # Redirección automática para el grupo Contable
+    if request.user.is_authenticated and not request.user.is_superuser:
+        if request.user.groups.filter(name='Contable').exists():
+            return redirect('panel_contable')
+
     from .models import MesaExamen, Notificacion
     cant_alumnos = Alumno.objects.filter(estado_alumno='ACT').count()
     cant_docentes = Docente.objects.count()
@@ -21,7 +26,7 @@ def dashboard(request):
         unread_notifications = []
 
     # Bifurcación para panel de alumno
-    if hasattr(request.user, 'perfil_alumno'):
+    if hasattr(request.user, 'perfil_alumno') and not (request.user.is_staff or request.user.is_superuser):
         alumno = request.user.perfil_alumno
         
         # Calcular porcentaje de avance
@@ -40,7 +45,7 @@ def dashboard(request):
         })
 
     # Bifurcación para panel de docente
-    if hasattr(request.user, 'perfil_docente'):
+    if hasattr(request.user, 'perfil_docente') and not (request.user.is_staff or request.user.is_superuser):
         docente = request.user.perfil_docente
         from django.db.models import Q
         
@@ -656,7 +661,10 @@ def detalle_comision(request, comision_id):
         
     return render(request, 'gestion/detalle_comision.html', {'comision': comision})
 
+from django.contrib.auth.decorators import user_passes_test
+
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def inscribir_alumno_comision(request, comision_id):
     comision = get_object_or_404(Comision, id=comision_id)
     
@@ -684,36 +692,10 @@ def inscribir_alumno_comision(request, comision_id):
             if alumno.estado_alumno in ['INA', 'EGR', 'COND_PAG']:
                 messages.warning(request, f"ATENCIÓN: {alumno.apellido}, {alumno.nombre} tiene estado '{alumno.get_estado_alumno_display()}'. Fue inscripto porque tenés permisos de Admin, pero verificá su situación.")
             
-            # Validación de Correlatividades
-            correlativas = Correlatividad.objects.filter(materia=comision.materia)
-            puede_cursar = True
-            faltan = []
-            
-            for corr in correlativas:
-                # Buscamos inscripciones previas del alumno a la materia requerida
-                inscripciones_previas = Inscripcion.objects.filter(alumno=alumno, comision__materia=corr.requisito)
-                
-                if corr.tipo == 'CUR':
-                    # Requiere cursada regularizada o aprobada
-                    cumple = inscripciones_previas.filter(estado__in=['REG', 'APR', 'PROM']).exists()
-                    if not cumple:
-                        puede_cursar = False
-                        faltan.append(f"{corr.requisito.nombre} (Regularizada)")
-                elif corr.tipo == 'APR':
-                    # Requiere final aprobado o promoción
-                    cumple = inscripciones_previas.filter(estado__in=['APR', 'PROM']).exists()
-                    if not cumple:
-                        puede_cursar = False
-                        faltan.append(f"{corr.requisito.nombre} (Aprobada)")
-                        
-            if puede_cursar or request.POST.get('force') == 'true':
-                Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
+            # Inscripción Directa sin validar Correlatividades para Cursada
+            _, created = Inscripcion.objects.get_or_create(alumno=alumno, comision=comision, defaults={'estado': 'REG'})
+            if created:
                 exitosos += 1
-                if not puede_cursar:
-                    messages.warning(request, f"Excepción administrativa: {alumno.apellido}, {alumno.nombre} inscripto sin correlativas.")
-            else:
-                fallidos += 1
-                messages.error(request, f"{alumno.apellido}, {alumno.nombre} NO cumple las correlativas. Le falta: {', '.join(faltan)}", extra_tags=f"force_comision,{comision.id},{alumno.id}")
                 
         if exitosos > 0:
             messages.success(request, f"Se inscribieron {exitosos} alumnos a {comision.materia.nombre}.")
@@ -1464,7 +1446,10 @@ def detalle_mesa(request, mesa_id):
 
 from datetime import timedelta, date
 
+from django.contrib.auth.decorators import user_passes_test
+
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def inscribir_alumno_mesa(request, mesa_id):
     from .models import MesaExamen, InscripcionMesa, Correlatividad
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
@@ -1575,7 +1560,7 @@ def inscribir_alumno_mesa(request, mesa_id):
                 for error in errores_validacion:
                     messages.error(request, f"{alumno.apellido}: {error}", extra_tags=f"force_mesa,{mesa.id},{alumno.id}")
             else:
-                InscripcionMesa.objects.create(alumno=alumno, mesa=mesa)
+                InscripcionMesa.objects.get_or_create(alumno=alumno, mesa=mesa)
                 if override_admin and errores_validacion:
                     messages.warning(request, f'Alumno inscripto bajo excepción administrativa ignorando bloqueos.')
                 else:
@@ -2034,6 +2019,11 @@ def alumno_inscripcion_cursada(request):
         return redirect('dashboard')
         
     alumno = request.user.perfil_alumno
+    
+    if alumno.estado_alumno in ['INA', 'COND_PAG']:
+        messages.error(request, f'No puedes inscribirte a cursadas. Tu estado actual es {alumno.get_estado_alumno_display()}.')
+        return redirect('dashboard')
+        
     if not alumno.plan:
         messages.error(request, 'No tienes un plan de estudios asignado.')
         return redirect('dashboard')
@@ -2064,45 +2054,8 @@ def alumno_inscripcion_cursada(request):
                 if ya_inscripto:
                     messages.error(request, f'Ya estás inscripto en una comisión de {comision.materia.nombre} este año.')
                 else:
-                    # Chequeo rápido de correlativas (si se implementara acá a futuro). 
-                    # El template ya desactiva el botón, pero hacemos una validación básica en backend.
-                    # Se requiere iterar Correlatividad
-                    from .models import Correlatividad, InscripcionMesa, Equivalencia
-                    correlativas = Correlatividad.objects.filter(materia=comision.materia)
-                    cumple_todas = True
-                    motivo_rechazo = ""
-                    
-                    for corr in correlativas:
-                        req_materia = corr.requisito
-                        if corr.tipo == 'CUR':
-                            # Necesita Regular, Aprobada o Promocionada
-                            tiene_cursada = Inscripcion.objects.filter(
-                                alumno=alumno, comision__materia=req_materia, estado__in=['REG', 'APR', 'PROM']
-                            ).exists()
-                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
-                            if not (tiene_cursada or tiene_equiv):
-                                cumple_todas = False
-                                motivo_rechazo = f"Falta cursada de {req_materia.nombre}."
-                                break
-                        elif corr.tipo == 'APR':
-                            # Necesita Promocionada, Final Aprobado o Equivalencia
-                            tiene_prom = Inscripcion.objects.filter(
-                                alumno=alumno, comision__materia=req_materia, estado='PROM'
-                            ).exists()
-                            tiene_final = InscripcionMesa.objects.filter(
-                                alumno=alumno, mesa__materia=req_materia, estado='APR'
-                            ).exists()
-                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
-                            if not (tiene_prom or tiene_final or tiene_equiv):
-                                cumple_todas = False
-                                motivo_rechazo = f"Falta final de {req_materia.nombre}."
-                                break
-                                
-                    if cumple_todas:
-                        Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
-                        messages.success(request, f'Te inscribiste correctamente en {comision.materia.nombre}.')
-                    else:
-                        messages.error(request, f'No cumples con las correlativas: {motivo_rechazo}')
+                    Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
+                    messages.success(request, f'Te inscribiste correctamente en {comision.materia.nombre}.')
                         
         except Comision.DoesNotExist:
             messages.error(request, 'La comisión no existe o ya cerró su inscripción.')
@@ -2168,6 +2121,11 @@ def alumno_inscripcion_finales(request):
         return redirect('dashboard')
         
     alumno = request.user.perfil_alumno
+    
+    if alumno.estado_alumno in ['INA', 'COND_PAG']:
+        messages.error(request, f'No puedes inscribirte a finales. Tu estado actual es {alumno.get_estado_alumno_display()}.')
+        return redirect('dashboard')
+        
     if not alumno.plan:
         messages.error(request, 'No tienes un plan de estudios asignado.')
         return redirect('dashboard')
@@ -2286,3 +2244,41 @@ def alumno_inscripcion_finales(request):
         'mesas_por_turno': mesas_por_turno,
         'alumno': alumno,
     })
+
+@login_required
+def panel_contable(request):
+    # Verificar si tiene permisos (is_staff o grupo Contable, Directivos, Secretaria)
+    user_groups = request.user.groups.values_list('name', flat=True)
+    is_authorized = request.user.is_staff or request.user.is_superuser or any(g in user_groups for g in ['Contable', 'Secretaría', 'Directivos'])
+    
+    if not is_authorized:
+        messages.error(request, 'No tienes permisos para acceder al Panel Contable.')
+        return redirect('dashboard')
+        
+    alumnos = Alumno.objects.all().order_by('apellido', 'nombre')
+    
+    if request.method == 'POST':
+        alumno_id = request.POST.get('alumno_id')
+        nuevo_estado = request.POST.get('nuevo_estado')
+        
+        if alumno_id and nuevo_estado:
+            try:
+                alumno = Alumno.objects.get(id=alumno_id)
+                alumno.estado_alumno = nuevo_estado
+                alumno.save()
+                
+                # Si pasa a Inactivo, desactivamos el user
+                if alumno.usuario:
+                    if nuevo_estado == 'INA':
+                        alumno.usuario.is_active = False
+                    else:
+                        alumno.usuario.is_active = True
+                    alumno.usuario.save()
+                    
+                messages.success(request, f"Estado de {alumno.apellido}, {alumno.nombre} actualizado a {alumno.get_estado_alumno_display()}.")
+            except Alumno.DoesNotExist:
+                messages.error(request, "Alumno no encontrado.")
+                
+        return redirect('panel_contable')
+        
+    return render(request, 'gestion/contable/panel_contable.html', {'alumnos': alumnos})

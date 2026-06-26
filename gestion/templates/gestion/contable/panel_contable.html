@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Contable / Administrativo{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al inicio</a>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-2"> 
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <h2 class="text-success fw-bold">Panel Contable y Administrativo</h2>
+            <p class="text-muted">Gestión rápida de estado de alumnos</p>
+        </div>
+        <div class="col-md-7 text-end align-self-center">
+            <div class="d-inline-block me-2" style="width: 300px;">
+                <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 border-top border-success border-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="alumnosTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Apellido y Nombre</th>
+                            <th>DNI</th>
+                            <th>Estado Actual</th>
+                            <th class="text-end pe-4">Cambiar Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alumno in alumnos %}
+                            <tr class="alumno-row">
+                                <td class="ps-4 alumno-nombre fw-bold">
+                                    {{ alumno.apellido }}, {{ alumno.nombre }}
+                                </td>
+                                <td class="alumno-dni text-muted">{{ alumno.dni }}</td>
+                                <td>
+                                    {% if alumno.estado_alumno == 'ACT' %}
+                                        <span class="badge bg-success shadow-sm px-3 py-2">Activo</span>
+                                    {% elif alumno.estado_alumno == 'INA' %}
+                                        <span class="badge bg-danger shadow-sm px-3 py-2">Inactivo</span>
+                                    {% elif alumno.estado_alumno == 'EGR' %}
+                                        <span class="badge bg-info text-dark shadow-sm px-3 py-2">Egresado</span>
+                                    {% elif alumno.estado_alumno == 'COND_DOC' %}
+                                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2" title="Falta Documentación">Condicionado (Doc)</span>
+                                    {% elif alumno.estado_alumno == 'COND_PAG' %}
+                                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2" title="Falta de Pago">Condicionado (Pago)</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form method="POST" action="{% url 'panel_contable' %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="alumno_id" value="{{ alumno.id }}">
+                                        
+                                        {% if alumno.estado_alumno != 'ACT' %}
+                                            <button type="submit" name="nuevo_estado" value="ACT" class="btn btn-sm btn-outline-success fw-bold" onclick="return confirm('¿Activar alumno? Recuperará el acceso al sistema.');">Activar</button>
+                                        {% endif %}
+                                        
+                                        {% if alumno.estado_alumno != 'COND_PAG' %}
+                                            <button type="submit" name="nuevo_estado" value="COND_PAG" class="btn btn-sm btn-outline-warning fw-bold text-dark" onclick="return confirm('¿Marcar como condicionado por pago?');">Condicionar (Pago)</button>
+                                        {% endif %}
+                                        
+                                        {% if alumno.estado_alumno != 'INA' %}
+                                            <button type="submit" name="nuevo_estado" value="INA" class="btn btn-sm btn-danger fw-bold" onclick="return confirm('¿Inactivar alumno? Perderá el acceso al sistema.');">Inactivar</button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr id="emptyRow">
+                                <td colspan="4" class="text-center py-4">No hay alumnos registrados.</td>
+                            </tr>
+                        {% endfor %}
+                        <tr id="noResultsRow" class="d-none">
+                            <td colspan="4" class="text-center py-4 text-muted">No se encontraron alumnos que coincidan con la búsqueda.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterInput = document.getElementById('filterText');
+    const rows = document.querySelectorAll('.alumno-row');
+    const noResultsRow = document.getElementById('noResultsRow');
+
+    filterInput.addEventListener('keyup', function() {
+        const filterValue = filterInput.value.toLowerCase();
+        let hasVisibleRows = false;
+
+        rows.forEach(row => {
+            const nombre = row.querySelector('.alumno-nombre').textContent.toLowerCase();
+            const dni = row.querySelector('.alumno-dni').textContent.toLowerCase();
+
+            if (nombre.includes(filterValue) || dni.includes(filterValue)) {
+                row.classList.remove('d-none');
+                hasVisibleRows = true;
+            } else {
+                row.classList.add('d-none');
+            }
+        });
+
+        if (noResultsRow) {
+            if (!hasVisibleRows && rows.length > 0) {
+                noResultsRow.classList.remove('d-none');
+            } else {
+                noResultsRow.classList.add('d-none');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

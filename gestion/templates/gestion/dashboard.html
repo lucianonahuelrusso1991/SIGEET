@@ -167,7 +167,7 @@
     <!-- Métricas / KPIs -->
     <div class="row g-4 mb-5">
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body text-center p-4">
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Alumnos Activos</h6>
                     <h2 class="display-6 fw-bold text-primary mb-0">{{ cant_alumnos }}</h2>
@@ -175,7 +175,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body text-center p-4">
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Docentes</h6>
                     <h2 class="display-6 fw-bold text-warning mb-0">{{ cant_docentes }}</h2>
@@ -183,7 +183,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body text-center p-4">
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Cursadas Activas</h6>
                     <h2 class="display-6 fw-bold text-success mb-0">{{ cant_comisiones }}</h2>
@@ -191,7 +191,7 @@
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body text-center p-4">
                     <h6 class="text-muted text-uppercase fw-bold mb-2" style="letter-spacing: 1px; font-size: 0.8rem;">Mesas Abiertas</h6>
                     <h2 class="display-6 fw-bold text-danger mb-0">{{ cant_mesas }}</h2>
@@ -220,6 +220,13 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Acceso Rápido Contable -->
+    <div class="text-center mt-5 mb-3">
+        <a href="{% url 'panel_contable' %}" class="text-muted small text-decoration-none hover-lift d-inline-block">
+            <i class="bi bi-wallet2 me-1"></i> Ir a Administración Contable
+        </a>
     </div>
 
 </div>
