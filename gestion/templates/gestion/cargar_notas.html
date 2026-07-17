@@ -21,8 +21,21 @@
         <div class="card-header bg-light py-3">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <label class="fw-bold text-muted small">Instancia de Evaluación *</label>
-                    <input type="text" name="instancia" class="form-control border-primary fw-bold" placeholder='Ej: "1er Parcial", "Trabajo Práctico", "Nota Final"' required>
+                    <label class="fw-bold text-muted small" for="id_instancia">Instancia de Evaluación *</label>
+                    <select name="instancia" id="id_instancia" class="form-select border-primary fw-bold" required>
+                        <option value="" disabled selected>Seleccione la instancia...</option>
+                        <option value="1er Parcial">1er Parcial</option>
+                        <option value="2do Parcial">2do Parcial</option>
+                        <option value="3er Parcial">3er Parcial</option>
+                        <option value="4to Parcial">4to Parcial</option>
+                        <option value="5to Parcial">5to Parcial</option>
+                        <option value="6to Parcial">6to Parcial</option>
+                        <option value="7mo Parcial">7mo Parcial</option>
+                        <option value="8vo Parcial">8vo Parcial</option>
+                        <option value="Recuperatorio">Recuperatorio</option>
+                        <option value="Trabajo Práctico">Trabajo Práctico</option>
+                        <option value="Nota Final">Nota Final</option>
+                    </select>
                 </div>
                 <div class="col-md-6 text-muted small">
                     <br>
@@ -75,4 +88,26 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const instanciaSelect = document.getElementById("id_instancia");
+        const cerrarCursadaCheckbox = document.getElementById("cerrar_cursada");
+
+        function forceCheck(e) {
+            e.preventDefault();
+        }
+
+        instanciaSelect.addEventListener("change", function() {
+            if (this.value === "Nota Final") {
+                cerrarCursadaCheckbox.checked = true;
+                cerrarCursadaCheckbox.addEventListener('click', forceCheck);
+            } else {
+                cerrarCursadaCheckbox.checked = false;
+                cerrarCursadaCheckbox.removeEventListener('click', forceCheck);
+            }
+        });
+    });
+</script>
+
 {% endblock %}

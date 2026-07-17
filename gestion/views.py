@@ -942,19 +942,32 @@ def cargar_notas(request, comision_id):
             if cerrar_cursada:
                 todas_las_notas = insc.notas.all()
                 if todas_las_notas.exists():
-                    promedio = sum([n.valor_nota for n in todas_las_notas]) / todas_las_notas.count()
-                    todas_mayor_o_igual_7 = all(n.valor_nota >= 7 for n in todas_las_notas)
-                    
-                    if todas_mayor_o_igual_7:
-                        if comision.tipo_aprobacion == 'PROM':
-                            nuevo_estado = 'PROM'
-                        else:
-                            nuevo_estado = 'REG'
-                    else:
-                        if promedio >= 4:
+                    if instancia_post == 'Nota Final' and nota_valor:
+                        # Opción A: La Nota Final pisa los promedios anteriores.
+                        if float(nota_valor) >= 7:
+                            if comision.tipo_aprobacion == 'PROM':
+                                nuevo_estado = 'PROM'
+                            else:
+                                nuevo_estado = 'REG'
+                        elif float(nota_valor) >= 4:
                             nuevo_estado = 'REG'
                         else:
                             nuevo_estado = 'LIB'
+                    else:
+                        # Cálculo normal por promedio
+                        promedio = sum([n.valor_nota for n in todas_las_notas]) / todas_las_notas.count()
+                        todas_mayor_o_igual_7 = all(n.valor_nota >= 7 for n in todas_las_notas)
+                        
+                        if todas_mayor_o_igual_7:
+                            if comision.tipo_aprobacion == 'PROM':
+                                nuevo_estado = 'PROM'
+                            else:
+                                nuevo_estado = 'REG'
+                        else:
+                            if promedio >= 4:
+                                nuevo_estado = 'REG'
+                            else:
+                                nuevo_estado = 'LIB'
                     
                     insc.estado = nuevo_estado
                     insc.save()
