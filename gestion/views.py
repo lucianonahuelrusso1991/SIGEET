@@ -2321,6 +2321,7 @@ def lista_preinscriptos(request):
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def validar_preinscripto(request, alumno_id):
+    from django.contrib.auth.models import User
     alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
     
     # Crear usuario de django
