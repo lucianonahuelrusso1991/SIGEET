@@ -2322,22 +2322,41 @@ def lista_preinscriptos(request):
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def validar_preinscripto(request, alumno_id):
     from django.contrib.auth.models import User
+    from .forms import RevisarPreinscriptoForm
     alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
     
-    # Crear usuario de django
-    if not alumno.usuario:
-        if User.objects.filter(username=alumno.dni).exists():
-            messages.error(request, f"Ya existe un usuario con DNI {alumno.dni}. Si es un error, contáctese con soporte.")
-            return redirect('lista_preinscriptos')
+    if request.method == 'POST':
+        form = RevisarPreinscriptoForm(request.POST, instance=alumno)
+        if form.is_valid():
+            alumno = form.save(commit=False)
             
-        user = User.objects.create_user(username=alumno.dni, password=alumno.dni)
-        user.first_name = alumno.nombre
-        user.last_name = alumno.apellido
-        user.save()
-        alumno.usuario = user
+            # Crear usuario de django
+            if not alumno.usuario:
+                if User.objects.filter(username=alumno.dni).exists():
+                    messages.error(request, f"Ya existe un usuario con DNI {alumno.dni}. Revise si el DNI es correcto.")
+                    return redirect('lista_preinscriptos')
+                    
+                user = User.objects.create_user(username=alumno.dni, password=alumno.dni)
+                user.first_name = alumno.nombre
+                user.last_name = alumno.apellido
+                user.save()
+                alumno.usuario = user
+                
+            alumno.estado_alumno = 'ACT'
+            alumno.save()
+            messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y dado de alta exitosamente. (Usuario: DNI, Clave: DNI)")
+            return redirect('lista_preinscriptos')
+    else:
+        form = RevisarPreinscriptoForm(instance=alumno)
         
-    alumno.estado_alumno = 'ACT'
-    alumno.save()
-    messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y dado de alta exitosamente. (Usuario: DNI, Clave: DNI)")
-    
+    return render(request, 'gestion/revisar_preinscripto.html', {'form': form, 'alumno': alumno})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def rechazar_preinscripto(request, alumno_id):
+    if request.method == 'POST':
+        alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
+        nombre_completo = f"{alumno.apellido}, {alumno.nombre}"
+        alumno.delete()
+        messages.success(request, f"La preinscripción de {nombre_completo} ha sido rechazada y eliminada del sistema.")
     return redirect('lista_preinscriptos')

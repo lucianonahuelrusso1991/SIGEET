@@ -44,3 +44,31 @@ class PreinscripcionForm(forms.ModelForm):
             'lugar_nacimiento': forms.TextInput(attrs={'class': 'form-control'}),
             'plan': forms.Select(attrs={'class': 'form-select', 'required': 'required'}),
         }
+
+class RevisarPreinscriptoForm(forms.ModelForm):
+    class Meta:
+        model = Alumno
+        exclude = ['usuario', 'estado_alumno']
+        widgets = {
+            'dni': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'required': 'required'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'nacionalidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'codigo_postal': forms.TextInput(attrs={'class': 'form-control'}),
+            'comuna_zona': forms.TextInput(attrs={'class': 'form-control'}),
+            'provincia': forms.Select(attrs={'class': 'form-select'}),
+            'localidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'sexo': forms.Select(attrs={'class': 'form-select'}),
+            'lugar_nacimiento': forms.TextInput(attrs={'class': 'form-control'}),
+            'plan': forms.Select(attrs={'class': 'form-select', 'required': 'required'}),
+            'doc_dni': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'doc_vacunas': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'doc_partida': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'doc_primaria': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'doc_pase': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }

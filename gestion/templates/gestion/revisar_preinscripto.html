@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Revisar Preinscripción - {{ alumno.apellido }}, {{ alumno.nombre }}{% endblock %}
+
+{% block back_button %}
+<a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold mb-3 shadow-sm hover-lift">
+    <i class="bi bi-arrow-left me-1"></i> Volver a Lista de Aspirantes
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white p-4 rounded-top-4">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Revisar Datos del Aspirante</h3>
+                    <p class="mb-0 text-white-50 mt-1">Verificá los datos cargados por el postulante y tildá la documentación entregada antes de darle de alta definitivamente.</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 bg-light">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger shadow-sm rounded-3">
+                                <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Por favor corregí los siguientes errores:</strong>
+                                <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <!-- Datos Personales -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">1. Datos Personales</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">DNI</label>
+                                {{ form.dni }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">Nombre</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">Apellido</label>
+                                {{ form.apellido }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">Fecha de Nacimiento</label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">Sexo</label>
+                                {{ form.sexo }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold text-muted small">Nacionalidad</label>
+                                {{ form.nacionalidad }}
+                            </div>
+                        </div>
+
+                        <!-- Datos de Contacto -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">2. Contacto y Domicilio</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted small">Email</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-muted small">Teléfono Fijo</label>
+                                {{ form.telefono }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-muted small">Celular</label>
+                                {{ form.celular }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-muted small">Dirección</label>
+                                {{ form.direccion }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-muted small">Localidad</label>
+                                {{ form.localidad }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold text-muted small">Provincia</label>
+                                {{ form.provincia }}
+                            </div>
+                        </div>
+
+                        <!-- Académico -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">3. Académico</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold text-muted small">Carrera (Plan de Estudios)</label>
+                                {{ form.plan }}
+                            </div>
+                        </div>
+
+                        <!-- Checklists de Documentación -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">4. Documentación Físicamente Entregada</h5>
+                        <div class="card border-0 shadow-sm rounded-3 mb-4">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch fs-5 mb-2">
+                                            {{ form.doc_dni }}
+                                            <label class="form-check-label text-dark" for="{{ form.doc_dni.id_for_label }}">Fotocopia DNI</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch fs-5 mb-2">
+                                            {{ form.doc_vacunas }}
+                                            <label class="form-check-label text-dark" for="{{ form.doc_vacunas.id_for_label }}">Certificado de Vacunas</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch fs-5 mb-2">
+                                            {{ form.doc_partida }}
+                                            <label class="form-check-label text-dark" for="{{ form.doc_partida.id_for_label }}">Partida de Nacimiento</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch fs-5 mb-2">
+                                            {{ form.doc_primaria }}
+                                            <label class="form-check-label text-dark" for="{{ form.doc_primaria.id_for_label }}">Certificado Primaria</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch fs-5 mb-2">
+                                            {{ form.doc_pase }}
+                                            <label class="form-check-label text-dark" for="{{ form.doc_pase.id_for_label }}">Pase / Título Secundario</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
+                            <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary px-4 fw-bold rounded-pill">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-5 fw-bold rounded-pill shadow-sm hover-lift">
+                                ✅ Confirmar Alta de Alumno
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

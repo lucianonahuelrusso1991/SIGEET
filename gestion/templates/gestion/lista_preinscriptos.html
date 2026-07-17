@@ -38,12 +38,17 @@
                         </td>
                         <td><span class="badge bg-secondary">{{ asp.plan.nombre|default:"Sin asignar" }}</span></td>
                         <td class="text-end pe-4">
-                            <form method="post" action="{% url 'validar_preinscripto' asp.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-success fw-bold shadow-sm" onclick="return confirm('¿Seguro que deseas validar a este aspirante? Se creará su usuario (DNI) y pasará a ser Alumno Activo.');">
-                                    ✅ Validar y Dar de Alta
-                                </button>
-                            </form>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'validar_preinscripto' asp.id %}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                                    <i class="bi bi-search me-1"></i> Revisar y Validar
+                                </a>
+                                <form method="post" action="{% url 'rechazar_preinscripto' asp.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger fw-bold shadow-sm" onclick="return confirm('¿Seguro que deseas descartar a este aspirante? Sus datos se borrarán definitivamente.');">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
