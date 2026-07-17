@@ -2295,3 +2295,48 @@ def panel_contable(request):
         return redirect('panel_contable')
         
     return render(request, 'gestion/contable/panel_contable.html', {'alumnos': alumnos})
+
+from .forms import PreinscripcionForm
+
+def preinscripcion_publica(request):
+    if request.method == 'POST':
+        form = PreinscripcionForm(request.POST)
+        if form.is_valid():
+            alumno = form.save(commit=False)
+            alumno.estado_alumno = 'ASP'
+            alumno.save()
+            messages.success(request, 'Tu preinscripción se ha enviado correctamente. Bedelía revisará tus datos y te dará de alta pronto.')
+            return redirect('login')
+    else:
+        form = PreinscripcionForm()
+    
+    return render(request, 'gestion/preinscripcion.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def lista_preinscriptos(request):
+    aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
+    return render(request, 'gestion/lista_preinscriptos.html', {'aspirantes': aspirantes})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def validar_preinscripto(request, alumno_id):
+    alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
+    
+    # Crear usuario de django
+    if not alumno.usuario:
+        if User.objects.filter(username=alumno.dni).exists():
+            messages.error(request, f"Ya existe un usuario con DNI {alumno.dni}. Si es un error, contáctese con soporte.")
+            return redirect('lista_preinscriptos')
+            
+        user = User.objects.create_user(username=alumno.dni, password=alumno.dni)
+        user.first_name = alumno.nombre
+        user.last_name = alumno.apellido
+        user.save()
+        alumno.usuario = user
+        
+    alumno.estado_alumno = 'ACT'
+    alumno.save()
+    messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y dado de alta exitosamente. (Usuario: DNI, Clave: DNI)")
+    
+    return redirect('lista_preinscriptos')

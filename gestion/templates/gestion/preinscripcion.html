@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Preinscripción{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white text-center py-4 rounded-top-4">
+                    <h2 class="mb-0 fw-bold">🎓 Preinscripción de Aspirantes</h2>
+                    <p class="mb-0 mt-2 text-white-50">Completá tus datos para iniciar el proceso de admisión.</p>
+                </div>
+                <div class="card-body p-5 bg-light">
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger shadow-sm">
+                            <h5 class="alert-heading fw-bold">Por favor corregí los siguientes errores:</h5>
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'preinscripcion' %}">
+                        {% csrf_token %}
+                        
+                        <h4 class="text-primary mb-3 border-bottom pb-2">1. Datos Personales</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Nombre/s *</label>
+                                {{ form.nombre }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Apellido/s *</label>
+                                {{ form.apellido }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">DNI *</label>
+                                {{ form.dni }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Fecha de Nacimiento *</label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Sexo</label>
+                                {{ form.sexo }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Lugar de Nacimiento</label>
+                                {{ form.lugar_nacimiento }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Nacionalidad</label>
+                                {{ form.nacionalidad }}
+                            </div>
+                        </div>
+
+                        <h4 class="text-primary mb-3 border-bottom pb-2">2. Datos de Contacto</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-muted">Correo Electrónico *</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Celular</label>
+                                {{ form.celular }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Teléfono Fijo</label>
+                                {{ form.telefono }}
+                            </div>
+                        </div>
+
+                        <h4 class="text-primary mb-3 border-bottom pb-2">3. Domicilio</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-muted">Dirección</label>
+                                {{ form.direccion }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Provincia</label>
+                                {{ form.provincia }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Localidad</label>
+                                {{ form.localidad }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Código Postal</label>
+                                {{ form.codigo_postal }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-muted">Comuna/Zona</label>
+                                {{ form.comuna_zona }}
+                            </div>
+                        </div>
+
+                        <h4 class="text-primary mb-3 border-bottom pb-2">4. Inscripción a Carrera</h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-muted">Carrera (Plan de Estudio) *</label>
+                                {{ form.plan }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm rounded-3">Enviar Preinscripción 🚀</button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'login' %}" class="text-decoration-none text-muted">Ya tengo cuenta. Ir al login.</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

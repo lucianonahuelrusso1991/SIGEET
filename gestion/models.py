@@ -95,6 +95,7 @@ class Alumno(models.Model):
         ('EGR', 'Egresado'),
         ('COND_DOC', 'Condicionado (Documentación)'),
         ('COND_PAG', 'Condicionado (Falta de Pago)'),
+        ('ASP', 'Aspirante (Pre-Inscripto)'),
     ]
     estado_alumno = models.CharField('Estado', max_length=10, choices=ESTADOS_ALUMNO, default='ACT')
 

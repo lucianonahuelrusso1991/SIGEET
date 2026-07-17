@@ -19,3 +19,28 @@ class ProgramaComisionForm(forms.ModelForm):
         widgets = {
             'archivo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'application/pdf'})
         }
+
+from .models import Alumno
+
+class PreinscripcionForm(forms.ModelForm):
+    class Meta:
+        model = Alumno
+        exclude = ['usuario', 'estado_alumno', 'doc_dni', 'doc_vacunas', 'doc_partida', 'doc_primaria', 'doc_pase']
+        widgets = {
+            'dni': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'required': 'required'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'celular': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'required': 'required'}),
+            'nacionalidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'codigo_postal': forms.TextInput(attrs={'class': 'form-control'}),
+            'comuna_zona': forms.TextInput(attrs={'class': 'form-control'}),
+            'provincia': forms.Select(attrs={'class': 'form-select'}),
+            'localidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'sexo': forms.Select(attrs={'class': 'form-select'}),
+            'lugar_nacimiento': forms.TextInput(attrs={'class': 'form-control'}),
+            'plan': forms.Select(attrs={'class': 'form-select', 'required': 'required'}),
+        }

@@ -17,7 +17,8 @@ from gestion.views import (
     redactar_comunicado, mis_notificaciones, leer_notificacion,
     resetear_password_alumno, perfil_alumno, libro_matriz_alumno, alumno_inscripcion_cursada,
     alumno_inscripcion_finales, subir_justificativo, revisar_justificativos,
-    subir_programa, panel_contable
+    subir_programa, panel_contable,
+    preinscripcion_publica, lista_preinscriptos, validar_preinscripto
 )
 
 urlpatterns = [
@@ -110,6 +111,11 @@ urlpatterns = [
     
     # CONTABLE
     path('panel-contable/', panel_contable, name='panel_contable'),
+    
+    # PREINSCRIPCIONES
+    path('preinscripcion/', preinscripcion_publica, name='preinscripcion'),
+    path('preinscriptos/', lista_preinscriptos, name='lista_preinscriptos'),
+    path('preinscriptos/<int:alumno_id>/validar/', validar_preinscripto, name='validar_preinscripto'),
 ]
 
 from django.conf import settings
