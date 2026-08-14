@@ -259,9 +259,23 @@ class Inscripcion(models.Model):
         return f"{self.alumno} en {self.comision}"
 
 class Nota(models.Model):
+    INSTANCIA_CHOICES = [
+        ('1er Parcial', '1er Parcial'),
+        ('2do Parcial', '2do Parcial'),
+        ('3er Parcial', '3er Parcial'),
+        ('4to Parcial', '4to Parcial'),
+        ('5to Parcial', '5to Parcial'),
+        ('6to Parcial', '6to Parcial'),
+        ('7mo Parcial', '7mo Parcial'),
+        ('8vo Parcial', '8vo Parcial'),
+        ('Recuperatorio', 'Recuperatorio'),
+        ('Trabajo Práctico', 'Trabajo Práctico'),
+        ('Concepto', 'Concepto'),
+        ('Nota Final', 'Nota Final'),
+    ]
     inscripcion = models.ForeignKey(Inscripcion, on_delete=models.CASCADE, related_name='notas')
     valor_nota = models.DecimalField('Nota', max_digits=4, decimal_places=2)
-    instancia = models.CharField('Instancia (Ej: 1er Parcial, TP1)', max_length=50)
+    instancia = models.CharField('Instancia (Ej: 1er Parcial, TP1)', max_length=50, choices=INSTANCIA_CHOICES)
     fecha = models.DateField('Fecha de Carga', default=date.today)
 
     def __str__(self):
