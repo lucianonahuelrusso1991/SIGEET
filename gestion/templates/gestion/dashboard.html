@@ -117,6 +117,7 @@
             </div>
         </div>
 
+        {% if not es_director %}
         <div class="col-md-6 col-lg-4">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-4 text-center d-flex flex-column">
@@ -129,6 +130,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <div class="col-md-6 col-lg-4">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
@@ -224,11 +226,13 @@
     </div>
 
     <!-- Acceso Rápido Contable -->
+    {% if not es_director %}
     <div class="text-center mt-5 mb-3">
         <a href="{% url 'panel_contable' %}" class="text-muted small text-decoration-none hover-lift d-inline-block">
             <i class="bi bi-wallet2 me-1"></i> Ir a Administración Contable
         </a>
     </div>
+    {% endif %}
 
 </div>
 

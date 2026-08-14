@@ -40,6 +40,9 @@ class Docente(models.Model):
     SEXO_CHOICES = [('M', 'Masculino'), ('F', 'Femenino')]
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
     lugar_nacimiento = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Rol de Director de Carrera
+    carreras_coordinadas = models.ManyToManyField('PlanDeEstudio', related_name='coordinadores', blank=True, verbose_name="Carreras que Coordina")
 
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"

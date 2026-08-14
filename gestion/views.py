@@ -6,6 +6,13 @@ import json
 from datetime import date
 from .models import Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripcion, Nota, PlanillaDiaria, RegistroAsistencia, Correlatividad, HorarioComision
 
+def is_director_carrera(user):
+    """Retorna lista de IDs de planes de estudio si el usuario es director, None en caso contrario"""
+    if user.is_staff and not user.is_superuser:
+        if hasattr(user, 'perfil_docente') and user.perfil_docente.carreras_coordinadas.exists():
+            return list(user.perfil_docente.carreras_coordinadas.values_list('id', flat=True))
+    return None
+
 @login_required
 def dashboard(request):
     # Redirección automática para el grupo Contable
@@ -18,6 +25,16 @@ def dashboard(request):
     cant_docentes = Docente.objects.count()
     cant_comisiones = Comision.objects.filter(cerrada=False).count()
     cant_mesas = MesaExamen.objects.filter(cerrada=False).count()
+    
+    es_director = False
+    if request.user.is_staff and not request.user.is_superuser:
+        if hasattr(request.user, 'perfil_docente') and request.user.perfil_docente.carreras_coordinadas.exists():
+            es_director = True
+            planes_ids = request.user.perfil_docente.carreras_coordinadas.values_list('id', flat=True)
+            cant_alumnos = Alumno.objects.filter(estado_alumno='ACT', plan_id__in=planes_ids).count()
+            cant_comisiones = Comision.objects.filter(cerrada=False, materia__plan_id__in=planes_ids).count()
+            cant_mesas = MesaExamen.objects.filter(cerrada=False, materia__plan_id__in=planes_ids).count()
+            cant_docentes = Docente.objects.filter(comisiones_asignadas__materia__plan_id__in=planes_ids).distinct().count()
     
     # Obtener notificaciones no leídas para el hero banner
     if request.user.is_authenticated:
@@ -71,13 +88,18 @@ def dashboard(request):
         'cant_comisiones': cant_comisiones,
         'cant_mesas': cant_mesas,
         'unread_notifications': unread_notifications,
+        'es_director': es_director,
     })
 
 from django.db.models import Q
 
 @login_required
 def lista_alumnos(request):
-    alumnos = Alumno.objects.all().order_by('apellido')
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        alumnos = Alumno.objects.filter(plan_id__in=planes_ids).order_by('apellido')
+    else:
+        alumnos = Alumno.objects.all().order_by('apellido')
         
     return render(request, 'gestion/lista_alumnos.html', {
         'alumnos': alumnos,
@@ -367,7 +389,11 @@ def boletin_alumno(request, alumno_id, ciclo_lectivo):
 
 @login_required
 def lista_docentes(request):
-    docentes = Docente.objects.all()
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        docentes = Docente.objects.filter(comisiones_asignadas__materia__plan_id__in=planes_ids).distinct()
+    else:
+        docentes = Docente.objects.all()
     return render(request, 'gestion/lista_docentes.html', {'docentes': docentes})
 
 @login_required
@@ -489,7 +515,14 @@ def legajo_docente(request, docente_id):
 
 @login_required
 def lista_comisiones(request):
-    comisiones = Comision.objects.all().order_by('-ciclo_lectivo', 'materia__nombre')
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        comisiones = Comision.objects.filter(materia__plan_id__in=planes_ids).order_by('-ciclo_lectivo', 'materia__nombre')
+        # Limitar los planes disponibles en el filtro
+        planes = PlanDeEstudio.objects.filter(id__in=planes_ids)
+    else:
+        comisiones = Comision.objects.all().order_by('-ciclo_lectivo', 'materia__nombre')
+        planes = PlanDeEstudio.objects.all()
     
     query = request.GET.get('q', '')
     plan_id = request.GET.get('plan', '')
@@ -502,7 +535,7 @@ def lista_comisiones(request):
     if ciclo:
         comisiones = comisiones.filter(ciclo_lectivo=ciclo)
         
-    planes = PlanDeEstudio.objects.all().order_by('nombre')
+    planes = planes.order_by('nombre')
     ciclos_disponibles = Comision.objects.values_list('ciclo_lectivo', flat=True).distinct().order_by('-ciclo_lectivo')
     
     return render(request, 'gestion/lista_comisiones.html', {
@@ -709,7 +742,11 @@ def inscribir_alumno_comision(request, comision_id):
 
 @login_required
 def lista_comisiones_asistencia(request):
-    comisiones = Comision.objects.all()
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        comisiones = Comision.objects.filter(materia__plan_id__in=planes_ids)
+    else:
+        comisiones = Comision.objects.all()
     return render(request, 'gestion/asistencia_comisiones.html', {'comisiones': comisiones})
 
 @login_required
@@ -859,7 +896,11 @@ def revisar_justificativos(request):
             
         return redirect('revisar_justificativos')
         
-    justificativos = JustificativoAsistencia.objects.filter(estado='PEND').order_by('-fecha_carga')
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        justificativos = JustificativoAsistencia.objects.filter(estado='PEND', comision__materia__plan_id__in=planes_ids).order_by('-fecha_carga')
+    else:
+        justificativos = JustificativoAsistencia.objects.filter(estado='PEND').order_by('-fecha_carga')
     return render(request, 'gestion/bedelia/revisar_justificativos.html', {'justificativos': justificativos})
 
 @login_required
@@ -1371,8 +1412,12 @@ def acta_volante(request, comision_id):
 @login_required
 def lista_mesas(request):
     from .models import MesaExamen
-    # Obtener todas las mesas agrupadas por ciclo lectivo y ordenadas por fecha
-    mesas = MesaExamen.objects.all().order_by('-ciclo_lectivo', 'fecha_hora')
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        mesas = MesaExamen.objects.filter(materia__plan_id__in=planes_ids).order_by('-ciclo_lectivo', 'fecha_hora')
+    else:
+        # Obtener todas las mesas agrupadas por ciclo lectivo y ordenadas por fecha
+        mesas = MesaExamen.objects.all().order_by('-ciclo_lectivo', 'fecha_hora')
     return render(request, 'gestion/lista_mesas.html', {'mesas': mesas})
 
 @login_required
@@ -2315,7 +2360,11 @@ def preinscripcion_publica(request):
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_preinscriptos(request):
-    aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
+    planes_ids = is_director_carrera(request.user)
+    if planes_ids is not None:
+        aspirantes = Alumno.objects.filter(estado_alumno='ASP', plan_id__in=planes_ids).order_by('-id')
+    else:
+        aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
     return render(request, 'gestion/lista_preinscriptos.html', {'aspirantes': aspirantes})
 
 @login_required
