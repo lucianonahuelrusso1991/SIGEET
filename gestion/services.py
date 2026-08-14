@@ -69,9 +69,37 @@ def enviar_comunicado(comunicado):
         if comunicado.comision.docente and comunicado.comision.docente.usuario:
             usuarios_destino.add(comunicado.comision.docente.usuario)
 
-    # Crear las notificaciones
+    # Crear las notificaciones en el sistema
     notificaciones_a_crear = []
+    emails_destino = []
+    
     for u in usuarios_destino:
         notificaciones_a_crear.append(Notificacion(usuario=u, comunicado=comunicado))
-        
+        if u.email:
+            emails_destino.append(u.email)
+            
     Notificacion.objects.bulk_create(notificaciones_a_crear, ignore_conflicts=True)
+    
+    # Enviar correo electrónico
+    if emails_destino:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        import logging
+        
+        logger = logging.getLogger(__name__)
+        
+        cuerpo_mensaje = f"{comunicado.mensaje}\n\n---\nEste es un mensaje automático de SiGeEt. Por favor, no respondas a este correo."
+        
+        try:
+            send_mail(
+                subject=f"[SiGeEt] {comunicado.titulo}",
+                message=cuerpo_mensaje,
+                from_email=settings.EMAIL_HOST_USER or 'sigeet@pioix.edu.ar',
+                recipient_list=[], # Vacio para que no se vean entre si en "Para"
+                fail_silently=True,
+                bcc=emails_destino
+            )
+        except Exception as e:
+            # Capturamos cualquier error (timeout, credenciales inválidas, etc)
+            # para que no impida la creación de la notificación interna.
+            logger.error(f"Error al enviar correo del comunicado {comunicado.id}: {e}")
