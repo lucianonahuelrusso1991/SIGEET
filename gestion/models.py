@@ -228,6 +228,8 @@ class Inscripcion(models.Model):
     comision = models.ForeignKey(Comision, on_delete=models.CASCADE, related_name='alumnos_inscriptos')
     estado = models.CharField('Estado', max_length=4, choices=ESTADOS_POSIBLES, default='REG')
     fecha_inscripcion = models.DateField(auto_now_add=True)
+    vencimiento_cursada = models.DateField('Vencimiento de Cursada', null=True, blank=True)
+    chances_restantes = models.IntegerField('Chances Restantes', default=10)
 
     def faltas_acumuladas(self):
         from decimal import Decimal
@@ -439,6 +441,7 @@ class Comunicado(models.Model):
         ('ALUMNOS', 'Todos los Alumnos'),
         ('ALUMNOS_CARRERA', 'Alumnos por Carrera'),
         ('COMISION', 'Alumnos de una Comisión Específica'),
+        ('ADMINS', 'Solo Administradores (Sistema)'),
     ]
     titulo = models.CharField('Título', max_length=200)
     mensaje = models.TextField('Mensaje')

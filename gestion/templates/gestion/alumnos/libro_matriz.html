@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Libro Matriz Digital - {{ alumno.nombre }}{% endblock %}
+{% block title %}Mi Trayectoria Académica - {{ alumno.nombre }}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -36,7 +36,7 @@
         <!-- Cabecera Oficial (Solo visible al imprimir) -->
         <div class="print-header text-center">
             <h2 class="fw-bold">Instituto Superior Pío IX</h2>
-            <h4 class="text-muted">Libro Matriz - Analítico Parcial Informativo</h4>
+            <h4 class="text-muted">Mi Trayectoria Académica - Analítico Parcial Informativo</h4>
             <hr>
             <div class="d-flex justify-content-between text-start mt-3 mb-4">
                 <div>
@@ -52,8 +52,8 @@
 
         <div class="card-header bg-dark text-white border-bottom p-4 d-print-none d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="mb-0 fw-bold"><i class="bi bi-journal-text me-2 text-info"></i>Libro Matriz Digital</h3>
-                <p class="mb-0 mt-2 opacity-75">Registro de Trayectoria Académica - {{ plan.nombre }}</p>
+                <h3 class="mb-0 fw-bold"><i class="bi bi-journal-text me-2 text-info"></i>Mi Trayectoria Académica</h3>
+                <p class="mb-0 mt-2 opacity-75">Registro de Situación Académica - {{ plan.nombre }}</p>
             </div>
             <div class="text-end">
                 <div class="fs-1 fw-bold text-info">{{ porcentaje_avance }}%</div>

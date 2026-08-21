@@ -54,11 +54,15 @@ def dashboard(request):
         # Materias cursando
         cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
         
+        # Materias regularizadas (aprobada la cursada, debe el final)
+        cursadas_aprobadas = alumno.inscripciones.filter(estado='APR')
+        
         return render(request, 'gestion/alumnos/dashboard_alumno.html', {
             'alumno': alumno,
             'unread_notifications': unread_notifications,
             'porcentaje_avance': round(porcentaje_avance, 1),
             'cursando': cursando,
+            'cursadas_aprobadas': cursadas_aprobadas,
         })
 
     # Bifurcación para panel de docente
@@ -381,6 +385,15 @@ def editar_alumno(request, alumno_id):
 def constancia_alumno(request, alumno_id):
     alumno = get_object_or_404(Alumno, id=alumno_id)
     return render(request, 'gestion/constancia_impresion.html', {'alumno': alumno})
+
+@login_required
+def certificado_examen_alumno(request, alumno_id):
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    # Buscamos la próxima mesa inscripta o la última
+    from .models import InscripcionMesa
+    from datetime import date
+    ultima_mesa = InscripcionMesa.objects.filter(alumno=alumno).order_by('-mesa__fecha_hora').first()
+    return render(request, 'gestion/alumnos/certificado_examen.html', {'alumno': alumno, 'fecha_actual': date.today(), 'ultima_mesa': ultima_mesa})
 
 @login_required
 def boletin_alumno(request, alumno_id, ciclo_lectivo):
@@ -989,9 +1002,9 @@ def cargar_notas(request, comision_id):
                             if comision.tipo_aprobacion == 'PROM':
                                 nuevo_estado = 'PROM'
                             else:
-                                nuevo_estado = 'REG'
+                                nuevo_estado = 'APR'
                         elif float(nota_valor) >= 4:
-                            nuevo_estado = 'REG'
+                            nuevo_estado = 'APR'
                         else:
                             nuevo_estado = 'LIB'
                     else:
@@ -1003,14 +1016,26 @@ def cargar_notas(request, comision_id):
                             if comision.tipo_aprobacion == 'PROM':
                                 nuevo_estado = 'PROM'
                             else:
-                                nuevo_estado = 'REG'
+                                nuevo_estado = 'APR'
                         else:
                             if promedio >= 4:
-                                nuevo_estado = 'REG'
+                                nuevo_estado = 'APR'
                             else:
                                 nuevo_estado = 'LIB'
                     
                     insc.estado = nuevo_estado
+                    
+                    if nuevo_estado == 'APR':
+                        from datetime import date
+                        import datetime
+                        try:
+                            venc = date.today().replace(year=date.today().year + 3)
+                        except ValueError:
+                            # Handling leap year 29 Feb
+                            venc = date.today() + datetime.timedelta(days=365*3)
+                        insc.vencimiento_cursada = venc
+                        insc.chances_restantes = 10
+                        
                     insc.save()
                 
         if cerrar_cursada:
@@ -1666,10 +1691,46 @@ def cargar_notas_mesa(request, mesa_id):
                 try:
                     nota = float(nota_str)
                     insc.nota_final = nota
+                    
+                    from .models import Inscripcion
+                    cursada_aprobada = Inscripcion.objects.filter(
+                        alumno=insc.alumno,
+                        comision__materia=mesa.materia,
+                        estado='APR'
+                    ).first()
+                    
                     if nota >= 4:
                         insc.estado = 'APR'
+                        # Marcar cursada_aprobada como no requerida o dejarla. En libro_matriz se filtra por finales igual.
+                        
+                        insc.save()
+                        
+                        # Chequear si completó plan
+                        alumno = insc.alumno
+                        total_materias = alumno.plan.materias.count()
+                        total_acreditadas = alumno.equivalencias.count() + alumno.inscripciones.filter(estado='PROM').count() + alumno.mesas_inscriptas.filter(estado='APR').count()
+                        
+                        if total_materias > 0 and total_acreditadas >= total_materias:
+                            from .models import Comunicado, Notificacion
+                            from django.contrib.auth.models import User
+                            admins = User.objects.filter(is_superuser=True)
+                            if admins.exists():
+                                com = Comunicado.objects.create(
+                                    titulo=f"🎓 ¡Posible Egresado: {alumno.nombre} {alumno.apellido}!",
+                                    mensaje=f"El estudiante {alumno.nombre} {alumno.apellido} ha aprobado el 100% de las materias de su Plan de Estudio ({alumno.plan.nombre}) tras rendir {mesa.materia.nombre}.",
+                                    autor=request.user,
+                                    tipo_destinatario='ADMINS'
+                                )
+                                for admin in admins:
+                                    Notificacion.objects.create(usuario=admin, comunicado=com)
                     else:
                         insc.estado = 'REP'
+                        if cursada_aprobada and cursada_aprobada.chances_restantes is not None and cursada_aprobada.chances_restantes > 0:
+                            cursada_aprobada.chances_restantes -= 1
+                            if cursada_aprobada.chances_restantes <= 0:
+                                cursada_aprobada.estado = 'LIB'
+                            cursada_aprobada.save()
+                            
                 except ValueError:
                     continue # ignorar notas invalidas
                 
@@ -2034,6 +2095,7 @@ def libro_matriz_alumno(request):
     dict_equiv = {eq.materia_id: eq for eq in equivalencias}
     dict_finales = {fin.mesa.materia_id: fin for fin in finales_aprobados}
     dict_promociones = {cur.comision.materia_id: cur for cur in cursadas_promocionadas}
+    dict_cursando = {cur.comision.materia_id: cur for cur in Inscripcion.objects.filter(alumno=alumno, estado__in=['REG', 'APR'])}
     
     filas_analitico = []
     
@@ -2055,6 +2117,12 @@ def libro_matriz_alumno(request):
             filas_analitico.append({
                 'materia': materia, 'condicion': 'Promoción Directa', 'nota': 'PROM',
                 'fecha': cur.comision.fecha_fin.strftime('%d/%m/%Y') if cur.comision.fecha_fin else '-', 'libro_folio': 'S/Libro'
+            })
+        elif materia.id in dict_cursando:
+            cur = dict_cursando[materia.id]
+            condicion_display = "Cursando" if cur.estado == 'REG' else "Cursada Aprobada"
+            filas_analitico.append({
+                'materia': materia, 'condicion': condicion_display, 'nota': '-', 'fecha': '-', 'libro_folio': '-'
             })
         else:
             filas_analitico.append({

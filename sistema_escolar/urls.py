@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from gestion.views import (
-    dashboard, lista_alumnos, legajo_alumno, alta_alumno, editar_alumno, constancia_alumno, boletin_alumno,
+    dashboard, lista_alumnos, legajo_alumno, alta_alumno, editar_alumno, constancia_alumno, certificado_examen_alumno, boletin_alumno,
     lista_docentes, alta_docente, legajo_docente, editar_docente,
     lista_comisiones, alta_comision, detalle_comision, apertura_masiva,
     inscribir_alumno_comision, toggle_inscripcion_comision, cerrar_comision, eliminar_comision, editar_comision,
@@ -41,6 +41,7 @@ urlpatterns = [
     path('alumnos/<int:alumno_id>/editar/', editar_alumno, name='editar_alumno'), 
     path('alumnos/<int:alumno_id>/reset-password/', resetear_password_alumno, name='resetear_password_alumno'),
     path('alumnos/<int:alumno_id>/constancia/', constancia_alumno, name='constancia_alumno'),
+    path('alumnos/<int:alumno_id>/certificado_examen/', certificado_examen_alumno, name='certificado_examen_alumno'),
     path('alumnos/<int:alumno_id>/boletin/<int:ciclo_lectivo>/', boletin_alumno, name='boletin_alumno'),
     path('alumnos/<int:alumno_id>/calendario/', calendario_alumno, name='calendario_alumno'),
     path('mi-perfil/', perfil_alumno, name='perfil_alumno'),
