@@ -566,9 +566,11 @@ def apertura_masiva(request):
         plan_id = request.POST.get('plan')
         ciclo_lectivo = request.POST.get('ciclo_lectivo')
         cuatrimestre = request.POST.get('cuatrimestre')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
         materias_ids = request.POST.getlist('materias')
         
-        if not (plan_id and ciclo_lectivo and cuatrimestre and materias_ids):
+        if not (plan_id and ciclo_lectivo and cuatrimestre and materias_ids and fecha_inicio and fecha_fin):
             messages.error(request, "Por favor complete todos los campos y seleccione al menos una materia.")
             return redirect('apertura_masiva')
             
@@ -592,7 +594,9 @@ def apertura_masiva(request):
                     materia=materia,
                     ciclo_lectivo=ciclo_lectivo,
                     cuatrimestre=cuatrimestre,
-                    tipo_aprobacion='FIN', # Default
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    tipo_aprobacion=materia.tipo_aprobacion,
                     modalidad='P', # Default
                     inscripciones_abiertas=True,
                     cerrada=False
