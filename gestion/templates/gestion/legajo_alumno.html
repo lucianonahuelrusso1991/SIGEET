@@ -288,7 +288,7 @@
                             {% for mat in pendientes_general %}
                                 <tr>
                                     <td class="fw-bold">{{ mat.nombre }}</td>
-                                    <td>{{ mat.get_anio_display }}</td>
+                                    <td>{{ mat.año_dictado }}º</td>
                                     <td>
                                         {% if mat.tipo_aprobacion == 'PROM' %}
                                             <span class="badge bg-success">Promocionable</span>

@@ -283,7 +283,7 @@ def legajo_alumno(request, alumno_id):
             
     # 5. Materias Pendientes (General)
     materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a['materia']]
-    todas_materias = alumno.plan.materias.all().order_by('anio', 'nombre') if alumno.plan else []
+    todas_materias = alumno.plan.materias.all().order_by('año_dictado', 'nombre') if alumno.plan else []
     pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids]
     
     context = {
