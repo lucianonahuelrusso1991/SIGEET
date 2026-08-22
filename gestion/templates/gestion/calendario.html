@@ -3,6 +3,70 @@
 {% block title %}Calendario Institucional{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilos estéticos para embellecer FullCalendar */
+    .fc-theme-standard .fc-scrollgrid {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+    .fc-theme-standard th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        padding: 10px 0 !important;
+        text-transform: capitalize;
+        border-bottom: 2px solid #dee2e6 !important;
+    }
+    .fc-event {
+        border-radius: 6px;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 3px 5px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        cursor: pointer;
+    }
+    .fc-event-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .fc-timegrid-slot-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    .fc-timegrid-now-indicator-line {
+        border-color: #dc3545;
+        border-width: 2px;
+    }
+    .fc-timegrid-now-indicator-arrow {
+        border-color: #dc3545;
+        border-width: 6px;
+    }
+    .fc-button-primary {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        padding: 6px 16px !important;
+    }
+    .fc-button-primary:not(:disabled).fc-button-active,
+    .fc-button-primary:not(:disabled):active {
+        background-color: #0b5ed7 !important;
+        border-color: #0a58ca !important;
+    }
+    .fc-today-button {
+        text-transform: capitalize;
+    }
+    .fc .fc-toolbar-title {
+        font-weight: 700;
+        color: #212529;
+        text-transform: capitalize;
+    }
+</style>
 <div class="row justify-content-center">
     <div class="col-md-11">
         
@@ -121,10 +185,13 @@
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'timeGridWeek',
             locale: 'es',
-            slotMinTime: '08:00:00', // Ampliado para cubrir eventos tempranos
-            slotMaxTime: '23:30:00',
+            slotMinTime: '17:00:00', // Solo turno noche
+            slotMaxTime: '23:00:00',
             allDaySlot: true, // Habilitado para feriados
             hiddenDays: [0], // Ocultar domingo
+            nowIndicator: true,
+            slotEventOverlap: false,
+            expandRows: true,
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
