@@ -156,7 +156,7 @@
             <button class="nav-link text-warning" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab"><i class="bi bi-clock-history"></i> Finales Pendientes</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-danger" id="recursar-tab" data-bs-toggle="tab" data-bs-target="#recursar" type="button" role="tab"><i class="bi bi-exclamation-triangle"></i> Recursar</button>
+            <button class="nav-link text-danger" id="recursar-tab" data-bs-toggle="tab" data-bs-target="#recursar" type="button" role="tab"><i class="bi bi-exclamation-triangle"></i> Materias Pendientes</button>
         </li>
     </ul>
 
@@ -272,7 +272,7 @@
             </div>
         </div>
 
-        <!-- A Recursar -->
+        <!-- Materias Pendientes -->
         <div class="tab-pane fade" id="recursar" role="tabpanel" tabindex="0">
             <div class="card shadow-sm border-0 mb-5">
                 <div class="table-responsive">
@@ -280,24 +280,26 @@
                         <thead class="table-danger">
                             <tr>
                                 <th>Materia</th>
-                                <th>Motivo</th>
+                                <th>Año</th>
+                                <th>Tipo de Aprobación</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for rec in recursar %}
+                            {% for mat in pendientes_general %}
                                 <tr>
-                                    <td class="fw-bold">{{ rec.comision.materia.nombre }}</td>
+                                    <td class="fw-bold">{{ mat.nombre }}</td>
+                                    <td>{{ mat.get_anio_display }}</td>
                                     <td>
-                                        {% if rec.estado == 'LIB' %}
-                                            <span class="badge bg-danger">Quedó Libre en cursada</span>
+                                        {% if mat.tipo_aprobacion == 'PROM' %}
+                                            <span class="badge bg-success">Promocionable</span>
                                         {% else %}
-                                            <span class="badge bg-danger">Regularidad Vencida</span>
+                                            <span class="badge bg-warning text-dark">Final Obligatorio</span>
                                         {% endif %}
                                     </td>
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="2" class="text-center py-4 text-muted">No tiene materias para recursar.</td>
+                                    <td colspan="3" class="text-center py-4 text-muted">No tiene materias pendientes. ¡Carrera completada!</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

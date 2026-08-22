@@ -281,7 +281,10 @@ def legajo_alumno(request, alumno_id):
         else:
             regulares.append(item)
             
-    # Agregar materias que reprobó final y quedó libre directo (si existiera el caso, aunque suele estar en LIB)
+    # 5. Materias Pendientes (General)
+    materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a['materia']]
+    todas_materias = alumno.plan.materias.all().order_by('anio', 'nombre') if alumno.plan else []
+    pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids]
     
     context = {
         'alumno': alumno,
@@ -292,7 +295,7 @@ def legajo_alumno(request, alumno_id):
         'acreditadas': acreditadas,
         'cursando': cursando,
         'regulares': regulares,
-        'recursar': recursar
+        'pendientes_general': pendientes_general
     }
     
     return render(request, 'gestion/legajo_alumno.html', context)
