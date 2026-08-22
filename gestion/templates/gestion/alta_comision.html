@@ -24,7 +24,7 @@
                             {% for plan in planes %}
                                 <optgroup label="{{ plan.nombre }}">
                                     {% for materia in plan.materias.all %}
-                                        <option value="{{ materia.id }}">{{ materia.nombre }} ({{ materia.año_dictado }}º Año)</option>
+                                        <option value="{{ materia.id }}" data-tipo="{{ materia.tipo_aprobacion }}">{{ materia.nombre }} ({{ materia.año_dictado }}º Año)</option>
                                     {% endfor %}
                                 </optgroup>
                             {% endfor %}
@@ -201,4 +201,19 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const materiaSelect = document.querySelector('select[name="materia"]');
+    const aprobacionSelect = document.querySelector('select[name="tipo_aprobacion"]');
+    
+    materiaSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const tipoAprobacionDefecto = selectedOption.getAttribute('data-tipo');
+        if (tipoAprobacionDefecto) {
+            aprobacionSelect.value = tipoAprobacionDefecto;
+        }
+    });
+});
+</script>
 {% endblock %}

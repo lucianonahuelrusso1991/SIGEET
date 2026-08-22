@@ -123,10 +123,15 @@ class Materia(models.Model):
         ('2C', '2do Cuatrimestre'),
         ('AN', 'Anual'),
     ]
+    TIPO_APROBACION = [
+        ('PROM', 'Promocionable'),
+        ('FIN', 'Final Obligatorio'),
+    ]
     nombre = models.CharField(max_length=150)
     plan = models.ForeignKey(PlanDeEstudio, on_delete=models.CASCADE, related_name='materias')
     año_dictado = models.IntegerField(verbose_name="Año en que se dicta (1, 2, 3...)")
     cuatrimestre_dictado = models.CharField(max_length=2, choices=CUATRIMESTRES, default='1C')
+    tipo_aprobacion = models.CharField('Tipo de Aprobación por Defecto', max_length=4, choices=TIPO_APROBACION, default='FIN')
 
     def __str__(self):
         return f"{self.nombre} ({self.año_dictado}º Año - {self.get_cuatrimestre_dictado_display()})"
