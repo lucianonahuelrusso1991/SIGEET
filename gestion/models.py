@@ -58,7 +58,8 @@ class Alumno(models.Model):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono Fijo")
     celular = models.CharField(max_length=20, blank=True, null=True, verbose_name="Celular")
     direccion = models.CharField(max_length=200, blank=True, null=True, verbose_name="Dirección")
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True, verbose_name="Correo Electrónico Personal")
+    correo_institucional = models.EmailField(blank=True, null=True, verbose_name="Correo Institucional")
     
     nacionalidad = models.CharField(max_length=100, default='Argentina')
     codigo_postal = models.CharField(max_length=20, blank=True, null=True)

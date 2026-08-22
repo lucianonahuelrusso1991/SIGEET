@@ -163,6 +163,7 @@ def alta_alumno(request):
                 
             Alumno.objects.create(
                 usuario=usuario, dni=dni, email=email, nombre=nombre, apellido=apellido,
+                correo_institucional=request.POST.get('correo_institucional'),
                 fecha_nacimiento=request.POST.get('fecha_nacimiento'),
                 telefono=request.POST.get('telefono'),
                 celular=request.POST.get('celular'),
@@ -317,6 +318,8 @@ def editar_alumno(request, alumno_id):
         alumno.dni = dni
         alumno.nombre = request.POST.get('nombre')
         alumno.apellido = request.POST.get('apellido')
+        alumno.email = email
+        alumno.correo_institucional = request.POST.get('correo_institucional')
         
         fecha_nac = request.POST.get('fecha_nacimiento')
         if fecha_nac:

@@ -30,16 +30,12 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label text-muted small fw-bold">Correo Electrónico (Será su Usuario) *</label>
+                        <label class="form-label text-muted small fw-bold">Correo Electrónico Personal *</label>
                         <input type="email" name="email" class="form-control" value="{% if alumno.email %}{{ alumno.email }}{% endif %}" required>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">Teléfono Fijo</label>
-                        <input type="text" name="telefono" class="form-control" value="{% if alumno.telefono %}{{ alumno.telefono }}{% endif %}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">Celular *</label>
-                        <input type="text" name="celular" class="form-control" value="{% if alumno.celular %}{{ alumno.celular }}{% endif %}" required>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Correo Institucional</label>
+                        <input type="email" name="correo_institucional" class="form-control" value="{% if alumno.correo_institucional %}{{ alumno.correo_institucional }}{% endif %}" placeholder="ejemplo@pioix.edu.ar">
                     </div>
                 </div>
 
@@ -51,6 +47,17 @@
                     <div class="col-md-6">
                         <label class="form-label text-muted small fw-bold">Nacionalidad</label>
                         <input type="text" name="nacionalidad" class="form-control" value="{{ alumno.nacionalidad|default:'Argentina' }}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Teléfono Fijo</label>
+                        <input type="text" name="telefono" class="form-control" value="{% if alumno.telefono %}{{ alumno.telefono }}{% endif %}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Celular *</label>
+                        <input type="text" name="celular" class="form-control" value="{% if alumno.celular %}{{ alumno.celular }}{% endif %}" required>
                     </div>
                 </div>
 
