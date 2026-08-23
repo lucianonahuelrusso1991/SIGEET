@@ -1020,7 +1020,7 @@ def cargar_notas(request, comision_id):
                     else:
                         parciales_aplazados = sum(1 for n in todas_las_notas if 'Parcial' in n.instancia and float(n.valor_nota) < 4)
                         
-                        if parciales_aplazados > 2:
+                        if parciales_aplazados > 1:
                             nuevo_estado = 'LIB'
                         else:
                             faltas_acum = insc.faltas_acumuladas()
@@ -1070,6 +1070,21 @@ def cargar_notas(request, comision_id):
             messages.success(request, f"¡Se guardaron {notas_guardadas} notas para la instancia '{instancia_post}'!")
             
         return redirect('detalle_comision', comision_id=comision.id)
+
+    # Evaluar en tiempo real si el alumno requiere recuperatorio para la UI
+    for insc in inscripciones:
+        todas_las_notas = insc.notas.all()
+        parciales_aplazados = sum(1 for n in todas_las_notas if 'Parcial' in n.instancia and float(n.valor_nota) < 4)
+        faltas_acum = insc.faltas_acumuladas()
+        es_anual = comision.cuatrimestre == 'AN'
+        limite_faltas = 8 if es_anual else 4
+        
+        # Requiere si hay aplazo, o si se excedió de faltas
+        # Y solo lo habilitamos si NO tiene > 1 aplazo (porque si tiene > 1, ya está libre y no tiene derecho)
+        if parciales_aplazados > 1:
+            insc.requiere_recup_ui = False
+        else:
+            insc.requiere_recup_ui = (parciales_aplazados > 0) or (faltas_acum > limite_faltas)
 
     return render(request, 'gestion/cargar_notas.html', {
         'comision': comision,

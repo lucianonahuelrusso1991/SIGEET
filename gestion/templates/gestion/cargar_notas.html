@@ -61,7 +61,9 @@
                         <td><strong>{{ insc.alumno.apellido }}</strong>, {{ insc.alumno.nombre }}</td>
                         <td class="text-muted">{{ insc.alumno.dni }}</td>
                         <td class="pe-4">
-                            <input type="number" step="1" min="1" max="10" name="nota_{{ insc.id }}" class="form-control text-center fw-bold fs-5 border-dark" 
+                            <input type="number" step="1" min="1" max="10" name="nota_{{ insc.id }}" 
+                                   class="form-control nota-input text-center fw-bold fs-5 border-dark" 
+                                   data-requiere-recup="{{ insc.requiere_recup_ui|yesno:'true,false' }}"
                                    placeholder="-">
                         </td>
                     </tr>
@@ -93,18 +95,40 @@
     document.addEventListener("DOMContentLoaded", function() {
         const instanciaSelect = document.getElementById("id_instancia");
         const cerrarCursadaCheckbox = document.getElementById("cerrar_cursada");
+        const notaInputs = document.querySelectorAll(".nota-input");
 
         function forceCheck(e) {
             e.preventDefault();
         }
 
         instanciaSelect.addEventListener("change", function() {
+            // Lógica Nota Final
             if (this.value === "Nota Final") {
                 cerrarCursadaCheckbox.checked = true;
                 cerrarCursadaCheckbox.addEventListener('click', forceCheck);
             } else {
                 cerrarCursadaCheckbox.checked = false;
                 cerrarCursadaCheckbox.removeEventListener('click', forceCheck);
+            }
+            
+            // Lógica de habilitación para Recuperatorio
+            if (this.value === "Recuperatorio") {
+                notaInputs.forEach(input => {
+                    if (input.getAttribute("data-requiere-recup") === "false") {
+                        input.disabled = true;
+                        input.value = "";
+                        input.placeholder = "No requiere";
+                    } else {
+                        input.disabled = false;
+                        input.placeholder = "-";
+                    }
+                });
+            } else {
+                // Habilitar todos los inputs para el resto de instancias
+                notaInputs.forEach(input => {
+                    input.disabled = false;
+                    input.placeholder = "-";
+                });
             }
         });
     });
