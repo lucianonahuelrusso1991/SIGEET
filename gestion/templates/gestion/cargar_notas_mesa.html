@@ -26,7 +26,7 @@
                     <tr>
                         <td class="align-middle fw-bold ps-4">{{ insc.alumno.apellido }}, {{ insc.alumno.nombre }}</td>
                         <td class="text-center">
-                            <input type="number" step="0.01" min="1" max="10" name="nota_{{ insc.id }}" 
+                            <input type="number" step="1" min="1" max="10" name="nota_{{ insc.id }}" 
                                    class="form-control text-center fw-bold w-50 mx-auto" value="{{ insc.nota_final|default_if_none:'' }}" 
                                    placeholder="-">
                         </td>

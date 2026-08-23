@@ -276,13 +276,13 @@ class Nota(models.Model):
         ('6to Parcial', '6to Parcial'),
         ('7mo Parcial', '7mo Parcial'),
         ('8vo Parcial', '8vo Parcial'),
-        ('Recuperatorio', 'Recuperatorio'),
+        ('Recuperatorio', 'Recuperatorio / Reincorporatorio'),
         ('Trabajo Práctico', 'Trabajo Práctico'),
         ('Concepto', 'Concepto'),
         ('Nota Final', 'Nota Final'),
     ]
     inscripcion = models.ForeignKey(Inscripcion, on_delete=models.CASCADE, related_name='notas')
-    valor_nota = models.DecimalField('Nota', max_digits=4, decimal_places=2)
+    valor_nota = models.IntegerField('Nota')
     instancia = models.CharField('Instancia (Ej: 1er Parcial, TP1)', max_length=50, choices=INSTANCIA_CHOICES)
     fecha = models.DateField('Fecha de Carga', default=date.today)
 
@@ -387,7 +387,7 @@ class InscripcionMesa(models.Model):
     ]
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='mesas_inscriptas')
     mesa = models.ForeignKey(MesaExamen, on_delete=models.CASCADE, related_name='inscriptos')
-    nota_final = models.DecimalField('Nota Final', max_digits=4, decimal_places=2, null=True, blank=True)
+    nota_final = models.IntegerField('Nota Final', null=True, blank=True)
     estado = models.CharField('Estado', max_length=4, choices=ESTADOS_MESA, default='PEND')
 
     class Meta:
@@ -427,7 +427,7 @@ class Equivalencia(models.Model):
     resolucion = models.CharField('Número de Resolución', max_length=100)
     institucion_origen = models.CharField('Institución de Origen', max_length=200, blank=True, null=True)
     fecha_otorgamiento = models.DateField('Fecha de Otorgamiento', default=date.today)
-    nota = models.DecimalField('Nota Reconocida', max_digits=4, decimal_places=2, null=True, blank=True)
+    nota = models.IntegerField('Nota Reconocida', null=True, blank=True)
     
     class Meta:
         unique_together = ['alumno', 'materia']

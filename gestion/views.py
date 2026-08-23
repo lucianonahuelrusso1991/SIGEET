@@ -1018,20 +1018,34 @@ def cargar_notas(request, comision_id):
                         else:
                             nuevo_estado = 'LIB'
                     else:
-                        # Cálculo normal por promedio
-                        promedio = sum([n.valor_nota for n in todas_las_notas]) / todas_las_notas.count()
-                        todas_mayor_o_igual_7 = all(n.valor_nota >= 7 for n in todas_las_notas)
+                        parciales_aplazados = sum(1 for n in todas_las_notas if 'Parcial' in n.instancia and float(n.valor_nota) < 4)
                         
-                        if todas_mayor_o_igual_7:
-                            if comision.tipo_aprobacion == 'PROM':
-                                nuevo_estado = 'PROM'
-                            else:
-                                nuevo_estado = 'APR'
+                        if parciales_aplazados > 2:
+                            nuevo_estado = 'LIB'
                         else:
-                            if promedio >= 4:
-                                nuevo_estado = 'APR'
-                            else:
+                            faltas_acum = insc.faltas_acumuladas()
+                            es_anual = comision.cuatrimestre == 'AN'
+                            limite_faltas = 8 if es_anual else 4
+                            
+                            requiere_recuperatorio = (parciales_aplazados > 0) or (faltas_acum > limite_faltas)
+                            aprobo_recup = any('Recuperatorio' in n.instancia and float(n.valor_nota) >= 4 for n in todas_las_notas)
+                            
+                            if requiere_recuperatorio and not aprobo_recup:
                                 nuevo_estado = 'LIB'
+                            else:
+                                promedio = sum([float(n.valor_nota) for n in todas_las_notas]) / todas_las_notas.count()
+                                todas_mayor_o_igual_7 = all(float(n.valor_nota) >= 7 for n in todas_las_notas)
+                                
+                                if todas_mayor_o_igual_7:
+                                    if comision.tipo_aprobacion == 'PROM':
+                                        nuevo_estado = 'PROM'
+                                    else:
+                                        nuevo_estado = 'APR'
+                                else:
+                                    if promedio >= 4:
+                                        nuevo_estado = 'APR'
+                                    else:
+                                        nuevo_estado = 'LIB'
                     
                     insc.estado = nuevo_estado
                     
@@ -1417,7 +1431,7 @@ def acta_volante(request, comision_id):
         
         # Lógica de Promoción: todas las notas >= 7 (según indicaciones del usuario)
         if comision.tipo_aprobacion == 'PROM' and notas.exists():
-            todas_mayores_7 = all(n.valor_nota >= Decimal('7.00') for n in notas)
+            todas_mayores_7 = all(n.valor_nota >= 7 for n in notas)
             if todas_mayores_7:
                 promociona = True
                 condicion = "Promocionado"

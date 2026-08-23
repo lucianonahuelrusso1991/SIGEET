@@ -32,7 +32,7 @@
                         <option value="6to Parcial">6to Parcial</option>
                         <option value="7mo Parcial">7mo Parcial</option>
                         <option value="8vo Parcial">8vo Parcial</option>
-                        <option value="Recuperatorio">Recuperatorio</option>
+                        <option value="Recuperatorio">Recuperatorio / Reincorporatorio</option>
                         <option value="Trabajo Práctico">Trabajo Práctico</option>
                         <option value="Nota Final">Nota Final</option>
                     </select>
@@ -61,7 +61,7 @@
                         <td><strong>{{ insc.alumno.apellido }}</strong>, {{ insc.alumno.nombre }}</td>
                         <td class="text-muted">{{ insc.alumno.dni }}</td>
                         <td class="pe-4">
-                            <input type="number" step="0.01" name="nota_{{ insc.id }}" class="form-control text-center fw-bold fs-5 border-dark" 
+                            <input type="number" step="1" min="1" max="10" name="nota_{{ insc.id }}" class="form-control text-center fw-bold fs-5 border-dark" 
                                    placeholder="-">
                         </td>
                     </tr>
