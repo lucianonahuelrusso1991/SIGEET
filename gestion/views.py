@@ -1004,7 +1004,9 @@ def cargar_notas(request, comision_id):
             
             # Si se solicita cerrar la cursada, se calcula el estado automáticamente
             if cerrar_cursada:
-                todas_las_notas = insc.notas.all()
+                todas_las_notas = list(insc.notas.all().order_by('id')) # Forzar recarga desde DB si es necesario, o limpiar cache
+                # Para evitar el cache de prefetch_related, hacemos una query directa:
+                todas_las_notas = Nota.objects.filter(inscripcion=insc)
                 if todas_las_notas.exists():
                     if instancia_post == 'Nota Final' and nota_valor:
                         # Opción A: La Nota Final pisa los promedios anteriores.
@@ -1069,8 +1071,8 @@ def cargar_notas(request, comision_id):
         else:
             messages.success(request, f"¡Se guardaron {notas_guardadas} notas para la instancia '{instancia_post}'!")
             
-        return redirect('detalle_comision', comision_id=comision.id)
-
+    inscripciones = list(Inscripcion.objects.filter(comision=comision).prefetch_related('notas', 'alumno__asistencias'))
+    
     # Evaluar en tiempo real si el alumno requiere recuperatorio para la UI
     for insc in inscripciones:
         todas_las_notas = insc.notas.all()
