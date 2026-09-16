@@ -46,7 +46,7 @@
             </div>
             {% else %}
             <!-- Default Hero Banner -->
-            <div class="card border-0 shadow-lg text-white rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2) !important;">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2) !important;">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -206,7 +206,7 @@
     <!-- Calendario -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card bg-dark text-white shadow-lg border-0 rounded-4 overflow-hidden position-relative">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden position-relative">
                 <div class="position-absolute top-0 end-0 p-3 opacity-25">
                     <i class="bi bi-calendar3" style="font-size: 8rem;"></i>
                 </div>
@@ -214,10 +214,10 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h3 class="fw-bold mb-2">Calendario Institucional</h3>
-                            <p class="lead mb-0 text-light opacity-75">Visualizá de un vistazo los horarios semanales de todas las comisiones de la institución de forma centralizada.</p>
+                            <p class="lead mb-0 text-muted">Visualizá de un vistazo los horarios semanales de todas las comisiones de la institución de forma centralizada.</p>
                         </div>
                         <div class="col-md-4 text-md-end mt-4 mt-md-0">
-                            <a href="{% url 'calendario_general' %}" class="btn btn-light text-dark fw-bold px-5 py-3 rounded-pill shadow-sm">Abrir Grilla Horaria</a>
+                            <a href="{% url 'calendario_general' %}" class="btn btn-primary fw-bold px-5 py-3 rounded-pill shadow-sm">Abrir Grilla Horaria</a>
                         </div>
                     </div>
                 </div>
