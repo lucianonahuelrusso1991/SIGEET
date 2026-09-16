@@ -184,11 +184,23 @@
         }
 
         /* Generic headers on app body should be white */
-        .app-body > .container > h2, 
-        .app-body > .container > h3, 
-        .app-body > .container > h4 {
+        .app-body .container h2:not(.card h2), 
+        .app-body .container h3:not(.card h3), 
+        .app-body .container h4:not(.card h4),
+        .app-body .container p:not(.card p) {
             color: white !important;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .app-body .container p.text-muted:not(.card p) {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Enforce table headers to match glass */
+        .table-dark {
+            --bs-table-bg: rgba(0, 0, 0, 0.4);
+            --bs-table-color: #fff;
+            backdrop-filter: blur(10px);
         }
     </style>
     <script>
