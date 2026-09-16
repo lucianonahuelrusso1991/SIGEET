@@ -150,7 +150,7 @@
                         <select name="plan" id="plan" class="form-select" required>
                             <option value="">Seleccione el plan de estudios...</option>
                             {% for plan in planes %}
-                                <option value="{{ plan.id }}" {% if alumno.plan and alumno.plan.id == plan.id %}selected{% endif %}>{{ plan.nombre }} (Res: {{ plan.resolucion_ministerial }})</option>
+                                <option value="{{ plan.id }}" {% for c in alumno.carreras.all %}{% if c.id == plan.id %}selected{% endif %}{% endfor %}>{{ plan.nombre }} (Res: {{ plan.resolucion_ministerial }})</option>
                             {% endfor %}
                         </select>
                     </div>

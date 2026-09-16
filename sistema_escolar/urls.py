@@ -18,7 +18,9 @@ from gestion.views import (
     resetear_password_alumno, perfil_alumno, libro_matriz_alumno, alumno_inscripcion_cursada,
     alumno_inscripcion_finales, subir_justificativo, revisar_justificativos,
     subir_programa, panel_contable,
-    preinscripcion_publica, lista_preinscriptos, validar_preinscripto, rechazar_preinscripto
+    preinscripcion_publica, lista_preinscriptos, validar_preinscripto, rechazar_preinscripto,
+    seleccionar_perfil, establecer_perfil, solicitar_nueva_carrera,
+    validar_preinscripto_interno, rechazar_preinscripto_interno
 )
 
 urlpatterns = [
@@ -26,6 +28,8 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')), 
     
     path('', dashboard, name='dashboard'),
+    path('seleccionar-perfil/', seleccionar_perfil, name='seleccionar_perfil'),
+    path('establecer-perfil/<str:rol>/', establecer_perfil, name='establecer_perfil'),
     
     # Docentes (Deprecated block, kept to avoid routing errors but the real one is below)
     path('docentes/', lista_docentes, name='lista_docentes'),
@@ -48,6 +52,7 @@ urlpatterns = [
     path('mi-libro-matriz/', libro_matriz_alumno, name='libro_matriz_alumno'),
     path('mi-inscripcion-cursadas/', alumno_inscripcion_cursada, name='alumno_inscripcion_cursada'),
     path('mi-inscripcion-finales/', alumno_inscripcion_finales, name='alumno_inscripcion_finales'),
+    path('solicitar-nueva-carrera/', solicitar_nueva_carrera, name='solicitar_nueva_carrera'),
 
     # DOCENTES
     path('docentes/', lista_docentes, name='lista_docentes'),
@@ -118,6 +123,8 @@ urlpatterns = [
     path('preinscriptos/', lista_preinscriptos, name='lista_preinscriptos'),
     path('preinscriptos/<int:alumno_id>/validar/', validar_preinscripto, name='validar_preinscripto'),
     path('preinscriptos/<int:alumno_id>/rechazar/', rechazar_preinscripto, name='rechazar_preinscripto'),
+    path('preinscriptos/interno/<int:inscripcion_id>/validar/', validar_preinscripto_interno, name='validar_preinscripto_interno'),
+    path('preinscriptos/interno/<int:inscripcion_id>/rechazar/', rechazar_preinscripto_interno, name='rechazar_preinscripto_interno'),
 ]
 
 from django.conf import settings

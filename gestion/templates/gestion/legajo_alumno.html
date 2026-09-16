@@ -45,11 +45,14 @@
                     <li><a class="dropdown-item" href="{% url 'calendario_alumno' alumno.id %}">📅 Ver Mi Calendario</a></li>
                     <li><a class="dropdown-item" href="{% url 'constancia_alumno' alumno.id %}" target="_blank">📄 Generar Constancia</a></li>
                     <li><a class="dropdown-item" href="{% url 'analitico_alumno' alumno.id %}" target="_blank">🎓 Analítico Parcial</a></li>
+                    {% if not es_tutor %}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-success" href="{% url 'alta_equivalencia' alumno.id %}">✨ Cargar Equivalencia</a></li>
+                    {% endif %}
                 </ul>
             </div>
             
+            {% if not es_tutor %}
             <a href="{% url 'editar_alumno' alumno.id %}" class="btn btn-warning shadow-sm fw-bold">
                 <i class="bi bi-pencil-square"></i> Editar Datos
             </a>
@@ -57,6 +60,7 @@
             <a href="{% url 'resetear_password_alumno' alumno.id %}" class="btn btn-danger shadow-sm fw-bold" onclick="return confirm('¿Estás seguro de que deseas resetear la contraseña de este alumno a su DNI?');">
                 <i class="bi bi-key"></i> Reset Clave
             </a>
+            {% endif %}
         </div>
     </div>
 

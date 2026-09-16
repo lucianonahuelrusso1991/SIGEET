@@ -1,0 +1,43 @@
+{% extends 'gestion/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card bg-body-tertiary border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="fw-bold text-dark mb-4 text-center">Inscripción a Nueva Carrera</h3>
+                    <p class="text-muted text-center mb-4">
+                        Seleccioná la carrera a la que querés postularte. Una vez enviada la solicitud, el equipo de Bedelía revisará tus datos y te habilitará la cursada.
+                    </p>
+                    
+                    <form method="post" action="{% url 'solicitar_nueva_carrera' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="plan_id" class="form-label fw-bold">Carrera / Plan de Estudio</label>
+                            <select name="plan_id" id="plan_id" class="form-select form-select-lg rounded-3" required>
+                                <option value="" disabled selected>-- Elegí una carrera --</option>
+                                {% for plan in planes %}
+                                    <option value="{{ plan.id }}">{{ plan.nombre }} (Res. {{ plan.resolucion_ministerial }})</option>
+                                {% empty %}
+                                    <option value="" disabled>No hay más carreras disponibles para anotarte.</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold" {% if not planes %}disabled{% endif %}>
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg rounded-3 mt-2">
+                                Cancelar y volver
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

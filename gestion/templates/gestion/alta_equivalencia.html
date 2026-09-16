@@ -14,7 +14,7 @@
             <div class="card-body p-4">
                 <div class="alert alert-info mb-4">
                     <strong>Alumno:</strong> {{ alumno.apellido }}, {{ alumno.nombre }}<br>
-                    <strong>Plan de Estudio:</strong> {{ alumno.plan.nombre }}
+                    <strong>Plan de Estudio:</strong> {% for c in alumno.carreras.all %}{{ c.nombre }}{% if not forloop.last %}, {% endif %}{% empty %}Sin plan asignado{% endfor %}
                 </div>
                 
                 <div class="mb-3">

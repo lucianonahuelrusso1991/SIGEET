@@ -52,22 +52,27 @@
     </div>
     {% endif %}
 
+    {% for info in carreras_info %}
     <div class="row align-items-center mb-4">
         <div class="col-md-12">
             <div class="card bg-body-tertiary border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-3">Progreso de la Carrera</h5>
+                    <h5 class="fw-bold text-dark mb-1">{{ info.plan.nombre }}</h5>
+                    <p class="text-muted small mb-3">Resolución: {{ info.plan.resolucion_ministerial }} | Estado: <span class="badge bg-secondary">{{ info.inscripcion_carrera.get_estado_display }}</span></p>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted fw-bold">Porcentaje Completo</span>
-                        <span class="text-primary fw-bold fs-5">{{ porcentaje_avance }}%</span>
+                        <span class="text-primary fw-bold fs-5">{{ info.porcentaje_avance }}%</span>
                     </div>
                     <div class="progress rounded-pill" style="height: 12px; background-color: #e9ecef;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary rounded-pill" role="progressbar" style="width: {{ porcentaje_avance|stringformat:'f' }}%;" aria-valuenow="{{ porcentaje_avance }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary rounded-pill" role="progressbar" style="width: {{ info.porcentaje_avance|stringformat:'f' }}%;" aria-valuenow="{{ info.porcentaje_avance }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {% empty %}
+    <div class="alert alert-warning">No estás inscripto en ninguna carrera activa.</div>
+    {% endfor %}
 
     <!-- Primera fila: Cursando e Inscripciones (alineados) -->
     <div class="row g-4 mb-4">
@@ -237,7 +242,7 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-lg-3">
                             <div class="d-flex flex-column align-items-center p-4 bg-light rounded-3 text-center h-100 hover-lift">
                                 <i class="bi bi-file-earmark-pdf-fill text-danger fs-1 mb-2"></i>
                                 <h6 class="fw-bold mb-1">Certificado Regular</h6>
@@ -245,7 +250,7 @@
                                 <a href="{% url 'constancia_alumno' alumno.id %}" target="_blank" class="btn btn-sm btn-dark fw-bold rounded-pill px-4 mt-auto">Descargar PDF</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-lg-3">
                             <div class="d-flex flex-column align-items-center p-4 bg-light rounded-3 text-center h-100 hover-lift">
                                 <i class="bi bi-file-earmark-check-fill text-primary fs-1 mb-2"></i>
                                 <h6 class="fw-bold mb-1">Certificado Examen</h6>
@@ -253,12 +258,20 @@
                                 <a href="{% url 'certificado_examen_alumno' alumno.id %}" target="_blank" class="btn btn-sm btn-primary fw-bold rounded-pill px-4 mt-auto">Descargar PDF</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6 col-lg-3">
                             <div class="d-flex flex-column align-items-center p-4 bg-light rounded-3 text-center h-100 hover-lift">
                                 <i class="bi bi-file-medical-fill text-success fs-1 mb-2"></i>
                                 <h6 class="fw-bold mb-1">Justificar Inasistencia</h6>
                                 <p class="text-muted small mb-3">Subí tu certificado médico.</p>
                                 <a href="{% url 'subir_justificativo' %}" class="btn btn-sm btn-success text-white fw-bold rounded-pill px-4 mt-auto">Subir Archivo</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="d-flex flex-column align-items-center p-4 bg-light rounded-3 text-center h-100 hover-lift">
+                                <i class="bi bi-mortarboard-fill text-warning fs-1 mb-2"></i>
+                                <h6 class="fw-bold mb-1">Nueva Carrera</h6>
+                                <p class="text-muted small mb-3">Postulate a una carrera diferente.</p>
+                                <a href="{% url 'solicitar_nueva_carrera' %}" class="btn btn-sm btn-warning fw-bold rounded-pill px-4 mt-auto">Inscribirse</a>
                             </div>
                         </div>
                     </div>

@@ -15,7 +15,7 @@
                 <p class="text-muted mb-0">Selecciona las materias a las que deseas inscribirte este cuatrimestre.</p>
             </div>
             <div>
-                <span class="badge bg-info text-dark fs-6">{{ alumno.plan.nombre }}</span>
+                <span class="badge bg-info text-dark fs-6">{% for c in alumno.carreras.all %}{{ c.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
             </div>
         </div>
 

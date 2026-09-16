@@ -16,7 +16,9 @@
         <div class="me-3" style="width: 300px;">
             <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
         </div>
+        {% if not es_tutor %}
         <a href="{% url 'alta_docente' %}" class="btn btn-success shadow-sm">+ Nuevo Docente</a>
+        {% endif %}
     </div>
 </div>
 
@@ -39,7 +41,9 @@
                     <td class="docente-nombre"><strong>{{ docente.apellido }}</strong>, {{ docente.nombre }}</td>
                     <td>{{ docente.email }}</td>
                     <td class="text-end pe-4">
+                        {% if not es_tutor %}
                         <a href="{% url 'editar_docente' docente.id %}" class="btn btn-sm btn-outline-warning">Editar</a>
+                        {% endif %}
                         <a href="{% url 'legajo_docente' docente.id %}" class="btn btn-sm btn-outline-info">Ver Perfil</a>
                     </td>
                 </tr>

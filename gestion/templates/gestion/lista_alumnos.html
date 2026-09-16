@@ -27,7 +27,9 @@
             <div class="d-inline-block me-2" style="width: 300px;">
                 <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
             </div>
+            {% if not es_tutor %}
             <a href="{% url 'alta_alumno' %}" class="btn btn-primary shadow-sm">+ Nuevo Alumno</a>
+            {% endif %}
         </div>
     </div>
 
@@ -62,8 +64,12 @@
                             </td>
                             <td class="alumno-dni">{{ alumno.dni }}</td>
                             <td>
-                                {% if alumno.plan %}
-                                    <span class="text-muted small">{{ alumno.plan.nombre|truncatechars:45 }}</span>
+                                {% if alumno.carreras.all %}
+                                    <span class="text-muted small">
+                                        {% for c in alumno.carreras.all %}
+                                            {{ c.nombre|truncatechars:45 }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </span>
                                 {% else %}
                                     <span class="text-muted small fst-italic">Sin asignar</span>
                                 {% endif %}

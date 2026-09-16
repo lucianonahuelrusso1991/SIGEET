@@ -43,6 +43,9 @@ class Docente(models.Model):
     
     # Rol de Director de Carrera
     carreras_coordinadas = models.ManyToManyField('PlanDeEstudio', related_name='coordinadores', blank=True, verbose_name="Carreras que Coordina")
+    
+    # Rol de Tutor de Carrera (Lectura)
+    carreras_tutoriadas = models.ManyToManyField('PlanDeEstudio', related_name='tutores', blank=True, verbose_name="Carreras que Tutorea (Lectura)")
 
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"
@@ -90,8 +93,10 @@ class Alumno(models.Model):
     doc_primaria = models.BooleanField(default=False, verbose_name="Título Secundario") # Adaptado a terciario
     doc_pase = models.BooleanField(default=False, verbose_name="Pase de Escuela Anterior")
 
-    # Plan de Estudio Asignado
-    plan = models.ForeignKey('PlanDeEstudio', on_delete=models.SET_NULL, null=True, blank=True, related_name='alumnos', verbose_name="Plan de Estudios")
+    # Nuevo soporte Multi-Carrera
+    
+    # Nuevo soporte Multi-Carrera
+    carreras = models.ManyToManyField('PlanDeEstudio', through='InscripcionCarrera', related_name='alumnos_inscriptos', blank=True)
 
     ESTADOS_ALUMNO = [
         ('ACT', 'Activo'),
@@ -105,6 +110,26 @@ class Alumno(models.Model):
 
     def __str__(self):
         return f"{self.apellido}, {self.nombre} - DNI: {self.dni}"
+
+
+class InscripcionCarrera(models.Model):
+    ESTADOS_CARRERA = [
+        ('PREINSCRIPTO', 'Pre-inscripto (Aspirante)'),
+        ('CURSANDO', 'Cursando'),
+        ('EGRESADO', 'Egresado'),
+        ('ABANDONADA', 'Abandonada'),
+    ]
+    alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='inscripciones_carreras')
+    plan = models.ForeignKey('PlanDeEstudio', on_delete=models.CASCADE, related_name='inscripciones_alumnos')
+    fecha_inscripcion = models.DateField('Fecha de Inscripción', auto_now_add=True)
+    estado = models.CharField('Estado en la Carrera', max_length=15, choices=ESTADOS_CARRERA, default='CURSANDO')
+    legajo_numero = models.CharField('Número de Legajo', max_length=50, blank=True, null=True)
+
+    class Meta:
+        unique_together = ['alumno', 'plan']
+
+    def __str__(self):
+        return f"{self.alumno} en {self.plan.nombre}"
 
 
 # ==========================================

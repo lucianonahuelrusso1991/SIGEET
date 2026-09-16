@@ -155,6 +155,33 @@
                     </div>
                     
                     <hr class="my-4 text-muted">
+                    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-shield-lock me-2"></i>Permisos de Gestión (Opcional)</h5>
+                    <div class="row align-items-start mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0 mt-2">Coordinador</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <select name="carreras_coordinadas" class="form-select bg-light" multiple size="3">
+                                {% for plan in planes %}
+                                    <option value="{{ plan.id }}" {% if plan in docente.carreras_coordinadas.all %}selected{% endif %}>{{ plan.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text small text-muted">Acceso total (Edición). Ctrl+Clic para varias.</div>
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0 mt-2">Tutor</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="carreras_tutoriadas" class="form-select bg-light" multiple size="3">
+                                {% for plan in planes %}
+                                    <option value="{{ plan.id }}" {% if plan in docente.carreras_tutoriadas.all %}selected{% endif %}>{{ plan.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text small text-muted">Acceso Solo Lectura. Ctrl+Clic para varias.</div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4 text-muted">
                     
                     <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
                         <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-warning"></i>

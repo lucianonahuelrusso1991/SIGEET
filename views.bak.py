@@ -6,26 +6,12 @@ import json
 from datetime import date
 from .models import Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripcion, Nota, PlanillaDiaria, RegistroAsistencia, Correlatividad, HorarioComision
 
-def obtener_planes_visibles(user):
-    """Retorna lista de IDs de planes si es director o tutor, None en caso contrario"""
+def is_director_carrera(user):
+    """Retorna lista de IDs de planes de estudio si el usuario es director, None en caso contrario"""
     if user.is_staff and not user.is_superuser:
-        planes = set()
-        if hasattr(user, 'perfil_docente'):
-            if user.perfil_docente.carreras_coordinadas.exists():
-                planes.update(user.perfil_docente.carreras_coordinadas.values_list('id', flat=True))
-            if user.perfil_docente.carreras_tutoriadas.exists():
-                planes.update(user.perfil_docente.carreras_tutoriadas.values_list('id', flat=True))
-        if planes:
-            return list(planes)
+        if hasattr(user, 'perfil_docente') and user.perfil_docente.carreras_coordinadas.exists():
+            return list(user.perfil_docente.carreras_coordinadas.values_list('id', flat=True))
     return None
-
-def es_solo_tutor(user):
-    if user.is_superuser: return False
-    if not hasattr(user, 'perfil_docente'): return False
-    pd = user.perfil_docente
-    if pd.carreras_coordinadas.exists(): return False
-    if pd.carreras_tutoriadas.exists(): return True
-    return False
 
 @login_required
 def dashboard(request):
@@ -144,23 +130,18 @@ from django.db.models import Q
 
 @login_required
 def lista_alumnos(request):
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
-        alumnos = Alumno.objects.filter(inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('apellido')
+        alumnos = Alumno.objects.filter(plan_id__in=planes_ids).order_by('apellido')
     else:
         alumnos = Alumno.objects.all().order_by('apellido')
         
     return render(request, 'gestion/lista_alumnos.html', {
         'alumnos': alumnos,
-        'es_tutor': es_solo_tutor(request.user),
     })
 
 @login_required
 def alta_alumno(request):
-    if es_solo_tutor(request.user):
-        messages.error(request, "Los tutores de carrera no tienen permisos para crear alumnos.")
-        return redirect('lista_alumnos')
-        
     if request.method == 'POST':
         dni = request.POST.get('dni')
         email = request.POST.get('email')
@@ -225,6 +206,7 @@ def alta_alumno(request):
                 localidad=request.POST.get('localidad'),
                 sexo=request.POST.get('sexo'),
                 lugar_nacimiento=request.POST.get('lugar_nacimiento'),
+                plan=plan,
                 estado_alumno=estado,
                 doc_dni=doc_dni,
                 doc_vacunas=doc_vacunas,
@@ -232,10 +214,6 @@ def alta_alumno(request):
                 doc_primaria=doc_primaria,
                 doc_pase=doc_pase
             )
-            
-            if plan:
-                InscripcionCarrera.objects.create(alumno=alumno_obj, plan=plan)
-
             messages.success(request, f"¡Alumno {nombre} {apellido} creado! Puede ingresar con su email y DNI.")
             return redirect('lista_alumnos')
         except Exception as e:
@@ -250,8 +228,8 @@ from datetime import timedelta, date
 def legajo_alumno(request, alumno_id):
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
-    carreras = alumno.carreras.all()
-    total_materias = sum(c.materias.count() for c in carreras) if carreras.exists() else 0
+    # 1. Porcentaje y avance
+    total_materias = alumno.plan.materias.count() if alumno.plan else 0
     
     # 2. Acreditadas (Equivalencias + Finales + Promociones)
     acreditadas = []
@@ -336,7 +314,7 @@ def legajo_alumno(request, alumno_id):
             
     # 5. Materias Pendientes (General)
     materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a['materia']]
-    todas_materias = Materia.objects.filter(plan__in=alumno.carreras.all()).order_by('año_dictado', 'nombre').distinct() if alumno.carreras.exists() else []
+    todas_materias = alumno.plan.materias.all().order_by('año_dictado', 'nombre') if alumno.plan else []
     pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids]
     
     context = {
@@ -355,7 +333,6 @@ def legajo_alumno(request, alumno_id):
 
 @login_required
 def editar_alumno(request, alumno_id):
-    if es_solo_tutor(request.user): return redirect('lista_alumnos')
     alumno = get_object_or_404(Alumno, id=alumno_id)
     planes = PlanDeEstudio.objects.all()
     
@@ -384,9 +361,9 @@ def editar_alumno(request, alumno_id):
             
         plan_id = request.POST.get('plan')
         if plan_id:
-            plan = get_object_or_404(PlanDeEstudio, id=plan_id)
-            if not alumno.carreras.filter(id=plan.id).exists():
-                InscripcionCarrera.objects.create(alumno=alumno, plan=plan)
+            alumno.plan = get_object_or_404(PlanDeEstudio, id=plan_id)
+        else:
+            alumno.plan = None
             
         alumno.telefono = request.POST.get('telefono')
         alumno.celular = request.POST.get('celular')
@@ -462,19 +439,15 @@ def boletin_alumno(request, alumno_id, ciclo_lectivo):
 
 @login_required
 def lista_docentes(request):
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
         docentes = Docente.objects.filter(comisiones_asignadas__materia__plan_id__in=planes_ids).distinct()
     else:
         docentes = Docente.objects.all()
-    return render(request, 'gestion/lista_docentes.html', {
-        'docentes': docentes,
-        'es_tutor': es_solo_tutor(request.user),
-    })
+    return render(request, 'gestion/lista_docentes.html', {'docentes': docentes})
 
 @login_required
 def alta_docente(request):
-    if es_solo_tutor(request.user): return redirect('dashboard')
     if request.method == 'POST':
         dni = request.POST.get('dni')
         email = request.POST.get('email')
@@ -518,20 +491,6 @@ def alta_docente(request):
                 sexo=request.POST.get('sexo'),
                 lugar_nacimiento=request.POST.get('lugar_nacimiento')
             )
-            
-            doc = Docente.objects.get(dni=dni)
-            carreras_coordinadas_ids = request.POST.getlist('carreras_coordinadas')
-            carreras_tutoriadas_ids = request.POST.getlist('carreras_tutoriadas')
-            
-            if carreras_coordinadas_ids:
-                doc.carreras_coordinadas.set(carreras_coordinadas_ids)
-            if carreras_tutoriadas_ids:
-                doc.carreras_tutoriadas.set(carreras_tutoriadas_ids)
-                
-            if carreras_coordinadas_ids or carreras_tutoriadas_ids:
-                usuario.is_staff = True
-                usuario.save()
-                
             messages.success(request, f"¡Docente {nombre} {apellido} creado! Puede ingresar con su email/DNI.")
             return redirect('lista_docentes')
         except Exception as e:
@@ -540,12 +499,10 @@ def alta_docente(request):
     # Para los selects del template:
     provincias = Docente.PROVINCIAS
     sexo_choices = Docente.SEXO_CHOICES
-    planes = PlanDeEstudio.objects.all()
-    return render(request, 'gestion/alta_docente.html', {'provincias': provincias, 'sexo_choices': sexo_choices, 'planes': planes})
+    return render(request, 'gestion/alta_docente.html', {'provincias': provincias, 'sexo_choices': sexo_choices})
 
 @login_required
 def editar_docente(request, docente_id):
-    if es_solo_tutor(request.user): return redirect('dashboard')
     docente = get_object_or_404(Docente, id=docente_id)
     
     if request.method == 'POST':
@@ -558,13 +515,11 @@ def editar_docente(request, docente_id):
         # Check uniqueness excluding the current teacher
         if Docente.objects.filter(dni=dni).exclude(id=docente_id).exists():
             messages.error(request, f"Ya existe otro docente registrado con el DNI {dni}.")
-            planes = PlanDeEstudio.objects.all()
-            return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES, 'planes': planes})
+            return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES})
             
         if email and Docente.objects.filter(email=email).exclude(id=docente_id).exists():
             messages.error(request, f"Ya existe otro docente registrado con el email {email}.")
-            planes = PlanDeEstudio.objects.all()
-            return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES, 'planes': planes})
+            return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES})
             
         try:
             # Update User if email changed
@@ -596,31 +551,12 @@ def editar_docente(request, docente_id):
             
             docente.save()
             
-            carreras_coordinadas_ids = request.POST.getlist('carreras_coordinadas')
-            carreras_tutoriadas_ids = request.POST.getlist('carreras_tutoriadas')
-            
-            docente.carreras_coordinadas.set(carreras_coordinadas_ids)
-            docente.carreras_tutoriadas.set(carreras_tutoriadas_ids)
-            
-            if carreras_coordinadas_ids or carreras_tutoriadas_ids:
-                if docente.usuario:
-                    docente.usuario.is_staff = True
-                    docente.usuario.save()
-            else:
-                # Opcional: revocar is_staff si se lo quitan, pero quizás es admin por otra cosa
-                # Mejor lo dejamos si ya lo era, o asumimos que ya no es staff
-                # if docente.usuario and not docente.usuario.is_superuser:
-                #    docente.usuario.is_staff = False
-                #    docente.usuario.save()
-                pass
-            
             messages.success(request, "¡Datos del docente actualizados correctamente!")
             return redirect('lista_docentes')
         except Exception as e:
             messages.error(request, f"Error al actualizar: {e}")
             
-    planes = PlanDeEstudio.objects.all()
-    return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES, 'planes': planes})
+    return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES})
 
 @login_required
 def legajo_docente(request, docente_id):
@@ -629,7 +565,7 @@ def legajo_docente(request, docente_id):
 
 @login_required
 def lista_comisiones(request):
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
         comisiones = Comision.objects.filter(materia__plan_id__in=planes_ids).order_by('-ciclo_lectivo', 'materia__nombre')
         # Limitar los planes disponibles en el filtro
@@ -659,15 +595,10 @@ def lista_comisiones(request):
         'q': query,
         'plan_id': int(plan_id) if plan_id else '',
         'ciclo_sel': int(ciclo) if ciclo else '',
-        'es_tutor': es_solo_tutor(request.user),
     })
 
 @login_required
 def apertura_masiva(request):
-    if es_solo_tutor(request.user):
-        messages.error(request, 'No tienes permisos para esta acción.')
-        return redirect('dashboard')
-        
     if request.method == 'POST':
         plan_id = request.POST.get('plan')
         ciclo_lectivo = request.POST.get('ciclo_lectivo')
@@ -742,9 +673,6 @@ def apertura_masiva(request):
 
 @login_required
 def alta_comision(request):
-    if es_solo_tutor(request.user):
-        messages.error(request, 'No tienes permisos para esta acción.')
-        return redirect('dashboard')
     materias = Materia.objects.all().order_by('año_dictado', 'nombre')
     docentes = Docente.objects.all().order_by('apellido')
     
@@ -868,7 +796,7 @@ def inscribir_alumno_comision(request, comision_id):
 
 @login_required
 def lista_comisiones_asistencia(request):
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
         comisiones = Comision.objects.filter(materia__plan_id__in=planes_ids)
     else:
@@ -1022,7 +950,7 @@ def revisar_justificativos(request):
             
         return redirect('revisar_justificativos')
         
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
         justificativos = JustificativoAsistencia.objects.filter(estado='PEND', comision__materia__plan_id__in=planes_ids).order_by('-fecha_carga')
     else:
@@ -1566,7 +1494,6 @@ def cerrar_comision(request, comision_id):
 
 @login_required
 def eliminar_comision(request, comision_id):
-    if es_solo_tutor(request.user): return redirect('dashboard')
     comision = get_object_or_404(Comision, id=comision_id)
     if request.method == 'POST':
         comision.delete()
@@ -1621,7 +1548,7 @@ def acta_volante(request, comision_id):
 @login_required
 def lista_mesas(request):
     from .models import MesaExamen
-    planes_ids = obtener_planes_visibles(request.user)
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
         mesas = MesaExamen.objects.filter(materia__plan_id__in=planes_ids).order_by('-ciclo_lectivo', 'fecha_hora')
     else:
@@ -1681,7 +1608,6 @@ def alta_mesa(request):
 
 @login_required
 def eliminar_mesa(request, mesa_id):
-    if es_solo_tutor(request.user): return redirect('dashboard')
     from .models import MesaExamen
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
     
@@ -1843,7 +1769,6 @@ def inscribir_alumno_mesa(request, mesa_id):
 
 @login_required
 def cargar_notas_mesa(request, mesa_id):
-    if es_solo_tutor(request.user): return redirect('dashboard')
     from .models import MesaExamen, InscripcionMesa
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
     
@@ -1893,24 +1818,17 @@ def cargar_notas_mesa(request, mesa_id):
                         
                         # Chequear si completó plan
                         alumno = insc.alumno
-                        plan = mesa.materia.plan
-                        total_materias = plan.materias.count() if plan else 0
-                        # Contar materias acreditadas de ESTE plan (Aproximación simple sumando equivalencias, promociones y finales de todas, o filtrando por plan)
-                        # Simplificación: contamos todo lo del alumno que pertenece a este plan
-                        acreditadas_plan = 0
-                        if plan:
-                            acreditadas_plan += alumno.equivalencias.filter(materia__plan=plan).count()
-                            acreditadas_plan += alumno.inscripciones.filter(estado='PROM', comision__materia__plan=plan).count()
-                            acreditadas_plan += alumno.mesas_inscriptas.filter(estado='APR', mesa__materia__plan=plan).count()
-
-                        if total_materias > 0 and acreditadas_plan >= total_materias:
+                        total_materias = alumno.plan.materias.count()
+                        total_acreditadas = alumno.equivalencias.count() + alumno.inscripciones.filter(estado='PROM').count() + alumno.mesas_inscriptas.filter(estado='APR').count()
+                        
+                        if total_materias > 0 and total_acreditadas >= total_materias:
                             from .models import Comunicado, Notificacion
                             from django.contrib.auth.models import User
                             admins = User.objects.filter(is_superuser=True)
                             if admins.exists():
                                 com = Comunicado.objects.create(
                                     titulo=f"🎓 ¡Posible Egresado: {alumno.nombre} {alumno.apellido}!",
-                                    mensaje=f"El estudiante {alumno.nombre} {alumno.apellido} ha aprobado el 100% de las materias de su Plan de Estudio ({plan.nombre}) tras rendir {mesa.materia.nombre}.",
+                                    mensaje=f"El estudiante {alumno.nombre} {alumno.apellido} ha aprobado el 100% de las materias de su Plan de Estudio ({alumno.plan.nombre}) tras rendir {mesa.materia.nombre}.",
                                     autor=request.user,
                                     tipo_destinatario='ADMINS'
                                 )
@@ -1998,15 +1916,14 @@ def acta_examen(request, mesa_id):
 
 @login_required
 def alta_equivalencia(request, alumno_id):
-    if es_solo_tutor(request.user): return redirect('lista_alumnos')
     from .models import Alumno, Equivalencia, Materia
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
-    if not alumno.carreras.exists():
+    if not alumno.plan:
         messages.error(request, "El alumno no tiene un plan de estudio asignado. Asígnele uno primero.")
         return redirect('legajo_alumno', alumno_id=alumno.id)
         
-    materias_plan = Materia.objects.filter(plan__in=alumno.carreras.all()).order_by('año_dictado', 'nombre')
+    materias_plan = alumno.plan.materias.all().order_by('año_dictado', 'nombre')
     
     # Excluir materias que ya tienen equivalencia
     equiv_existentes = Equivalencia.objects.filter(alumno=alumno).values_list('materia_id', flat=True)
@@ -2049,19 +1966,12 @@ def analitico_alumno(request, alumno_id):
     from .models import Alumno, Equivalencia, Inscripcion, InscripcionMesa
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
-    if not alumno.carreras.exists():
+    if not alumno.plan:
         messages.error(request, "El alumno no tiene plan de estudio para generar un analítico.")
         return redirect('legajo_alumno', alumno_id=alumno.id)
         
-    plan_id = request.GET.get('plan_id')
-    if plan_id:
-        from .models import PlanDeEstudio
-        plan = get_object_or_404(PlanDeEstudio, id=plan_id)
-    else:
-        plan = alumno.carreras.first()
-        
     # Recopilar todo el plan
-    materias_plan = plan.materias.all().order_by('año_dictado', 'nombre')
+    materias_plan = alumno.plan.materias.all().order_by('año_dictado', 'nombre')
     
     # Traer todos los registros aprobatorios del alumno
     equivalencias = Equivalencia.objects.filter(alumno=alumno)
@@ -2123,7 +2033,7 @@ def analitico_alumno(request, alumno_id):
             
     return render(request, 'gestion/analitico_alumno.html', {
         'alumno': alumno,
-        'plan': plan,
+        'plan': alumno.plan,
         'filas': filas_analitico,
         'fecha_actual': date.today(),
         'porcentaje_avance': porcentaje_avance,
@@ -2219,7 +2129,6 @@ def leer_notificacion(request, notificacion_id):
 
 @login_required
 def resetear_password_alumno(request, alumno_id):
-    if es_solo_tutor(request.user): return redirect('lista_alumnos')
     if not request.user.is_superuser and not request.user.is_staff:
         messages.error(request, 'No tienes permisos para realizar esta acción.')
         return redirect('dashboard')
@@ -2281,20 +2190,13 @@ def libro_matriz_alumno(request):
     from datetime import date
     alumno = request.user.perfil_alumno
     
-    if not alumno.carreras.exists():
+    if not alumno.plan:
         from django.contrib import messages
         messages.error(request, "No tienes plan de estudio asignado.")
         return redirect('dashboard')
         
-    plan_id = request.GET.get('plan_id')
-    if plan_id:
-        from .models import PlanDeEstudio
-        plan = get_object_or_404(PlanDeEstudio, id=plan_id)
-    else:
-        plan = alumno.carreras.first()
-        
     # Recopilar todo el plan
-    materias_plan = plan.materias.all().order_by('año_dictado', 'nombre')
+    materias_plan = alumno.plan.materias.all().order_by('año_dictado', 'nombre')
     
     # Traer todos los registros aprobatorios
     equivalencias = Equivalencia.objects.filter(alumno=alumno)
@@ -2343,7 +2245,7 @@ def libro_matriz_alumno(request):
     porcentaje_avance = int((materias_aprobadas / total_materias * 100)) if total_materias > 0 else 0
             
     return render(request, 'gestion/alumnos/libro_matriz.html', {
-        'alumno': alumno, 'plan': plan, 'filas': filas_analitico, 'fecha_actual': date.today(),
+        'alumno': alumno, 'plan': alumno.plan, 'filas': filas_analitico, 'fecha_actual': date.today(),
         'porcentaje_avance': porcentaje_avance, 'total_materias': total_materias, 'materias_aprobadas': materias_aprobadas
     })
 
@@ -2359,13 +2261,13 @@ def alumno_inscripcion_cursada(request):
         messages.error(request, f'No puedes inscribirte a cursadas. Tu estado actual es {alumno.get_estado_alumno_display()}.')
         return redirect('dashboard')
         
-    if not alumno.carreras.exists():
-        messages.error(request, 'No tienes carreras asignadas.')
+    if not alumno.plan:
+        messages.error(request, 'No tienes un plan de estudios asignado.')
         return redirect('dashboard')
         
-    # Obtener comisiones abiertas de los planes del alumno
+    # Obtener comisiones abiertas del plan del alumno
     comisiones_abiertas = Comision.objects.filter(
-        materia__plan__in=alumno.carreras.all(), 
+        materia__plan=alumno.plan, 
         inscripciones_abiertas=True, 
         cerrada=False
     ).select_related('materia', 'docente', 'docente_auxiliar').order_by('materia__año_dictado', 'materia__nombre')
@@ -2461,15 +2363,15 @@ def alumno_inscripcion_finales(request):
         messages.error(request, f'No puedes inscribirte a finales. Tu estado actual es {alumno.get_estado_alumno_display()}.')
         return redirect('dashboard')
         
-    if not alumno.carreras.exists():
-        messages.error(request, 'No tienes carreras asignadas.')
+    if not alumno.plan:
+        messages.error(request, 'No tienes un plan de estudios asignado.')
         return redirect('dashboard')
         
-    # Obtener mesas abiertas de los planes del alumno
+    # Obtener mesas abiertas del plan del alumno
     from .models import MesaExamen, InscripcionMesa, Correlatividad, Equivalencia, Inscripcion
     
     mesas_abiertas = MesaExamen.objects.filter(
-        materia__plan__in=alumno.carreras.all(), 
+        materia__plan=alumno.plan, 
         inscripciones_abiertas=True, 
         cerrada=False
     ).select_related('materia', 'presidente_mesa', 'vocal_1', 'vocal_2').order_by('turno', 'fecha_hora')
@@ -2637,25 +2539,16 @@ def preinscripcion_publica(request):
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_preinscriptos(request):
-    from .models import InscripcionCarrera
-    planes_ids = obtener_planes_visibles(request.user)
-    
+    planes_ids = is_director_carrera(request.user)
     if planes_ids is not None:
-        aspirantes = Alumno.objects.filter(estado_alumno='ASP', inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('-id')
-        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO', plan_id__in=planes_ids).select_related('alumno', 'plan').order_by('-id')
+        aspirantes = Alumno.objects.filter(estado_alumno='ASP', plan_id__in=planes_ids).order_by('-id')
     else:
         aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
-        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO').select_related('alumno', 'plan').order_by('-id')
-        
-    return render(request, 'gestion/lista_preinscriptos.html', {
-        'aspirantes': aspirantes,
-        'aspirantes_internos': aspirantes_internos
-    })
+    return render(request, 'gestion/lista_preinscriptos.html', {'aspirantes': aspirantes})
 
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def validar_preinscripto(request, alumno_id):
-    if es_solo_tutor(request.user): return redirect('lista_preinscriptos')
     from django.contrib.auth.models import User
     from .forms import RevisarPreinscriptoForm
     alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
@@ -2689,7 +2582,6 @@ def validar_preinscripto(request, alumno_id):
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def rechazar_preinscripto(request, alumno_id):
-    if es_solo_tutor(request.user): return redirect('lista_preinscriptos')
     if request.method == 'POST':
         alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
         nombre_completo = f"{alumno.apellido}, {alumno.nombre}"
@@ -2704,48 +2596,3 @@ def seleccionar_perfil(request):
 def establecer_perfil(request, rol):
     request.session['rol_activo'] = rol
     return redirect('dashboard')
-
-@login_required
-def solicitar_nueva_carrera(request):
-    from .models import PlanDeEstudio, InscripcionCarrera
-    alumno = getattr(request.user, 'perfil_alumno', None)
-    if not alumno:
-        messages.error(request, 'No tienes perfil de alumno.')
-        return redirect('dashboard')
-        
-    if request.method == 'POST':
-        plan_id = request.POST.get('plan_id')
-        if plan_id:
-            plan = get_object_or_404(PlanDeEstudio, id=plan_id)
-            if InscripcionCarrera.objects.filter(alumno=alumno, plan=plan).exists():
-                messages.warning(request, 'Ya estás inscripto o preinscripto en esta carrera.')
-            else:
-                InscripcionCarrera.objects.create(alumno=alumno, plan=plan, estado='PREINSCRIPTO')
-                messages.success(request, f'¡Solicitud enviada! Bedelía revisará tu preinscripción a {plan.nombre}.')
-            return redirect('dashboard')
-            
-    planes_activos = PlanDeEstudio.objects.exclude(id__in=alumno.carreras.values_list('id', flat=True))
-    return render(request, 'gestion/alumnos/solicitar_nueva_carrera.html', {'planes': planes_activos})
-
-@login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
-def validar_preinscripto_interno(request, inscripcion_id):
-    if es_solo_tutor(request.user): return redirect('lista_preinscriptos')
-    from .models import InscripcionCarrera
-    insc = get_object_or_404(InscripcionCarrera, id=inscripcion_id, estado='PREINSCRIPTO')
-    if request.method == 'POST':
-        insc.estado = 'CURSANDO'
-        insc.save()
-        messages.success(request, f'El alumno {insc.alumno} fue matriculado exitosamente en {insc.plan.nombre}.')
-    return redirect('lista_preinscriptos')
-
-@login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
-def rechazar_preinscripto_interno(request, inscripcion_id):
-    if es_solo_tutor(request.user): return redirect('lista_preinscriptos')
-    from .models import InscripcionCarrera
-    insc = get_object_or_404(InscripcionCarrera, id=inscripcion_id, estado='PREINSCRIPTO')
-    if request.method == 'POST':
-        insc.delete()
-        messages.success(request, f'La solicitud de {insc.alumno} a {insc.plan.nombre} ha sido rechazada.')
-    return redirect('lista_preinscriptos')
