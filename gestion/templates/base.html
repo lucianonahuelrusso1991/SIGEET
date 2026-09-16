@@ -105,6 +105,49 @@
             color: var(--bs-primary);
             font-weight: 600;
         }
+
+        /* Windows 11 / Fluent Design Aesthetics */
+        .card {
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+            transition: all 0.2s ease;
+        }
+        [data-bs-theme="dark"] .card {
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.6rem 1rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 4px rgba(40, 158, 160, 0.15);
+            border-color: var(--bs-secondary);
+        }
+        [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+            border-color: rgba(255,255,255,0.1);
+            background-color: rgba(255,255,255,0.03);
+        }
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.5rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+        .shadow-sm {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        }
+        .navbar-custom {
+            border-bottom: none;
+            box-shadow: 0 1px 15px rgba(0,0,0,0.04) !important;
+        }
+        [data-bs-theme="dark"] .navbar-custom {
+            box-shadow: 0 1px 15px rgba(0,0,0,0.2) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
     </style>
     <script>
         // Aplicar el tema lo antes posible para evitar parpadeos
@@ -123,12 +166,9 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-custom mb-4 shadow-sm py-2">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
-                <!-- Por defecto intenta cargar el logo local, si no lo encuentra usa uno temporal hasta que subas el real -->
                 <img id="main-logo" src="{% static 'img/logo.png' %}" 
-                     data-light-src="{% static 'img/logo.png' %}" 
-                     data-dark-src="{% static 'img/logo2.png' %}" 
                      alt="Profesorado Don Bosco Pío IX" 
-                     onerror="this.src='https://placehold.co/300x80/ffffff/1F4A75?text=Profesorado+Don+Bosco&font=montserrat'">
+                     style="height: 48px; object-fit: contain;">
             </a>
             
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
