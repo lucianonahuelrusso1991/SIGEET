@@ -127,6 +127,20 @@
             background: rgba(30, 30, 30, 0.6) !important;
             border: 1px solid rgba(255,255,255,0.1) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            color: #f8f9fa; /* Asegurar que el texto general sea claro */
+        }
+        
+        /* Corregir contrastes problemáticos sin cambiar fondos */
+        .card .text-muted {
+            color: #333 !important; /* Gris oscuro para modo claro */
+        }
+        .card .text-primary {
+            color: #0b2238 !important; /* Azul más oscuro para modo claro */
+        }
+        [data-bs-theme="dark"] .card .text-muted,
+        [data-bs-theme="dark"] .card .text-dark,
+        [data-bs-theme="dark"] .card .text-primary {
+            color: #e0e0e0 !important; /* Gris/Blanco claro para modo oscuro */
         }
         
         .form-control, .form-select {
