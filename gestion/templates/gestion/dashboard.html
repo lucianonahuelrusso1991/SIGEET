@@ -77,77 +77,77 @@
     <!-- Tarjetas de Acceso -->
     <div class="row g-4 mb-5">
         
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-3 text-center d-flex flex-column">
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/alumnos.png' %}" alt="Alumnos" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(13, 202, 240, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3">Alumnos</h5>
-                    <p class="text-muted small flex-grow-1">Gestión de legajos, matriculación al plan de estudios, y seguimiento de Libros Matrices.</p>
-                    <a href="{% url 'lista_alumnos' %}" class="btn btn-outline-info w-100 fw-bold rounded-pill mb-2">Gestionar Alumnos</a>
-                    <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary w-100 fw-bold rounded-pill">Revisar Preinscriptos</a>
+                    <h6 class="fw-bold mb-3">Alumnos</h5>
+                    
+                    <a href="{% url 'lista_alumnos' %}" class="btn btn-outline-info w-100 fw-bold rounded-pill btn-sm mb-2">Gestionar Alumnos</a>
+                    <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary w-100 fw-bold rounded-pill btn-sm">Revisar Preinscriptos</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-3 text-center d-flex flex-column">
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/comisiones.png' %}" alt="Comisiones" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(13, 110, 253, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3">Comisiones</h5>
-                    <p class="text-muted small flex-grow-1">Administración de cursadas por cuatrimestre, carga de regularidades y notas diarias.</p>
-                    <a href="{% url 'lista_comisiones' %}" class="btn btn-outline-primary w-100 fw-bold rounded-pill">Gestionar Comisiones</a>
+                    <h6 class="fw-bold mb-3">Comisiones</h5>
+                    
+                    <a href="{% url 'lista_comisiones' %}" class="btn btn-outline-primary w-100 fw-bold rounded-pill btn-sm">Gestionar Comisiones</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-3 text-center d-flex flex-column">
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/mesas.png' %}" alt="Mesas de Examen" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(220, 53, 69, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3">Mesas de Examen</h5>
-                    <p class="text-muted small flex-grow-1">Configuración de tribunales, inscripción a finales, carga de actas y validación de correlativas.</p>
-                    <a href="{% url 'lista_mesas' %}" class="btn btn-outline-danger w-100 fw-bold rounded-pill">Ir a Mesas (Finales)</a>
+                    <h6 class="fw-bold mb-3">Mesas de Examen</h5>
+                    
+                    <a href="{% url 'lista_mesas' %}" class="btn btn-outline-danger w-100 fw-bold rounded-pill btn-sm">Ir a Mesas (Finales)</a>
                 </div>
             </div>
         </div>
 
         {% if not es_director %}
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-3 text-center d-flex flex-column">
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/docentes.png' %}" alt="Docentes" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(255, 193, 7, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3">Docentes</h5>
-                    <p class="text-muted small flex-grow-1">Administración del plantel docente, legajos y asignación de materias u horas cátedra.</p>
+                    <h6 class="fw-bold mb-3">Docentes</h5>
+                    
                     <a href="{% url 'lista_docentes' %}" class="btn btn-outline-warning w-100 fw-bold text-dark rounded-pill">Ver Plantel Docente</a>
                 </div>
             </div>
         </div>
         {% endif %}
 
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift" style="transition: transform 0.2s;">
                 <div class="card-body p-3 text-center d-flex flex-column">
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/comunicaciones.png' %}" alt="Comunicaciones" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(25, 135, 84, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3">Comunicaciones y Bedelía</h5>
-                    <p class="text-muted small flex-grow-1">Bandeja de entrada, avisos y revisión de certificados médicos de alumnos.</p>
-                    <a href="{% url 'redactar_comunicado' %}" class="btn btn-outline-success w-100 fw-bold rounded-pill mb-2">Redactar Mensaje</a>
-                    <a href="{% url 'revisar_justificativos' %}" class="btn btn-outline-info w-100 fw-bold rounded-pill">Revisar Justificativos</a>
+                    <h6 class="fw-bold mb-3">Bedelía</h5>
+                    
+                    <a href="{% url 'redactar_comunicado' %}" class="btn btn-outline-success w-100 fw-bold rounded-pill btn-sm mb-2">Redactar Mensaje</a>
+                    <a href="{% url 'revisar_justificativos' %}" class="btn btn-outline-info w-100 fw-bold rounded-pill btn-sm">Revisar Justificativos</a>
                 </div>
             </div>
         </div>
 
         <!-- Aula Virtual (Próximamente) -->
-        <div class="col-md-6 col-lg-4">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift position-relative" style="transition: transform 0.2s;">
                 <div class="position-absolute top-0 end-0 mt-3 me-3">
                     <span class="badge rounded-pill bg-dark text-white fw-medium shadow-sm"><i class="bi bi-stars me-1"></i>Demo Mode</span>
@@ -156,9 +156,9 @@
                     <div class="mb-4 mt-2">
                         <img src="{% static 'gestion/img/aula_virtual.png' %}" alt="Aula Virtual" class="img-fluid rounded-circle shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 2px solid rgba(111, 66, 193, 0.5); padding: 2px;">
                     </div>
-                    <h5 class="fw-bold mb-3" style="color: #6f42c1;">Aula Virtual LMS</h5>
-                    <p class="text-muted small flex-grow-1">Campus virtual interactivo. Acceso a material de estudio, clases grabadas y entregas de trabajos prácticos.</p>
-                    <a href="#" class="btn w-100 fw-bold rounded-pill text-white shadow-sm" style="background-color: #6f42c1; border-color: #6f42c1;">
+                    <h6 class="fw-bold mb-3" style="color: #6f42c1;">Aula Virtual</h5>
+                    
+                    <a href="#" class="btn w-100 fw-bold rounded-pill btn-sm text-white shadow-sm" style="background-color: #6f42c1; border-color: #6f42c1;">
                         <i class="bi bi-rocket-takeoff me-2"></i>Ingresar al Campus
                     </a>
                 </div>
