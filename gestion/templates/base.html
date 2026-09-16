@@ -106,47 +106,89 @@
             font-weight: 600;
         }
 
-        /* Windows 11 / Fluent Design Aesthetics */
+        /* Windows 11 / Glassmorphism Aesthetics */
+        .app-body {
+            background: linear-gradient(135deg, #1F4A75 0%, #289EA0 100%) !important;
+            background-attachment: fixed !important;
+            min-height: 100vh;
+        }
+        
         .card {
             border-radius: 12px;
-            border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease;
         }
+        
         [data-bs-theme="dark"] .card {
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+            background: rgba(30, 30, 30, 0.85);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
         }
+        
         .form-control, .form-select {
             border-radius: 8px;
             border: 1px solid rgba(0,0,0,0.1);
             padding: 0.6rem 1rem;
             transition: all 0.2s;
+            background-color: rgba(255, 255, 255, 0.9);
         }
         .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 4px rgba(40, 158, 160, 0.15);
+            box-shadow: 0 0 0 4px rgba(40, 158, 160, 0.25);
             border-color: var(--bs-secondary);
+            background-color: #ffffff;
         }
         [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
             border-color: rgba(255,255,255,0.1);
-            background-color: rgba(255,255,255,0.03);
+            background-color: rgba(0,0,0,0.2);
+            color: #fff;
         }
+        
         .btn {
             border-radius: 8px;
-            font-weight: 500;
+            font-weight: 600;
             padding: 0.5rem 1.2rem;
             transition: all 0.2s ease;
         }
+        
         .shadow-sm {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
         }
+        
         .navbar-custom {
             border-bottom: none;
-            box-shadow: 0 1px 15px rgba(0,0,0,0.04) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1) !important;
         }
         [data-bs-theme="dark"] .navbar-custom {
-            box-shadow: 0 1px 15px rgba(0,0,0,0.2) !important;
+            background: rgba(20, 20, 20, 0.85) !important;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3) !important;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Ensure table backgrounds match the glass look */
+        .table {
+            background-color: transparent !important;
+        }
+        .table > :not(caption) > * > * {
+            background-color: transparent !important;
+            border-bottom-color: rgba(0,0,0,0.05);
+        }
+        [data-bs-theme="dark"] .table > :not(caption) > * > * {
+            border-bottom-color: rgba(255,255,255,0.05);
+        }
+
+        /* Generic headers on app body should be white */
+        .app-body > .container > h2, 
+        .app-body > .container > h3, 
+        .app-body > .container > h4 {
+            color: white !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
     </style>
     <script>
@@ -161,7 +203,7 @@
         document.documentElement.setAttribute('data-bs-theme', getPreferredTheme());
     </script>
 </head>
-<body class="bg-body">
+<body class="app-body">
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-custom mb-4 shadow-sm py-2">
         <div class="container">

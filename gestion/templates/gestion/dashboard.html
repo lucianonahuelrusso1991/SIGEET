@@ -46,7 +46,7 @@
             </div>
             {% else %}
             <!-- Default Hero Banner -->
-            <div class="card border-0 shadow-lg text-white rounded-4 overflow-hidden" style="background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);">
+            <div class="card border-0 shadow-lg text-white rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2) !important;">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -72,7 +72,7 @@
         {% endfor %}
     {% endif %}
 
-    <h4 class="fw-bold mb-4 text-secondary">Accesos Rápidos</h4>
+    <h4 class="fw-bold mb-4 text-white">Accesos Rápidos</h4>
     
     <!-- Tarjetas de Acceso -->
     <div class="row g-4 mb-5">
