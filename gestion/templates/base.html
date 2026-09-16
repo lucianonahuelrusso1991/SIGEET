@@ -115,7 +115,7 @@
         
         .card {
             border-radius: 12px;
-            background: rgba(255, 255, 255, 0.55) !important;
+            background: rgba(255, 255, 255, 0.65) !important;
             border: 1px solid rgba(255, 255, 255, 0.5) !important;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -124,23 +124,25 @@
         }
         
         [data-bs-theme="dark"] .card {
-            background: rgba(30, 30, 30, 0.6) !important;
+            background: rgba(0, 0, 0, 0.45) !important;
             border: 1px solid rgba(255,255,255,0.1) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
             color: #f8f9fa; /* Asegurar que el texto general sea claro */
         }
         
-        /* Corregir contrastes problemáticos sin cambiar fondos */
+        /* Corregir contrastes problemáticos sin perder la esencia */
         .card .text-muted {
-            color: #333 !important; /* Gris oscuro para modo claro */
+            color: rgba(0, 0, 0, 0.6) !important; /* Gris oscuro translúcido, suave pero legible */
         }
         .card .text-primary {
-            color: #0b2238 !important; /* Azul más oscuro para modo claro */
+            color: #0b2238 !important; /* Azul bien oscuro para contraste */
         }
-        [data-bs-theme="dark"] .card .text-muted,
+        [data-bs-theme="dark"] .card .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important; 
+        }
         [data-bs-theme="dark"] .card .text-dark,
         [data-bs-theme="dark"] .card .text-primary {
-            color: #e0e0e0 !important; /* Gris/Blanco claro para modo oscuro */
+            color: #e0e0e0 !important; 
         }
         
         .form-control, .form-select {
@@ -234,7 +236,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-custom mb-4 shadow-sm py-2">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
-                <img id="main-logo" src="{% static 'img/logo.png' %}" 
+                <img id="main-logo" src="{% static 'gestion/img/logo.png' %}" 
                      alt="Profesorado Don Bosco Pío IX" 
                      style="height: 48px; object-fit: contain;">
             </a>
