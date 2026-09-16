@@ -24,8 +24,15 @@
             <p class="text-muted mb-0">DNI: {{ docente.dni }}</p>
         </div>
         <div>
+            {% if not es_tutor %}
             <a href="{% url 'editar_docente' docente.id %}" class="btn btn-warning shadow-sm fw-bold me-2">✏️ Editar Datos</a>
+            {% endif %}
             <a href="{% url 'calendario_docente' docente.id %}" class="btn btn-dark shadow-sm fw-bold me-2">📅 Ver Mi Calendario</a>
+            {% if not es_tutor %}
+            <a href="{% url 'resetear_password_docente' docente.id %}" class="btn btn-danger shadow-sm fw-bold" onclick="return confirm('¿Estás seguro de que deseas resetear la contraseña de este docente a su DNI?');">
+                <i class="bi bi-key"></i> Reset Clave
+            </a>
+            {% endif %}
         </div>
     </div>
 

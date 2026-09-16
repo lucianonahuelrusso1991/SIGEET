@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from gestion.views import (
     dashboard, lista_alumnos, legajo_alumno, alta_alumno, editar_alumno, constancia_alumno, certificado_examen_alumno, boletin_alumno,
-    lista_docentes, alta_docente, legajo_docente, editar_docente,
+    lista_docentes, alta_docente, legajo_docente, editar_docente, resetear_password_docente,
     lista_comisiones, alta_comision, detalle_comision, apertura_masiva,
     inscribir_alumno_comision, toggle_inscripcion_comision, cerrar_comision, eliminar_comision, editar_comision,
     lista_comisiones_asistencia, cargar_asistencia,
@@ -34,6 +34,7 @@ urlpatterns = [
     # Docentes (Deprecated block, kept to avoid routing errors but the real one is below)
     path('docentes/', lista_docentes, name='lista_docentes'),
     path('docentes/nuevo/', alta_docente, name='alta_docente'),
+    path('docentes/<int:docente_id>/reset-password/', resetear_password_docente, name='resetear_password_docente'),
     
     # Alumnos
     path('alumnos/', lista_alumnos, name='lista_alumnos'),

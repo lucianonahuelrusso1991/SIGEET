@@ -625,7 +625,7 @@ def editar_docente(request, docente_id):
 @login_required
 def legajo_docente(request, docente_id):
     docente = get_object_or_404(Docente, id=docente_id)
-    return render(request, 'gestion/legajo_docente.html', {'docente': docente})
+    return render(request, 'gestion/legajo_docente.html', {'docente': docente, 'es_tutor': es_solo_tutor(request.user)})
 
 @login_required
 def lista_comisiones(request):
@@ -2233,6 +2233,20 @@ def resetear_password_alumno(request, alumno_id):
         messages.error(request, 'El alumno no tiene un usuario asociado.')
         
     return redirect('legajo_alumno', alumno_id=alumno.id)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def resetear_password_docente(request, docente_id):
+    if es_solo_tutor(request.user): return redirect('lista_docentes')
+    docente = get_object_or_404(Docente, id=docente_id)
+    if docente.usuario:
+        docente.usuario.set_password(docente.dni)
+        docente.usuario.save()
+        messages.success(request, f'Se ha reseteado la contraseña del docente {docente.nombre} {docente.apellido} a su DNI ({docente.dni}).')
+    else:
+        messages.error(request, 'El docente no tiene un usuario de sistema asociado.')
+        
+    return redirect('legajo_docente', docente_id=docente.id)
 
 @login_required
 def perfil_alumno(request):

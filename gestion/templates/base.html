@@ -155,6 +155,10 @@
                         <span class="fw-medium">{{ user.username }}</span>
                     </div>
                     
+                    <a href="{% url 'password_change' %}" class="btn btn-outline-primary btn-sm fw-bold rounded-pill px-3 py-2 text-center" title="Cambiar Contraseña">
+                        <i class="bi bi-key-fill"></i>
+                    </a>
+                    
                     <form action="{% url 'logout' %}" method="post" class="d-flex justify-content-center m-0">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm fw-bold rounded-pill px-4 py-2 w-100 w-lg-auto">
