@@ -211,13 +211,6 @@
         .app-body .container p.text-muted:not(.card p) {
             color: rgba(255, 255, 255, 0.8) !important;
         }
-
-        /* Enforce table headers to match glass */
-        .table-dark {
-            --bs-table-bg: rgba(0, 0, 0, 0.4);
-            --bs-table-color: #fff;
-            backdrop-filter: blur(10px);
-        }
     </style>
     <script>
         // Aplicar el tema lo antes posible para evitar parpadeos
@@ -236,7 +229,7 @@
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-custom mb-4 shadow-sm py-2">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
-                <img id="main-logo" src="{% static 'gestion/img/logo.png' %}" 
+                <img id="main-logo" src="{% static 'gestion/img/logo_pioix_v3.png' %}" 
                      alt="Profesorado Don Bosco Pío IX" 
                      style="height: 48px; object-fit: contain;">
             </a>

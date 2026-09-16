@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel</a>
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al Panel</a>
 {% endblock %}
 
 {% block title %}Seleccionar Comisión para Asistencia{% endblock %}
@@ -27,7 +27,7 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-striped align-middle mb-0" id="comisionesTable">
-                        <thead class="table-dark">
+                        <thead class="border-bottom border-dark border-opacity-25">
                             <tr>
                                 <th class="ps-4">Materia / Carrera</th>
                                 <th>Docente</th>

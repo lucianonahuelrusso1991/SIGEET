@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al inicio</a>
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al inicio</a>
 {% endblock %}
 
 {% block title %}Comisiones Activas{% endblock %}
@@ -40,7 +40,7 @@
                 </select>
             </div>
             <div class="col-md-2 text-end">
-                <button type="button" id="btnLimpiar" class="btn btn-outline-secondary shadow-sm w-100">Limpiar</button>
+                <button type="button" id="btnLimpiar" class="btn btn-outline-light shadow-sm w-100">Limpiar</button>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@
 
 <div class="table-responsive">
 <table class="table table-striped mt-3" id="comisionesTable">
-    <thead class="table-dark">
+    <thead class="border-bottom border-dark border-opacity-25">
         <tr>
             <th>Materia</th>
             <th>Docente</th>

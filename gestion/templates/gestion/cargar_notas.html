@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al detalle de la comisión</a>
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al detalle de la comisión</a>
 {% endblock %}
 
 {% block title %}Cargar Notas: {{ comision.materia.nombre }}{% endblock %}
@@ -46,7 +46,7 @@
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
+                <thead class="border-bottom border-dark border-opacity-25">
                     <tr>
                         <th class="ps-4" style="width: 5%;">Nº</th>
                         <th style="width: 50%;">Apellido y Nombre</th>
