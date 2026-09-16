@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=sigeet_db
+      - POSTGRES_USER=sigeet_user
+      - POSTGRES_PASSWORD=supersecret
+    restart: always
+
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 sistema_escolar.wsgi:application
+    volumes:
+      - .:/app
+    ports:
+      - "80:8000"
+    environment:
+      - POSTGRES_DB=sigeet_db
+      - POSTGRES_USER=sigeet_user
+      - POSTGRES_PASSWORD=supersecret
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
