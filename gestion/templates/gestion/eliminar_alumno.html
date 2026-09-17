@@ -1,0 +1,23 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Eliminar Alumno</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="mb-4">¿Estás seguro que querés eliminar a {{ alumno.nombre }} {{ alumno.apellido }}?</h4>
+                    <p class="text-danger mb-4">Esta acción no se puede deshacer y borrará toda su historia académica y usuario de acceso.</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Sí, eliminar definitivamente</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

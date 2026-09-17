@@ -2810,3 +2810,22 @@ def crear_aula_materia_manual(request, materia_id):
         messages.info(request, f'{materia.nombre} ya tiene un aula virtual asignada.')
         
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from .models import Alumno
+
+@staff_member_required
+def eliminar_alumno(request, alumno_id):
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    if request.method == 'POST':
+        nombre = f'{alumno.nombre} {alumno.apellido}'
+        if alumno.usuario:
+            alumno.usuario.delete() # Esto borra el Alumno en cascada
+        else:
+            alumno.delete()
+        messages.success(request, f'Alumno {nombre} eliminado correctamente.')
+        return redirect('lista_alumnos')
+    
+    return render(request, 'gestion/eliminar_alumno.html', {'alumno': alumno})
