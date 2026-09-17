@@ -1,4 +1,4 @@
-﻿import os
+import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from django.conf import settings
@@ -77,11 +77,14 @@ def invitar_equipo_docente(materia, docente_principal):
     if not materia.google_classroom_id:
         return
 
-    # Docente titular usando su correo institucional
+    # 1. Supervisor Global (Cuenta Maestra)
+    invitar_usuario_a_aula(materia.google_classroom_id, 'secretaria.alumnos@pioix.edu.ar', role='TEACHER')
+
+    # 2. Docente titular usando su correo institucional
     if docente_principal and hasattr(docente_principal, 'correo_institucional') and docente_principal.correo_institucional:
         invitar_usuario_a_aula(materia.google_classroom_id, docente_principal.correo_institucional, role='TEACHER')
         
-    # Tutores / Coordinadores
+    # 3. Tutores / Coordinadores
     tutores = Docente.objects.filter(carreras_coordinadas=materia.plan)
     for tutor in tutores:
         if hasattr(tutor, 'correo_institucional') and tutor.correo_institucional and tutor != docente_principal:
