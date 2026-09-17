@@ -32,3 +32,12 @@ def sync_docente_classroom(sender, instance, created, **kwargs):
                 if materia.google_classroom_id and materia.id not in materias_ya_procesadas:
                     invitar_equipo_docente(materia, None) # Invita solo a coordinadores
                     materias_ya_procesadas.add(materia.id)
+
+@receiver(post_save, sender=Inscripcion)
+def sync_inscripcion_classroom(sender, instance, created, **kwargs):
+    if created and instance.estado == 'REG':
+        alumno = instance.alumno
+        materia = instance.comision.materia
+        if alumno.correo_institucional and alumno.correo_institucional.lower().endswith('@pioix.edu.ar'):
+            if materia.google_classroom_id:
+                invitar_alumno_a_aula(materia, alumno)
