@@ -1,10 +1,10 @@
 import os
 from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from django.conf import settings
 from gestion.models import Materia, Docente, Alumno
 
-CREDENTIALS_FILE = '/app/google_credentials.json' if os.path.exists('/app/google_credentials.json') else 'google_credentials.json'
 SCOPES = [
     'https://www.googleapis.com/auth/classroom.courses',
     'https://www.googleapis.com/auth/classroom.rosters',
@@ -12,19 +12,31 @@ SCOPES = [
 ]
 
 def get_classroom_service():
-    if not os.path.exists(CREDENTIALS_FILE):
-        return None
+    TOKEN_FILE = '/opt/sigeet/token.json' if os.path.exists('/opt/sigeet/token.json') else ('/app/token.json' if os.path.exists('/app/token.json') else 'token.json')
+    CREDENTIALS_FILE = '/opt/sigeet/google_credentials.json' if os.path.exists('/opt/sigeet/google_credentials.json') else ('/app/google_credentials.json' if os.path.exists('/app/google_credentials.json') else 'google_credentials.json')
+    
     try:
-        creds = service_account.Credentials.from_service_account_file(
-            CREDENTIALS_FILE, 
-            scopes=SCOPES
-        )
-        # Delegación de Dominio (DWD): El robot actúa en nombre de la secretaría
-        creds = creds.with_subject('secretaria.alumnos@pioix.edu.ar')
-        return build('classroom', 'v1', credentials=creds)
+        # Prioridad 1: Token de usuario OAuth2 (evita bloqueos de Antonio)
+        if os.path.exists(TOKEN_FILE):
+            creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+            return build('classroom', 'v1', credentials=creds)
+            
+        # Prioridad 2: Service Account (Robot tradicional)
+        if os.path.exists(CREDENTIALS_FILE):
+            creds = service_account.Credentials.from_service_account_file(
+                CREDENTIALS_FILE, 
+                scopes=SCOPES
+            )
+            # Desactivamos DWD temporalmente ya que no tenemos permisos del Superadmin
+            # creds = creds.with_subject('secretaria.alumnos@pioix.edu.ar')
+            return build('classroom', 'v1', credentials=creds)
+            
+        return None
     except Exception as e:
         print(f"Error autenticando con Google Classroom: {e}")
         return None
+
+get_google_credentials = get_classroom_service
 
 def obtener_o_crear_aula_materia(materia):
     if materia.google_classroom_id:
