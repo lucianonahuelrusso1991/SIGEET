@@ -3,8 +3,8 @@
   "model": "gestion.plandeestudio",
   "pk": 1,
   "fields": {
-    "nombre": "Tecn. Sup. en Anßlisis de Sistemas",
-    "resolucion_ministerial": "Res. N░ 521/SSPLINED/16"
+    "nombre": "Tecn. Sup. en Análisis de Sistemas",
+    "resolucion_ministerial": "Res. N° 521/SSPLINED/16"
   }
 },
 {
@@ -12,30 +12,30 @@
   "pk": 2,
   "fields": {
     "nombre": "Prof. de Educ. Sup. en Ciencias Sagradas",
-    "resolucion_ministerial": "Res. N░ 4184/MEGC/14"
+    "resolucion_ministerial": "Res. N° 4184/MEGC/14"
   }
 },
 {
   "model": "gestion.plandeestudio",
   "pk": 4,
   "fields": {
-    "nombre": "Tecnicatura Superior en Locuci¾n Integral (Res. N░ 63/SSPLINED/19)",
-    "resolucion_ministerial": "Res. N░ 63/SSPLINED/19"
+    "nombre": "Tecnicatura Superior en Locución Integral (Res. N° 63/SSPLINED/19)",
+    "resolucion_ministerial": "Res. N° 63/SSPLINED/19"
   }
 },
 {
   "model": "gestion.plandeestudio",
   "pk": 5,
   "fields": {
-    "nombre": "Tecnicatura Sup. en Producci¾n Integral de Televisi¾n (Res. N░ 400/SSPLINED/2018)",
-    "resolucion_ministerial": "Res. N░ 400/SSPLINED/18"
+    "nombre": "Tecnicatura Sup. en Producción Integral de Televisión (Res. N° 400/SSPLINED/2018)",
+    "resolucion_ministerial": "Res. N° 400/SSPLINED/18"
   }
 },
 {
   "model": "gestion.plandeestudio",
   "pk": 8,
   "fields": {
-    "nombre": "Tecnicatura Superior en Locuci¾n Integral (2025)",
+    "nombre": "Tecnicatura Superior en Locución Integral (2025)",
     "resolucion_ministerial": "IF-2025-13731090-GCABA-DGEGP"
   }
 },
@@ -43,9 +43,9 @@
   "model": "gestion.materia",
   "pk": 1,
   "fields": {
-    "nombre": "Comunicaci¾n Visual",
+    "nombre": "Comunicación Visual",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -54,9 +54,9 @@
   "model": "gestion.materia",
   "pk": 2,
   "fields": {
-    "nombre": "Programaci¾n Web I",
+    "nombre": "Programación Web I",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -65,9 +65,9 @@
   "model": "gestion.materia",
   "pk": 3,
   "fields": {
-    "nombre": "Organizaci¾n Empresarial",
+    "nombre": "Organización Empresarial",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -76,9 +76,9 @@
   "model": "gestion.materia",
   "pk": 4,
   "fields": {
-    "nombre": "Elementos de la Matemßtica",
+    "nombre": "Elementos de la Matemática",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -87,9 +87,9 @@
   "model": "gestion.materia",
   "pk": 5,
   "fields": {
-    "nombre": "Introducci¾n a la Programaci¾n",
+    "nombre": "Introducción a la Programación",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -100,7 +100,7 @@
   "fields": {
     "nombre": "Base de Datos I",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -109,9 +109,9 @@
   "model": "gestion.materia",
   "pk": 7,
   "fields": {
-    "nombre": "Programaci¾n Web II",
+    "nombre": "Programación Web II",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -122,7 +122,7 @@
   "fields": {
     "nombre": "Experiencia de Usuario",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -133,7 +133,7 @@
   "fields": {
     "nombre": "Sistemas Empresariales",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -142,9 +142,9 @@
   "model": "gestion.materia",
   "pk": 10,
   "fields": {
-    "nombre": "Programaci¾n Orientada a Objetos",
+    "nombre": "Programación Orientada a Objetos",
     "plan": 1,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -155,7 +155,7 @@
   "fields": {
     "nombre": "Base de Datos II",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -164,9 +164,9 @@
   "model": "gestion.materia",
   "pk": 12,
   "fields": {
-    "nombre": "Programaci¾n Avanzada",
+    "nombre": "Programación Avanzada",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -175,9 +175,9 @@
   "model": "gestion.materia",
   "pk": 13,
   "fields": {
-    "nombre": "IngenierÝa de Requerimientos",
+    "nombre": "Ingeniería de Requerimientos",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -188,7 +188,7 @@
   "fields": {
     "nombre": "Arquitectura y Sistemas Operativos",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -197,9 +197,9 @@
   "model": "gestion.materia",
   "pk": 15,
   "fields": {
-    "nombre": "Prßctica Profesionalizante I: Producci¾n Web",
+    "nombre": "Práctica Profesionalizante I: Producción Web",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -208,9 +208,9 @@
   "model": "gestion.materia",
   "pk": 16,
   "fields": {
-    "nombre": "Aplicaciones M¾viles",
+    "nombre": "Aplicaciones Móviles",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -221,7 +221,7 @@
   "fields": {
     "nombre": "Comunicaciones y Redes",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -232,7 +232,7 @@
   "fields": {
     "nombre": "Plataforma de Desarrollo",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -241,9 +241,9 @@
   "model": "gestion.materia",
   "pk": 19,
   "fields": {
-    "nombre": "Anßlisis y MetodologÝa de Sistemas",
+    "nombre": "Análisis y Metodología de Sistemas",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -252,9 +252,9 @@
   "model": "gestion.materia",
   "pk": 20,
   "fields": {
-    "nombre": "Prßctica Profesionalizante II: Base de Datos III",
+    "nombre": "Práctica Profesionalizante II: Base de Datos III",
     "plan": 1,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -263,9 +263,9 @@
   "model": "gestion.materia",
   "pk": 21,
   "fields": {
-    "nombre": "EstadÝstica",
+    "nombre": "Estadística",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -274,9 +274,9 @@
   "model": "gestion.materia",
   "pk": 22,
   "fields": {
-    "nombre": "Dise±o de Sistemas",
+    "nombre": "Diseño de Sistemas",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -285,9 +285,9 @@
   "model": "gestion.materia",
   "pk": 23,
   "fields": {
-    "nombre": "Administraci¾n de Proyectos",
+    "nombre": "Administración de Proyectos",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -296,9 +296,9 @@
   "model": "gestion.materia",
   "pk": 24,
   "fields": {
-    "nombre": "Planificaci¾n del Seminario Final",
+    "nombre": "Planificación del Seminario Final",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -307,9 +307,9 @@
   "model": "gestion.materia",
   "pk": 25,
   "fields": {
-    "nombre": "Prßctica Profesionalizante III: Integraci¾n Tecnol¾gica",
+    "nombre": "Práctica Profesionalizante III: Integración Tecnológica",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -318,9 +318,9 @@
   "model": "gestion.materia",
   "pk": 26,
   "fields": {
-    "nombre": "Acreditaci¾n de Talleres, Jornadas o Seminarios de Actualizaci¾n",
+    "nombre": "Acreditación de Talleres, Jornadas o Seminarios de Actualización",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -331,7 +331,7 @@
   "fields": {
     "nombre": "Calidad de Software",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -342,7 +342,7 @@
   "fields": {
     "nombre": "Seguridad e Integridad",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -351,9 +351,9 @@
   "model": "gestion.materia",
   "pk": 29,
   "fields": {
-    "nombre": "╔tica y DeontologÝa Profesional",
+    "nombre": "Ética y Deontología Profesional",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -362,9 +362,9 @@
   "model": "gestion.materia",
   "pk": 30,
   "fields": {
-    "nombre": "Modelos EstratÚgicos de Negocios",
+    "nombre": "Modelos Estratégicos de Negocios",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -373,9 +373,9 @@
   "model": "gestion.materia",
   "pk": 31,
   "fields": {
-    "nombre": "Prßctica Profesionalizante VI: Seminario Final",
+    "nombre": "Práctica Profesionalizante VI: Seminario Final",
     "plan": 1,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -386,7 +386,7 @@
   "fields": {
     "nombre": "Griego",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -395,9 +395,9 @@
   "model": "gestion.materia",
   "pk": 33,
   "fields": {
-    "nombre": "FilosofÝa",
+    "nombre": "Filosofía",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -406,9 +406,9 @@
   "model": "gestion.materia",
   "pk": 34,
   "fields": {
-    "nombre": "PsicologÝa",
+    "nombre": "Psicología",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -417,9 +417,9 @@
   "model": "gestion.materia",
   "pk": 35,
   "fields": {
-    "nombre": "PedagogÝa",
+    "nombre": "Pedagogía",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -428,9 +428,9 @@
   "model": "gestion.materia",
   "pk": 36,
   "fields": {
-    "nombre": "FilosofÝa Antigua",
+    "nombre": "Filosofía Antigua",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -439,9 +439,9 @@
   "model": "gestion.materia",
   "pk": 37,
   "fields": {
-    "nombre": "Introducci¾n a la teologÝa",
+    "nombre": "Introducción a la teología",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -452,7 +452,7 @@
   "fields": {
     "nombre": "Historia de Iglesia Antigua",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -463,7 +463,7 @@
   "fields": {
     "nombre": "Lectura, escritura y oralidad",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -472,9 +472,9 @@
   "model": "gestion.materia",
   "pk": 40,
   "fields": {
-    "nombre": "TeologÝa pastoral fundamental",
+    "nombre": "Teología pastoral fundamental",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -483,9 +483,9 @@
   "model": "gestion.materia",
   "pk": 41,
   "fields": {
-    "nombre": "Introducci¾n al Antiguo Testamento",
+    "nombre": "Introducción al Antiguo Testamento",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -494,9 +494,9 @@
   "model": "gestion.materia",
   "pk": 42,
   "fields": {
-    "nombre": "PatrologÝa",
+    "nombre": "Patrología",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -505,9 +505,9 @@
   "model": "gestion.materia",
   "pk": 43,
   "fields": {
-    "nombre": "OrÝgenes cristianos",
+    "nombre": "Orígenes cristianos",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -516,9 +516,9 @@
   "model": "gestion.materia",
   "pk": 44,
   "fields": {
-    "nombre": "MÚtodos exegÚticos",
+    "nombre": "Métodos exegéticos",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -527,9 +527,9 @@
   "model": "gestion.materia",
   "pk": 45,
   "fields": {
-    "nombre": "MetodologÝa de la Investigaci¾n",
+    "nombre": "Metodología de la Investigación",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -538,9 +538,9 @@
   "model": "gestion.materia",
   "pk": 46,
   "fields": {
-    "nombre": "Observaci¾n institucional y ßulica",
+    "nombre": "Observación institucional y áulica",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -549,9 +549,9 @@
   "model": "gestion.materia",
   "pk": 47,
   "fields": {
-    "nombre": "Introducci¾n al Nuevo Testamento",
+    "nombre": "Introducción al Nuevo Testamento",
     "plan": 2,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -560,9 +560,9 @@
   "model": "gestion.materia",
   "pk": 48,
   "fields": {
-    "nombre": "Didßctica General",
+    "nombre": "Didáctica General",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -571,9 +571,9 @@
   "model": "gestion.materia",
   "pk": 49,
   "fields": {
-    "nombre": "FilosofÝa Medieval",
+    "nombre": "Filosofía Medieval",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -584,7 +584,7 @@
   "fields": {
     "nombre": "Misterio de Dios y Trinidad",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -593,9 +593,9 @@
   "model": "gestion.materia",
   "pk": 51,
   "fields": {
-    "nombre": "PsicologÝa de los Sujetos de la Educaci¾n",
+    "nombre": "Psicología de los Sujetos de la Educación",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -606,7 +606,7 @@
   "fields": {
     "nombre": "Pentateuco",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -617,7 +617,7 @@
   "fields": {
     "nombre": "Escritos Paulinos",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -626,9 +626,9 @@
   "model": "gestion.materia",
   "pk": 54,
   "fields": {
-    "nombre": "PsicologÝa Educacional",
+    "nombre": "Psicología Educacional",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -639,7 +639,7 @@
   "fields": {
     "nombre": "Historia de la Iglesia Medieval",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -648,9 +648,9 @@
   "model": "gestion.materia",
   "pk": 56,
   "fields": {
-    "nombre": "Observaci¾n de las acciones Pastorales",
+    "nombre": "Observación de las acciones Pastorales",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -661,7 +661,7 @@
   "fields": {
     "nombre": "Profetas",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -670,9 +670,9 @@
   "model": "gestion.materia",
   "pk": 58,
   "fields": {
-    "nombre": "Sin¾pticos y Hechos",
+    "nombre": "Sinópticos y Hechos",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -681,9 +681,9 @@
   "model": "gestion.materia",
   "pk": 59,
   "fields": {
-    "nombre": "TeologÝa Fundamental",
+    "nombre": "Teología Fundamental",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -694,7 +694,7 @@
   "fields": {
     "nombre": "Instituciones Educativas",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -703,9 +703,9 @@
   "model": "gestion.materia",
   "pk": 61,
   "fields": {
-    "nombre": "TeologÝa Lit·rgico Sacramental",
+    "nombre": "Teología Litúrgico Sacramental",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -714,9 +714,9 @@
   "model": "gestion.materia",
   "pk": 62,
   "fields": {
-    "nombre": "Investigaci¾n de la Prßctica Docente",
+    "nombre": "Investigación de la Práctica Docente",
     "plan": 2,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -725,9 +725,9 @@
   "model": "gestion.materia",
   "pk": 63,
   "fields": {
-    "nombre": "SociologÝa",
+    "nombre": "Sociología",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -736,9 +736,9 @@
   "model": "gestion.materia",
   "pk": 64,
   "fields": {
-    "nombre": "CristologÝa",
+    "nombre": "Cristología",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -747,9 +747,9 @@
   "model": "gestion.materia",
   "pk": 65,
   "fields": {
-    "nombre": "Didßctica Especial",
+    "nombre": "Didáctica Especial",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -758,9 +758,9 @@
   "model": "gestion.materia",
   "pk": 66,
   "fields": {
-    "nombre": "FilosofÝa Moderna",
+    "nombre": "Filosofía Moderna",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -769,9 +769,9 @@
   "model": "gestion.materia",
   "pk": 67,
   "fields": {
-    "nombre": "AyudantÝa y Prßctica",
+    "nombre": "Ayudantía y Práctica",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -780,9 +780,9 @@
   "model": "gestion.materia",
   "pk": 68,
   "fields": {
-    "nombre": "Libros Hist¾ricos",
+    "nombre": "Libros Históricos",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -791,9 +791,9 @@
   "model": "gestion.materia",
   "pk": 69,
   "fields": {
-    "nombre": "Escritos Joßnicos",
+    "nombre": "Escritos Joánicos",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -804,7 +804,7 @@
   "fields": {
     "nombre": "Moral Fundamental",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -813,9 +813,9 @@
   "model": "gestion.materia",
   "pk": 71,
   "fields": {
-    "nombre": "Creaci¾n y AntropologÝa",
+    "nombre": "Creación y Antropología",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -824,9 +824,9 @@
   "model": "gestion.materia",
   "pk": 72,
   "fields": {
-    "nombre": "Nuevos escenarios: Cultura, tecnologÝa y subjetividad",
+    "nombre": "Nuevos escenarios: Cultura, tecnología y subjetividad",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -835,9 +835,9 @@
   "model": "gestion.materia",
   "pk": 73,
   "fields": {
-    "nombre": "Gracia y escatologÝa",
+    "nombre": "Gracia y escatología",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -848,7 +848,7 @@
   "fields": {
     "nombre": "Salmos y Sapienciales",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -857,9 +857,9 @@
   "model": "gestion.materia",
   "pk": 75,
   "fields": {
-    "nombre": "Educaci¾n Sexual Integral",
+    "nombre": "Educación Sexual Integral",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -868,9 +868,9 @@
   "model": "gestion.materia",
   "pk": 76,
   "fields": {
-    "nombre": "Historia de la Iglesia Moderna y Contemporßnea",
+    "nombre": "Historia de la Iglesia Moderna y Contemporánea",
     "plan": 2,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -879,9 +879,9 @@
   "model": "gestion.materia",
   "pk": 77,
   "fields": {
-    "nombre": "FilosofÝa para Te¾logos",
+    "nombre": "Filosofía para Teólogos",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -890,9 +890,9 @@
   "model": "gestion.materia",
   "pk": 78,
   "fields": {
-    "nombre": "FilosofÝa Contemporßnea",
+    "nombre": "Filosofía Contemporánea",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -901,9 +901,9 @@
   "model": "gestion.materia",
   "pk": 79,
   "fields": {
-    "nombre": "EclesiologÝa y MisionologÝa",
+    "nombre": "Eclesiología y Misionología",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -912,9 +912,9 @@
   "model": "gestion.materia",
   "pk": 80,
   "fields": {
-    "nombre": "Problemßticas de los Niveles Educativos",
+    "nombre": "Problemáticas de los Niveles Educativos",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -923,9 +923,9 @@
   "model": "gestion.materia",
   "pk": 81,
   "fields": {
-    "nombre": "Ecumenismo y TeologÝa del Pluralismo Religioso",
+    "nombre": "Ecumenismo y Teología del Pluralismo Religioso",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -934,9 +934,9 @@
   "model": "gestion.materia",
   "pk": 82,
   "fields": {
-    "nombre": "BioÚtica",
+    "nombre": "Bioética",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -945,9 +945,9 @@
   "model": "gestion.materia",
   "pk": 83,
   "fields": {
-    "nombre": "Nuevas TecnologÝas",
+    "nombre": "Nuevas Tecnologías",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -956,9 +956,9 @@
   "model": "gestion.materia",
   "pk": 84,
   "fields": {
-    "nombre": "Sistema y PolÝtica Educativa",
+    "nombre": "Sistema y Política Educativa",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -969,7 +969,7 @@
   "fields": {
     "nombre": "Pastoral de la Palabra y la Liturgia",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -980,7 +980,7 @@
   "fields": {
     "nombre": "Historia de la iglesia Latinoamericana y Argentina",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -989,9 +989,9 @@
   "model": "gestion.materia",
   "pk": 87,
   "fields": {
-    "nombre": "SÝntesis Pastoral",
+    "nombre": "Síntesis Pastoral",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1002,7 +1002,7 @@
   "fields": {
     "nombre": "Pastoral de la Comunidad",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1011,9 +1011,9 @@
   "model": "gestion.materia",
   "pk": 89,
   "fields": {
-    "nombre": "Historia de la Educaci¾n Argentina",
+    "nombre": "Historia de la Educación Argentina",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1024,7 +1024,7 @@
   "fields": {
     "nombre": "Hebreos, Apocalipsis y Cartas Pastorales",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1033,9 +1033,9 @@
   "model": "gestion.materia",
   "pk": 91,
   "fields": {
-    "nombre": "Historia de la Iglesia Argentina Contemporßnea",
+    "nombre": "Historia de la Iglesia Argentina Contemporánea",
     "plan": 2,
-    "a±o_dictado": 4,
+    "año_dictado": 4,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1046,7 +1046,7 @@
   "fields": {
     "nombre": "Residencia",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1057,7 +1057,7 @@
   "fields": {
     "nombre": "Moral Social",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1068,7 +1068,7 @@
   "fields": {
     "nombre": "Sacramentos I",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1079,7 +1079,7 @@
   "fields": {
     "nombre": "Sacramentos II",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1088,9 +1088,9 @@
   "model": "gestion.materia",
   "pk": 96,
   "fields": {
-    "nombre": "Gesti¾n Educativa",
+    "nombre": "Gestión Educativa",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1099,9 +1099,9 @@
   "model": "gestion.materia",
   "pk": 97,
   "fields": {
-    "nombre": "TeologÝa Espiritual",
+    "nombre": "Teología Espiritual",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1110,9 +1110,9 @@
   "model": "gestion.materia",
   "pk": 98,
   "fields": {
-    "nombre": "TeologÝa Latinoamericana y Argentina",
+    "nombre": "Teología Latinoamericana y Argentina",
     "plan": 2,
-    "a±o_dictado": 5,
+    "año_dictado": 5,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1121,9 +1121,9 @@
   "model": "gestion.materia",
   "pk": 99,
   "fields": {
-    "nombre": "Locuci¾n I",
+    "nombre": "Locución I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1132,9 +1132,9 @@
   "model": "gestion.materia",
   "pk": 100,
   "fields": {
-    "nombre": "Televisi¾n I",
+    "nombre": "Televisión I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1143,9 +1143,9 @@
   "model": "gestion.materia",
   "pk": 101,
   "fields": {
-    "nombre": "TÚcnicas de la Voz I",
+    "nombre": "Técnicas de la Voz I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1156,7 +1156,7 @@
   "fields": {
     "nombre": "Taller integral de la Voz I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1165,9 +1165,9 @@
   "model": "gestion.materia",
   "pk": 103,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Radio I",
+    "nombre": "Práctica Profesionalizante en Radio I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1178,7 +1178,7 @@
   "fields": {
     "nombre": "Literatura",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1187,9 +1187,9 @@
   "model": "gestion.materia",
   "pk": 105,
   "fields": {
-    "nombre": "FonÚtica Italiana",
+    "nombre": "Fonética Italiana",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1198,9 +1198,9 @@
   "model": "gestion.materia",
   "pk": 106,
   "fields": {
-    "nombre": "Expresi¾n Oral y Escrita",
+    "nombre": "Expresión Oral y Escrita",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1209,9 +1209,9 @@
   "model": "gestion.materia",
   "pk": 107,
   "fields": {
-    "nombre": "TeorÝas de la comunicaci¾n",
+    "nombre": "Teorías de la comunicación",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1222,7 +1222,7 @@
   "fields": {
     "nombre": "Historia de la Cultura y el Arte",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1231,9 +1231,9 @@
   "model": "gestion.materia",
   "pk": 109,
   "fields": {
-    "nombre": "TecnologÝa I",
+    "nombre": "Tecnología I",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1242,9 +1242,9 @@
   "model": "gestion.materia",
   "pk": 110,
   "fields": {
-    "nombre": "FonÚtica Francesa",
+    "nombre": "Fonética Francesa",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1253,9 +1253,9 @@
   "model": "gestion.materia",
   "pk": 111,
   "fields": {
-    "nombre": "Expresi¾n Corporal",
+    "nombre": "Expresión Corporal",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1264,9 +1264,9 @@
   "model": "gestion.materia",
   "pk": 112,
   "fields": {
-    "nombre": "Redacci¾n PeriodÝstica",
+    "nombre": "Redacción Periodística",
     "plan": 4,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1275,9 +1275,9 @@
   "model": "gestion.materia",
   "pk": 113,
   "fields": {
-    "nombre": "Locuci¾n II",
+    "nombre": "Locución II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1286,9 +1286,9 @@
   "model": "gestion.materia",
   "pk": 114,
   "fields": {
-    "nombre": "Televisi¾n II",
+    "nombre": "Televisión II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1297,9 +1297,9 @@
   "model": "gestion.materia",
   "pk": 115,
   "fields": {
-    "nombre": "TÚcnicas de la Voz II",
+    "nombre": "Técnicas de la Voz II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1310,7 +1310,7 @@
   "fields": {
     "nombre": "Taller integral de la Voz II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1319,9 +1319,9 @@
   "model": "gestion.materia",
   "pk": 117,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Radio II",
+    "nombre": "Práctica Profesionalizante en Radio II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1330,9 +1330,9 @@
   "model": "gestion.materia",
   "pk": 118,
   "fields": {
-    "nombre": "InglÚs",
+    "nombre": "Inglés",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1341,9 +1341,9 @@
   "model": "gestion.materia",
   "pk": 119,
   "fields": {
-    "nombre": "PortuguÚs",
+    "nombre": "Portugués",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1354,7 +1354,7 @@
   "fields": {
     "nombre": "Libretos y Guiones",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1363,9 +1363,9 @@
   "model": "gestion.materia",
   "pk": 121,
   "fields": {
-    "nombre": "Problemßtica Religiosa Contemporßnea",
+    "nombre": "Problemática Religiosa Contemporánea",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1374,9 +1374,9 @@
   "model": "gestion.materia",
   "pk": 122,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Conducci¾n en Actos P·blicos",
+    "nombre": "Práctica Profesionalizante en Conducción en Actos Públicos",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1385,9 +1385,9 @@
   "model": "gestion.materia",
   "pk": 123,
   "fields": {
-    "nombre": "TecnologÝa II",
+    "nombre": "Tecnología II",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1396,9 +1396,9 @@
   "model": "gestion.materia",
   "pk": 124,
   "fields": {
-    "nombre": "FonÚtica Alemana",
+    "nombre": "Fonética Alemana",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1407,9 +1407,9 @@
   "model": "gestion.materia",
   "pk": 125,
   "fields": {
-    "nombre": "Actuaci¾n Dramßtica",
+    "nombre": "Actuación Dramática",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1418,9 +1418,9 @@
   "model": "gestion.materia",
   "pk": 126,
   "fields": {
-    "nombre": "Argentina Contemporßnea",
+    "nombre": "Argentina Contemporánea",
     "plan": 4,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1429,9 +1429,9 @@
   "model": "gestion.materia",
   "pk": 127,
   "fields": {
-    "nombre": "Locuci¾n III",
+    "nombre": "Locución III",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1440,9 +1440,9 @@
   "model": "gestion.materia",
   "pk": 128,
   "fields": {
-    "nombre": "TÚcnicas de la Voz III",
+    "nombre": "Técnicas de la Voz III",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1453,7 +1453,7 @@
   "fields": {
     "nombre": "Taller integral de la Voz III",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1462,9 +1462,9 @@
   "model": "gestion.materia",
   "pk": 130,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Radio III",
+    "nombre": "Práctica Profesionalizante en Radio III",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1475,7 +1475,7 @@
   "fields": {
     "nombre": "Doblaje",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1484,9 +1484,9 @@
   "model": "gestion.materia",
   "pk": 132,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Televisi¾n Integral",
+    "nombre": "Práctica Profesionalizante en Televisión Integral",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "AN",
     "tipo_aprobacion": "FIN"
   }
@@ -1497,7 +1497,7 @@
   "fields": {
     "nombre": "Oratoria",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1508,7 +1508,7 @@
   "fields": {
     "nombre": "Periodismo",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1517,9 +1517,9 @@
   "model": "gestion.materia",
   "pk": 135,
   "fields": {
-    "nombre": "Legislaci¾n de Medios Audiovisuales",
+    "nombre": "Legislación de Medios Audiovisuales",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1528,9 +1528,9 @@
   "model": "gestion.materia",
   "pk": 136,
   "fields": {
-    "nombre": "╔tica Profesional",
+    "nombre": "Ética Profesional",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1539,9 +1539,9 @@
   "model": "gestion.materia",
   "pk": 137,
   "fields": {
-    "nombre": "Semi¾tica de los Medios Masivos",
+    "nombre": "Semiótica de los Medios Masivos",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1550,9 +1550,9 @@
   "model": "gestion.materia",
   "pk": 138,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Producci¾n de Contenidos",
+    "nombre": "Práctica Profesionalizante en Producción de Contenidos",
     "plan": 4,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -1561,9 +1561,9 @@
   "model": "gestion.materia",
   "pk": 139,
   "fields": {
-    "nombre": "Producci¾n General Audiovisual",
+    "nombre": "Producción General Audiovisual",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1574,7 +1574,7 @@
   "fields": {
     "nombre": "Cobertura de Exteriores",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1583,9 +1583,9 @@
   "model": "gestion.materia",
   "pk": 141,
   "fields": {
-    "nombre": "TeorÝa de la Producci¾n",
+    "nombre": "Teoría de la Producción",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1594,9 +1594,9 @@
   "model": "gestion.materia",
   "pk": 142,
   "fields": {
-    "nombre": "Introducci¾n a las Prßcticas Audiovisuales",
+    "nombre": "Introducción a las Prácticas Audiovisuales",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1605,9 +1605,9 @@
   "model": "gestion.materia",
   "pk": 143,
   "fields": {
-    "nombre": "Trabajo Integrador: Producci¾n en Exteriores",
+    "nombre": "Trabajo Integrador: Producción en Exteriores",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1616,9 +1616,9 @@
   "model": "gestion.materia",
   "pk": 144,
   "fields": {
-    "nombre": "Culturas Contemporßneas",
+    "nombre": "Culturas Contemporáneas",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1627,9 +1627,9 @@
   "model": "gestion.materia",
   "pk": 145,
   "fields": {
-    "nombre": "Introducci¾n a los Medios Audiovisuales",
+    "nombre": "Introducción a los Medios Audiovisuales",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1638,9 +1638,9 @@
   "model": "gestion.materia",
   "pk": 146,
   "fields": {
-    "nombre": "TecnologÝas de la Informaci¾n y de la Comunicaci¾n I",
+    "nombre": "Tecnologías de la Información y de la Comunicación I",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1649,9 +1649,9 @@
   "model": "gestion.materia",
   "pk": 147,
   "fields": {
-    "nombre": "Gui¾n",
+    "nombre": "Guión",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1660,9 +1660,9 @@
   "model": "gestion.materia",
   "pk": 148,
   "fields": {
-    "nombre": "Prßcticas Televisivas I",
+    "nombre": "Prácticas Televisivas I",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1673,7 +1673,7 @@
   "fields": {
     "nombre": "Trabajo Integrador: Entrevistas",
     "plan": 5,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1682,9 +1682,9 @@
   "model": "gestion.materia",
   "pk": 150,
   "fields": {
-    "nombre": "Dise±o de Arte",
+    "nombre": "Diseño de Arte",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1693,9 +1693,9 @@
   "model": "gestion.materia",
   "pk": 151,
   "fields": {
-    "nombre": "TecnologÝas de la Informaci¾n y la Comunicaci¾n II",
+    "nombre": "Tecnologías de la Información y la Comunicación II",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1704,9 +1704,9 @@
   "model": "gestion.materia",
   "pk": 152,
   "fields": {
-    "nombre": "Producci¾n PeriodÝstica",
+    "nombre": "Producción Periodística",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1715,9 +1715,9 @@
   "model": "gestion.materia",
   "pk": 153,
   "fields": {
-    "nombre": "Prßcticas Televisivas II: Programas en Vivo",
+    "nombre": "Prácticas Televisivas II: Programas en Vivo",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1726,9 +1726,9 @@
   "model": "gestion.materia",
   "pk": 154,
   "fields": {
-    "nombre": "Trabajo Integrador: Grabaci¾n en Estudio",
+    "nombre": "Trabajo Integrador: Grabación en Estudio",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1737,9 +1737,9 @@
   "model": "gestion.materia",
   "pk": 155,
   "fields": {
-    "nombre": "Historia de los Medios y la Televisi¾n",
+    "nombre": "Historia de los Medios y la Televisión",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1748,9 +1748,9 @@
   "model": "gestion.materia",
   "pk": 156,
   "fields": {
-    "nombre": "Investigaci¾n de Mercados y Audiencias",
+    "nombre": "Investigación de Mercados y Audiencias",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1759,9 +1759,9 @@
   "model": "gestion.materia",
   "pk": 157,
   "fields": {
-    "nombre": "Ficci¾n y Puesta en Escena",
+    "nombre": "Ficción y Puesta en Escena",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1770,9 +1770,9 @@
   "model": "gestion.materia",
   "pk": 158,
   "fields": {
-    "nombre": "Taller de Televisi¾n Documental",
+    "nombre": "Taller de Televisión Documental",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1781,9 +1781,9 @@
   "model": "gestion.materia",
   "pk": 159,
   "fields": {
-    "nombre": "Trabajo Integrador: Programa de Investigaci¾n û Noticias",
+    "nombre": "Trabajo Integrador: Programa de Investigación – Noticias",
     "plan": 5,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1792,9 +1792,9 @@
   "model": "gestion.materia",
   "pk": 160,
   "fields": {
-    "nombre": "╔tica y Legislaci¾n",
+    "nombre": "Ética y Legislación",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1803,9 +1803,9 @@
   "model": "gestion.materia",
   "pk": 161,
   "fields": {
-    "nombre": "Gui¾n de Ficci¾n",
+    "nombre": "Guión de Ficción",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1814,9 +1814,9 @@
   "model": "gestion.materia",
   "pk": 162,
   "fields": {
-    "nombre": "Postproducci¾n I",
+    "nombre": "Postproducción I",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1827,7 +1827,7 @@
   "fields": {
     "nombre": "Taller de Proyecto Audiovisual",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1836,9 +1836,9 @@
   "model": "gestion.materia",
   "pk": 164,
   "fields": {
-    "nombre": "Trabajo Integrador: Presentaci¾n de Proyecto",
+    "nombre": "Trabajo Integrador: Presentación de Proyecto",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1847,9 +1847,9 @@
   "model": "gestion.materia",
   "pk": 165,
   "fields": {
-    "nombre": "Gesti¾n y Comercializaci¾n de Televisi¾n",
+    "nombre": "Gestión y Comercialización de Televisión",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1858,9 +1858,9 @@
   "model": "gestion.materia",
   "pk": 166,
   "fields": {
-    "nombre": "Postproducci¾n II: Animaci¾n y Efectos Especiales",
+    "nombre": "Postproducción II: Animación y Efectos Especiales",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1869,9 +1869,9 @@
   "model": "gestion.materia",
   "pk": 167,
   "fields": {
-    "nombre": "Taller de Realizaci¾n de Formatos",
+    "nombre": "Taller de Realización de Formatos",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1880,9 +1880,9 @@
   "model": "gestion.materia",
   "pk": 168,
   "fields": {
-    "nombre": "Trabajo Integrador: Ficci¾n",
+    "nombre": "Trabajo Integrador: Ficción",
     "plan": 5,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1891,9 +1891,9 @@
   "model": "gestion.materia",
   "pk": 239,
   "fields": {
-    "nombre": "Introducci¾n a la Locuci¾n",
+    "nombre": "Introducción a la Locución",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1902,9 +1902,9 @@
   "model": "gestion.materia",
   "pk": 240,
   "fields": {
-    "nombre": "Introducci¾n al Entrenamiento Vocal",
+    "nombre": "Introducción al Entrenamiento Vocal",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1913,9 +1913,9 @@
   "model": "gestion.materia",
   "pk": 241,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Locuci¾n para Televisi¾n",
+    "nombre": "Práctica Profesionalizante en Locución para Televisión",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1924,9 +1924,9 @@
   "model": "gestion.materia",
   "pk": 242,
   "fields": {
-    "nombre": "Expresi¾n Corporal",
+    "nombre": "Expresión Corporal",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1935,9 +1935,9 @@
   "model": "gestion.materia",
   "pk": 243,
   "fields": {
-    "nombre": "Herramientas de Producci¾n y Edici¾n Digital",
+    "nombre": "Herramientas de Producción y Edición Digital",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -1948,7 +1948,7 @@
   "fields": {
     "nombre": "EDI 1",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -1957,9 +1957,9 @@
   "model": "gestion.materia",
   "pk": 245,
   "fields": {
-    "nombre": "Locuci¾n, Interpretaci¾n y Lectura",
+    "nombre": "Locución, Interpretación y Lectura",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1970,7 +1970,7 @@
   "fields": {
     "nombre": "Entrenamiento Vocal",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1979,9 +1979,9 @@
   "model": "gestion.materia",
   "pk": 247,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Locuci¾n para Radio",
+    "nombre": "Práctica Profesionalizante en Locución para Radio",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -1990,9 +1990,9 @@
   "model": "gestion.materia",
   "pk": 248,
   "fields": {
-    "nombre": "Redacci¾n y Edici¾n de Contenidos",
+    "nombre": "Redacción y Edición de Contenidos",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -2001,9 +2001,9 @@
   "model": "gestion.materia",
   "pk": 249,
   "fields": {
-    "nombre": "Pronunciaci¾n de Italiano y FrancÚs",
+    "nombre": "Pronunciación de Italiano y Francés",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -2014,7 +2014,7 @@
   "fields": {
     "nombre": "EDI 2",
     "plan": 8,
-    "a±o_dictado": 1,
+    "año_dictado": 1,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -2023,9 +2023,9 @@
   "model": "gestion.materia",
   "pk": 251,
   "fields": {
-    "nombre": "Locuci¾n ArtÝstica y Publicitaria",
+    "nombre": "Locución Artística y Publicitaria",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2034,9 +2034,9 @@
   "model": "gestion.materia",
   "pk": 252,
   "fields": {
-    "nombre": "Educaci¾n Vocal",
+    "nombre": "Educación Vocal",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2045,9 +2045,9 @@
   "model": "gestion.materia",
   "pk": 253,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Conducci¾n para Radio",
+    "nombre": "Práctica Profesionalizante en Conducción para Radio",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2056,9 +2056,9 @@
   "model": "gestion.materia",
   "pk": 254,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Conducci¾n para Televisi¾n",
+    "nombre": "Práctica Profesionalizante en Conducción para Televisión",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2067,9 +2067,9 @@
   "model": "gestion.materia",
   "pk": 255,
   "fields": {
-    "nombre": "TÚcnicas PeriodÝsticas",
+    "nombre": "Técnicas Periodísticas",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -2080,7 +2080,7 @@
   "fields": {
     "nombre": "Libretos y Guiones",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -2089,9 +2089,9 @@
   "model": "gestion.materia",
   "pk": 257,
   "fields": {
-    "nombre": "Locuci¾n Aplicada e Improvisaci¾n",
+    "nombre": "Locución Aplicada e Improvisación",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2100,9 +2100,9 @@
   "model": "gestion.materia",
   "pk": 258,
   "fields": {
-    "nombre": "TÚcnica Vocal",
+    "nombre": "Técnica Vocal",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2111,9 +2111,9 @@
   "model": "gestion.materia",
   "pk": 259,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Podcast y Producci¾n de Contenidos Digitales",
+    "nombre": "Práctica Profesionalizante en Podcast y Producción de Contenidos Digitales",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2122,9 +2122,9 @@
   "model": "gestion.materia",
   "pk": 260,
   "fields": {
-    "nombre": "Locuci¾n de Contenidos para Medios Audiovisuales",
+    "nombre": "Locución de Contenidos para Medios Audiovisuales",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2133,9 +2133,9 @@
   "model": "gestion.materia",
   "pk": 261,
   "fields": {
-    "nombre": "Pronunciaci¾n de InglÚs",
+    "nombre": "Pronunciación de Inglés",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -2144,9 +2144,9 @@
   "model": "gestion.materia",
   "pk": 262,
   "fields": {
-    "nombre": "Comunicaci¾n Convergente",
+    "nombre": "Comunicación Convergente",
     "plan": 8,
-    "a±o_dictado": 2,
+    "año_dictado": 2,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
@@ -2155,9 +2155,9 @@
   "model": "gestion.materia",
   "pk": 263,
   "fields": {
-    "nombre": "Locuci¾n para Medios Digitales",
+    "nombre": "Locución para Medios Digitales",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2166,9 +2166,9 @@
   "model": "gestion.materia",
   "pk": 264,
   "fields": {
-    "nombre": "TÚcnica Vocal Avanzada",
+    "nombre": "Técnica Vocal Avanzada",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2177,9 +2177,9 @@
   "model": "gestion.materia",
   "pk": 265,
   "fields": {
-    "nombre": "Prßctica Profesionalizante en Radio y Streaming",
+    "nombre": "Práctica Profesionalizante en Radio y Streaming",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2190,7 +2190,7 @@
   "fields": {
     "nombre": "Plataformas Digitales y Nuevas Tendencias Audiovisuales",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "PROM"
   }
@@ -2199,9 +2199,9 @@
   "model": "gestion.materia",
   "pk": 267,
   "fields": {
-    "nombre": "Pronunciaci¾n de Alemßn y PortuguÚs",
+    "nombre": "Pronunciación de Alemán y Portugués",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -2210,9 +2210,9 @@
   "model": "gestion.materia",
   "pk": 268,
   "fields": {
-    "nombre": "TÚcnicas de Doblaje",
+    "nombre": "Técnicas de Doblaje",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "1C",
     "tipo_aprobacion": "FIN"
   }
@@ -2221,9 +2221,9 @@
   "model": "gestion.materia",
   "pk": 269,
   "fields": {
-    "nombre": "Taller Integrador de Locuci¾n",
+    "nombre": "Taller Integrador de Locución",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2234,7 +2234,7 @@
   "fields": {
     "nombre": "Taller Integrador de la Voz",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2245,7 +2245,7 @@
   "fields": {
     "nombre": "Taller Integrador de Contenidos Sonoros",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2254,9 +2254,9 @@
   "model": "gestion.materia",
   "pk": 272,
   "fields": {
-    "nombre": "Proyecto Integrador en Locuci¾n para Plataformas Audiovisuales",
+    "nombre": "Proyecto Integrador en Locución para Plataformas Audiovisuales",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2265,9 +2265,9 @@
   "model": "gestion.materia",
   "pk": 273,
   "fields": {
-    "nombre": "Doblaje y Locuci¾n de Personajes",
+    "nombre": "Doblaje y Locución de Personajes",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "PROM"
   }
@@ -2278,7 +2278,7 @@
   "fields": {
     "nombre": "EDI 3",
     "plan": 8,
-    "a±o_dictado": 3,
+    "año_dictado": 3,
     "cuatrimestre_dictado": "2C",
     "tipo_aprobacion": "FIN"
   }
