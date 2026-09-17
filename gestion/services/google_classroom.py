@@ -1,4 +1,4 @@
-﻿import os
+import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from django.conf import settings
@@ -49,6 +49,11 @@ def obtener_o_crear_aula_materia(materia):
 
 def invitar_usuario_a_aula(course_id, email, role='STUDENT'):
     if not email:
+        return False
+        
+    # Restricción: Solo cuentas institucionales
+    if not email.strip().lower().endswith('@pioix.edu.ar'):
+        print(f"Invitacion rechazada: El correo {email} no es institucional (@pioix.edu.ar)")
         return False
         
     service = get_classroom_service()
