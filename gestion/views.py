@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import json
 from datetime import date
-from .models import Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripcion, Nota, PlanillaDiaria, RegistroAsistencia, Correlatividad, HorarioComision
+from .models import InscripcionCarrera, Alumno, Docente, PlanDeEstudio, Materia, Comision, Inscripcion, Nota, PlanillaDiaria, RegistroAsistencia, Correlatividad, HorarioComision
 
 def obtener_planes_visibles(user):
     """Retorna lista de IDs de planes si es director o tutor, None en caso contrario"""
@@ -1999,7 +1999,7 @@ def acta_examen(request, mesa_id):
 @login_required
 def alta_equivalencia(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_alumnos')
-    from .models import Alumno, Equivalencia, Materia
+    from .models import InscripcionCarrera, Alumno, Equivalencia, Materia
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
     if not alumno.carreras.exists():
@@ -2046,7 +2046,7 @@ def analitico_alumno(request, alumno_id):
         messages.error(request, 'No tienes permiso para imprimir analíticos parciales oficiales. Por favor solicítalo en secretaría.')
         return redirect('dashboard')
         
-    from .models import Alumno, Equivalencia, Inscripcion, InscripcionMesa
+    from .models import InscripcionCarrera, Alumno, Equivalencia, Inscripcion, InscripcionMesa
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
     if not alumno.carreras.exists():
@@ -2291,7 +2291,7 @@ def libro_matriz_alumno(request):
     if not hasattr(request.user, 'perfil_alumno'):
         return redirect('dashboard')
     
-    from .models import Alumno, Equivalencia, Inscripcion, InscripcionMesa
+    from .models import InscripcionCarrera, Alumno, Equivalencia, Inscripcion, InscripcionMesa
     from datetime import date
     alumno = request.user.perfil_alumno
     
