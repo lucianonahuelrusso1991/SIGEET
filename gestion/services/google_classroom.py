@@ -1,4 +1,4 @@
-import os
+﻿import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from django.conf import settings
@@ -77,19 +77,44 @@ def invitar_equipo_docente(materia, docente_principal):
     if not materia.google_classroom_id:
         return
 
-    # Docente titular
-    if docente_principal and hasattr(docente_principal, 'email') and docente_principal.email:
-        invitar_usuario_a_aula(materia.google_classroom_id, docente_principal.email, role='TEACHER')
+    # Docente titular usando su correo institucional
+    if docente_principal and hasattr(docente_principal, 'correo_institucional') and docente_principal.correo_institucional:
+        invitar_usuario_a_aula(materia.google_classroom_id, docente_principal.correo_institucional, role='TEACHER')
         
     # Tutores / Coordinadores
     tutores = Docente.objects.filter(carreras_coordinadas=materia.plan)
     for tutor in tutores:
-        if hasattr(tutor, 'email') and tutor.email and tutor != docente_principal:
-            invitar_usuario_a_aula(materia.google_classroom_id, tutor.email, role='TEACHER')
+        if hasattr(tutor, 'correo_institucional') and tutor.correo_institucional and tutor != docente_principal:
+            invitar_usuario_a_aula(materia.google_classroom_id, tutor.correo_institucional, role='TEACHER')
 
 def invitar_alumno_a_aula(materia, alumno):
     if not materia.google_classroom_id:
         return
     
-    if hasattr(alumno, 'email') and alumno.email:
-        invitar_usuario_a_aula(materia.google_classroom_id, alumno.email, role='STUDENT')
+    if hasattr(alumno, 'correo_institucional') and alumno.correo_institucional:
+        invitar_usuario_a_aula(materia.google_classroom_id, alumno.correo_institucional, role='STUDENT')
+
+def remover_todos_los_alumnos(course_id):
+    service = get_classroom_service()
+    if not service:
+        return 0
+        
+    removed_count = 0
+    try:
+        # Obtener lista de alumnos
+        results = service.courses().students().list(courseId=course_id).execute()
+        students = results.get('students', [])
+        
+        # Eliminar uno por uno
+        for student in students:
+            user_id = student.get('userId')
+            try:
+                service.courses().students().delete(courseId=course_id, userId=user_id).execute()
+                removed_count += 1
+            except Exception as inner_e:
+                print(f"Error eliminando alumno {user_id}: {inner_e}")
+                
+        return removed_count
+    except Exception as e:
+        print(f"Error listando alumnos para borrar: {e}")
+        return 0

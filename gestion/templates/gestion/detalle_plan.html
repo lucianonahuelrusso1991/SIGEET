@@ -62,7 +62,12 @@
                             {% for materia in materias %}
                             <tr>
                                 <td class="ps-4"><span class="badge bg-dark fs-6">{{ materia.año_dictado }}º Año</span></td>
-                                <td class="fw-bold">{{ materia.nombre }}</td>
+                                <td class="fw-bold">
+                                    {{ materia.nombre }}
+                                    {% if materia.google_classroom_url %}
+                                    <a href="{% url 'limpiar_alumnos_classroom' materia.id %}" class="btn btn-sm btn-outline-danger ms-2 py-0 px-2" title="Vaciar alumnos del aula de Google Classroom (Fin de ciclo)" onclick="return confirm('¿Seguro que querés VACIAR a todos los estudiantes inscriptos en el aula virtual de {{ materia.nombre }}? Los profesores se mantendrán.')"><i class="bi bi-trash"></i> Vaciar Aula</a>
+                                    {% endif %}
+                                </td>
                                 <td class="text-end pe-4">
                                     <button class="btn btn-sm btn-outline-danger disabled">Borrar</button>
                                 </td>

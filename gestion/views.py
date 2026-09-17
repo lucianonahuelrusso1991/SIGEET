@@ -2772,3 +2772,21 @@ def rechazar_preinscripto_interno(request, inscripcion_id):
         insc.delete()
         messages.success(request, f'La solicitud de {insc.alumno} a {insc.plan.nombre} ha sido rechazada.')
     return redirect('lista_preinscriptos')
+
+# Vista de limpieza de Google Classroom
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def limpiar_alumnos_classroom(request, materia_id):
+    from django.contrib import messages
+    from .models import Materia
+    from .services.google_classroom import remover_todos_los_alumnos
+    
+    materia = get_object_or_404(Materia, id=materia_id)
+    if materia.google_classroom_id:
+        removidos = remover_todos_los_alumnos(materia.google_classroom_id)
+        messages.success(request, f'Se han eliminado {removidos} alumnos del aula virtual de {materia.nombre}. Los docentes y coordinadores se mantienen.')
+    else:
+        messages.error(request, f'{materia.nombre} no tiene un aula virtual vinculada.')
+        
+    return redirect('lista_materias')
