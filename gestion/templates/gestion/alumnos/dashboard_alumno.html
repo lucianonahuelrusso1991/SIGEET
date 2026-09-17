@@ -98,6 +98,9 @@
                                         <div class="card-body p-3">
                                             <div class="d-flex justify-content-between align-items-start mb-2">
                                                 <strong class="text-dark">{{ insc.comision.materia.nombre }}</strong>
+                                                {% if insc.comision.materia.google_classroom_url %}
+                                                    <a href="{{ insc.comision.materia.google_classroom_url }}" target="_blank" class="badge bg-success text-white ms-2 text-decoration-none" title="Ir a Classroom"><i class="bi bi-google"></i> Classroom</a>
+                                                {% endif %}
                                                 {% if insc.comision.programa.archivo %}
                                                     <a href="{{ insc.comision.programa.archivo.url }}" target="_blank" class="text-success ms-2" title="Descargar Programa"><i class="bi bi-download"></i></a>
                                                 {% endif %}
@@ -131,7 +134,12 @@
                                 <div class="col-md-6">
                                     <div class="card bg-light border-0 border-start border-warning border-4 rounded-3 h-100">
                                         <div class="card-body p-3">
-                                            <strong class="text-dark d-block mb-1">{{ insc.comision.materia.nombre }}</strong>
+                                            <strong class="text-dark d-block mb-1">
+                                                {{ insc.comision.materia.nombre }}
+                                                {% if insc.comision.materia.google_classroom_url %}
+                                                    <a href="{{ insc.comision.materia.google_classroom_url }}" target="_blank" class="badge bg-success text-white ms-2 text-decoration-none" title="Ir a Classroom"><i class="bi bi-google"></i> Classroom</a>
+                                                {% endif %}
+                                            </strong>
                                             <span class="badge bg-warning text-dark mb-2">Regularizada</span>
                                             <div class="d-flex justify-content-between text-muted small mt-2">
                                                 <span><i class="bi bi-clock-history me-1"></i>Vence: {{ insc.vencimiento_cursada|date:"M Y"|default:"-" }}</span>

@@ -158,6 +158,10 @@ class Materia(models.Model):
     año_dictado = models.IntegerField(verbose_name="Año en que se dicta (1, 2, 3...)")
     cuatrimestre_dictado = models.CharField(max_length=2, choices=CUATRIMESTRES, default='1C')
     tipo_aprobacion = models.CharField('Tipo de Aprobación por Defecto', max_length=4, choices=TIPO_APROBACION, default='FIN')
+    
+    # Integracion con Google Classroom
+    google_classroom_id = models.CharField(max_length=200, blank=True, null=True, help_text="ID del curso en Google Classroom")
+    google_classroom_url = models.URLField(blank=True, null=True, help_text="Link directo al Google Classroom")
 
     def __str__(self):
         return f"{self.nombre} ({self.año_dictado}º Año - {self.get_cuatrimestre_dictado_display()})"
