@@ -66,6 +66,8 @@
                                     {{ materia.nombre }}
                                     {% if materia.google_classroom_url %}
                                     <a href="{% url 'limpiar_alumnos_classroom' materia.id %}" class="btn btn-sm btn-outline-danger ms-2 py-0 px-2" title="Vaciar alumnos del aula de Google Classroom (Fin de ciclo)" onclick="return confirm('¿Seguro que querés VACIAR a todos los estudiantes inscriptos en el aula virtual de {{ materia.nombre }}? Los profesores se mantendrán.')"><i class="bi bi-trash"></i> Vaciar Aula</a>
+                                    {% else %}
+                                    <a href="{% url 'crear_aula_materia_manual' materia.id %}" class="btn btn-sm btn-outline-success ms-2 py-0 px-2" title="Crear aula en Google Classroom"><i class="bi bi-google"></i> Crear Aula</a>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">

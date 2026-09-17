@@ -2790,3 +2790,23 @@ def limpiar_alumnos_classroom(request, materia_id):
         messages.error(request, f'{materia.nombre} no tiene un aula virtual vinculada.')
         
     return redirect('lista_materias')
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from .models import Materia
+from .services.google_classroom import obtener_o_crear_aula_materia
+
+@staff_member_required
+def crear_aula_materia_manual(request, materia_id):
+    materia = get_object_or_404(Materia, id=materia_id)
+    if not materia.google_classroom_id:
+        aula_id = obtener_o_crear_aula_materia(materia)
+        if aula_id:
+            messages.success(request, f'Aula virtual creada exitosamente para {materia.nombre}.')
+        else:
+            messages.error(request, f'Hubo un problema al comunicarse con Google para crear el aula de {materia.nombre}.')
+    else:
+        messages.info(request, f'{materia.nombre} ya tiene un aula virtual asignada.')
+        
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
