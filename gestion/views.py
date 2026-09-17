@@ -834,7 +834,7 @@ def inscribir_alumno_comision(request, comision_id):
     # Excluir alumnos que ya están inscriptos en esta comisión y filtrar por Plan de Estudios
     alumnos_inscriptos = comision.alumnos_inscriptos.values_list('alumno_id', flat=True)
     alumnos_disponibles = Alumno.objects.filter(
-        plan=comision.materia.plan
+        carreras=comision.materia.plan
     ).exclude(
         id__in=alumnos_inscriptos
     ).order_by('apellido')
