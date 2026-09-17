@@ -2797,7 +2797,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from .models import Materia
-from .services.google_classroom import obtener_o_crear_aula_materia
+from .services.google_classroom import obtener_o_crear_aula_materia, invitar_equipo_docente
 
 @staff_member_required
 def crear_aula_materia_manual(request, materia_id):
@@ -2805,7 +2805,16 @@ def crear_aula_materia_manual(request, materia_id):
     if not materia.google_classroom_id:
         aula_id = obtener_o_crear_aula_materia(materia)
         if aula_id:
-            messages.success(request, f'Aula virtual creada exitosamente para {materia.nombre}.')
+            # Invitar a Secretaria y Coordinadores pasandole un docente vacio
+            invitar_equipo_docente(materia, None)
+            
+            # Y si ya hay comisiones activas, invitar a sus docentes
+            for comision in materia.comisiones.filter(cerrada=False):
+                invitar_equipo_docente(materia, comision.docente)
+                if comision.docente_auxiliar:
+                    invitar_equipo_docente(materia, comision.docente_auxiliar)
+                    
+            messages.success(request, f'Aula virtual creada exitosamente para {materia.nombre} y profesores invitados.')
         else:
             messages.error(request, f'Hubo un problema al comunicarse con Google para crear el aula de {materia.nombre}.')
     else:
