@@ -34,7 +34,7 @@ def obtener_o_crear_aula_materia(materia):
         'section': f"{materia.plan.nombre} ({materia.get_cuatrimestre_dictado_display()})",
         'descriptionHeading': 'Aula generada automaticamente por SIGES',
         'ownerId': 'me',
-        'courseState': 'ACTIVE'
+        'courseState': 'PROVISIONED'
     }
 
     try:
