@@ -211,7 +211,7 @@ def alta_alumno(request):
                     estado = 'ACT'
                     messages.info(request, "Sistema: Documentación completa. El estado del alumno pasó a 'Activo'.")
                 
-            Alumno.objects.create(
+            alumno_obj = Alumno.objects.create(
                 usuario=usuario, dni=dni, email=email, nombre=nombre, apellido=apellido,
                 correo_institucional=request.POST.get('correo_institucional'),
                 fecha_nacimiento=request.POST.get('fecha_nacimiento'),
