@@ -2848,6 +2848,19 @@ from .services.google_classroom import get_classroom_service
 
 @staff_member_required
 def diagnostico_classroom(request):
+    import os
+    import json
+    CREDENTIALS_FILE = '/app/google_credentials.json' if os.path.exists('/app/google_credentials.json') else 'google_credentials.json'
+    
+    client_id = "No encontrado"
+    if os.path.exists(CREDENTIALS_FILE):
+        try:
+            with open(CREDENTIALS_FILE, 'r') as f:
+                creds_data = json.load(f)
+                client_id = creds_data.get('client_id', 'No encontrado en el JSON')
+        except:
+            pass
+            
     materia = Materia.objects.exclude(google_classroom_id__isnull=True).exclude(google_classroom_id='').first()
     if not materia:
         return HttpResponse('No hay ninguna materia con aula de Classroom vinculada para probar.')
@@ -2869,4 +2882,10 @@ def diagnostico_classroom(request):
     except Exception as e:
         import html
         error_str = html.escape(str(e))
-        return HttpResponse(f'ERROR EXACTO de Google al invitar a {email}: <br><br><pre>{error_str}</pre>')
+        return HttpResponse(f'''
+        <h3>ERROR EXACTO de Google al invitar a {email}:</h3>
+        <pre style="background:#f8d7da; color:#721c24; padding:15px; border-radius:5px;">{error_str}</pre>
+        <hr>
+        <h3>Solución: Configurar Delegación de Dominio (DWD)</h3>
+        <p>Tu Client ID para pegar en Google Workspace es: <br><strong style="font-size:24px; background:#e2e3e5; padding:5px; border-radius:3px;">{client_id}</strong></p>
+        ''')

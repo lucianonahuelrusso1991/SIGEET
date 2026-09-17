@@ -15,7 +15,12 @@ def get_classroom_service():
     if not os.path.exists(CREDENTIALS_FILE):
         return None
     try:
-        creds = service_account.Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPES)
+        creds = service_account.Credentials.from_service_account_file(
+            CREDENTIALS_FILE, 
+            scopes=SCOPES
+        )
+        # Delegación de Dominio (DWD): El robot actúa en nombre de la secretaría
+        creds = creds.with_subject('secretaria.alumnos@pioix.edu.ar')
         return build('classroom', 'v1', credentials=creds)
     except Exception as e:
         print(f"Error autenticando con Google Classroom: {e}")
@@ -73,16 +78,17 @@ def invitar_usuario_a_aula(course_id, email, role='STUDENT'):
         print(f"Error invitando a {email} como {role}: {e}")
         return False
 
-def invitar_equipo_docente(materia, docente_principal):
+def invitar_equipo_docente(materia, docente_titular):
+    """
+    Invita a los coordinadores del plan y al docente de la comisión al aula de la materia.
+    (La cuenta maestra 'secretaria.alumnos@pioix.edu.ar' ya es dueña del aula gracias a DWD)
+    """
     if not materia.google_classroom_id:
         return
 
-    # 1. Supervisor Global (Cuenta Maestra)
-    invitar_usuario_a_aula(materia.google_classroom_id, 'secretaria.alumnos@pioix.edu.ar', role='TEACHER')
-
     # 2. Docente titular usando su correo institucional
-    if docente_principal and hasattr(docente_principal, 'correo_institucional') and docente_principal.correo_institucional:
-        invitar_usuario_a_aula(materia.google_classroom_id, docente_principal.correo_institucional, role='TEACHER')
+    if docente_titular and hasattr(docente_titular, 'correo_institucional') and docente_titular.correo_institucional:
+        invitar_usuario_a_aula(materia.google_classroom_id, docente_titular.correo_institucional, role='TEACHER')
         
     # 3. Tutores / Coordinadores
     tutores = Docente.objects.filter(carreras_coordinadas=materia.plan)
