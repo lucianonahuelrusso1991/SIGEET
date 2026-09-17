@@ -2867,4 +2867,6 @@ def diagnostico_classroom(request):
         res = service.invitations().create(body=invitation).execute()
         return HttpResponse(f'Exito invitando a {email}: {res}')
     except Exception as e:
-        return HttpResponse(f'ERROR EXACTO de Google al invitar a {email}: <br><br>{str(e)}')
+        import html
+        error_str = html.escape(str(e))
+        return HttpResponse(f'ERROR EXACTO de Google al invitar a {email}: <br><br><pre>{error_str}</pre>')
