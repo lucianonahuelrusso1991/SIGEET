@@ -2840,3 +2840,31 @@ def eliminar_alumno(request, alumno_id):
         return redirect('lista_alumnos')
     
     return render(request, 'gestion/eliminar_alumno.html', {'alumno': alumno})
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
+from .models import Materia
+from .services.google_classroom import get_classroom_service
+
+@staff_member_required
+def diagnostico_classroom(request):
+    materia = Materia.objects.exclude(google_classroom_id__isnull=True).exclude(google_classroom_id='').first()
+    if not materia:
+        return HttpResponse('No hay ninguna materia con aula de Classroom vinculada para probar.')
+        
+    service = get_classroom_service()
+    if not service:
+        return HttpResponse('Error de credenciales de Google.')
+        
+    email = 'secretaria.alumnos@pioix.edu.ar'
+    invitation = {
+        'courseId': materia.google_classroom_id,
+        'userId': email,
+        'role': 'TEACHER'
+    }
+    
+    try:
+        res = service.invitations().create(body=invitation).execute()
+        return HttpResponse(f'Exito invitando a {email}: {res}')
+    except Exception as e:
+        return HttpResponse(f'ERROR EXACTO de Google al invitar a {email}: <br><br>{str(e)}')

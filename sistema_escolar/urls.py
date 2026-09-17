@@ -7,7 +7,7 @@ from gestion.views import (
     inscribir_alumno_comision, toggle_inscripcion_comision, cerrar_comision, eliminar_comision, editar_comision,
     lista_comisiones_asistencia, cargar_asistencia,
     cargar_notas, eliminar_nota,
-    detalle_plan, api_chatbot, calendario_general, calendario_alumno, calendario_docente, limpiar_alumnos_classroom, crear_aula_materia_manual,
+    detalle_plan, api_chatbot, calendario_general, calendario_alumno, calendario_docente, limpiar_alumnos_classroom, crear_aula_materia_manual, diagnostico_classroom,
     alta_evento_calendario,
     imprimir_lista_asistencia, acta_volante,
     lista_mesas, alta_mesa, detalle_mesa, eliminar_mesa,
@@ -90,6 +90,7 @@ urlpatterns = [
     path('academica/planes/<int:plan_id>/', detalle_plan, name='detalle_plan'),
     path('academica/materias/<int:materia_id>/limpiar-classroom/', limpiar_alumnos_classroom, name='limpiar_alumnos_classroom'),
     path('academica/materias/<int:materia_id>/crear-classroom/', crear_aula_materia_manual, name='crear_aula_materia_manual'),
+    path('diagnostico-classroom/', diagnostico_classroom, name='diagnostico_classroom'),
 
     # CALENDARIO GENERAL
     # (Ya incluido en bloque anterior)
