@@ -799,8 +799,10 @@ def alta_comision(request):
                 invitar_equipo_docente(materia, docente)
                 if docente_aux:
                     invitar_equipo_docente(materia, docente_aux)
+                messages.success(request, f"¡Comisión para {materia.nombre} abierta con éxito y vinculada a Classroom!")
+            else:
+                messages.success(request, f"¡Comisión para {materia.nombre} abierta con éxito! (Nota: No se pudo conectar con Classroom).")
             
-            messages.success(request, f"¡Comisión para {materia.nombre} abierta con éxito y vinculada a Classroom!")
             return redirect('lista_comisiones')
         except Exception as e:
             messages.error(request, f"Error al crear comisión: {e}")
