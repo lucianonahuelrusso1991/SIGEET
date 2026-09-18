@@ -48,13 +48,15 @@
         <p class="fs-5 lh-lg mb-4 text-justify">
             Por la presente se certifica que el/la alumno/a <strong>{{ alumno.apellido|upper }}, {{ alumno.nombre }}</strong>, 
             D.N.I. N° <strong>{{ alumno.dni }}</strong>, ha concurrido a este establecimiento educativo el día 
-            <strong>{{ fecha_actual.day }} de {{ fecha_actual|date:"F" }} de {{ fecha_actual.year }}</strong> con el fin de rendir Examen Final.
+            <strong>{% if fecha_cert %}{{ fecha_cert }}{% else %}{{ fecha_actual.day }} de {{ fecha_actual|date:"F" }} de {{ fecha_actual.year }}{% endif %}</strong> con el fin de rendir Examen Final.
         </p>
 
         <p class="fs-5 lh-lg mb-5 text-justify">
             Materia / Asignatura: 
             <strong>
-            {% if ultima_mesa %}
+            {% if materia_cert %}
+                {{ materia_cert.nombre }}
+            {% elif ultima_mesa %}
                 {{ ultima_mesa.mesa.materia.nombre }}
             {% else %}
                 ______________________________________________________

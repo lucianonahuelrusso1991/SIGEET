@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from gestion.views import (
+    solicitar_tramite_alumno, lista_tramites, autorizar_tramite,
     dashboard, lista_alumnos, legajo_alumno, alta_alumno, editar_alumno, eliminar_alumno, constancia_alumno, certificado_examen_alumno, boletin_alumno,
     lista_docentes, alta_docente, legajo_docente, editar_docente, resetear_password_docente,
     lista_comisiones, alta_comision, detalle_comision, apertura_masiva,
