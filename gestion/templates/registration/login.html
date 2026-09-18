@@ -3,85 +3,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ingreso al Sistema Escolar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso - Portal Académico</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f3f4f6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
         
-        .btn-custom { background-color: #289EA0; border-color: #289EA0; color: white; }
-        .btn-custom:hover { background-color: #1F4A75; border-color: #1F4A75; color: white; }
+        .btn-custom { 
+            background-color: #1F4A75; 
+            border-color: #1F4A75; 
+            color: white; 
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.2s;
+        }
+        .btn-custom:hover { 
+            background-color: #173859; 
+            border-color: #173859; 
+            color: white; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(31, 74, 117, 0.2);
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(31, 74, 117, 0.15);
+            border-color: #1F4A75;
+            background-color: #ffffff;
+        }
         
         .fade-in-up {
-            animation: fadeInUp 0.6s ease-out forwards;
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(15px);
         }
 
         @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .hover-lift {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-        }
-
-        .hover-lift:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        .login-card {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
     </style>
 </head>
-<body class="d-flex align-items-center vh-100" style="background: linear-gradient(135deg, #1F4A75 0%, #289EA0 100%);">
+<body>
 
 <div class="container fade-in-up">
     <div class="row justify-content-center">
-        <div class="col-md-5 col-lg-4">
-            <div class="card shadow-lg border-0 rounded-4" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <img src="{% static 'img/logo.png' %}" alt="Profesorado Don Bosco Pío IX" class="img-fluid mb-3" style="max-height: 80px;" onerror="this.src='https://placehold.co/300x80/ffffff/1F4A75?text=Profesorado+Don+Bosco'">
-                        <h4 class="fw-bold text-dark mt-2">Portal Académico</h4>
-                        <p class="text-muted small">Ingresa tus credenciales</p>
+        <div class="col-md-6 col-lg-4">
+            <div class="card login-card">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4 pb-2">
+                        <!-- Reemplazar con el logo real si es necesario -->
+                        <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-mortarboard text-primary" style="font-size: 2.2rem; color: #1F4A75 !important;"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">Portal Académico</h4>
+                        <p class="text-muted small">Ingresa tus credenciales para continuar</p>
                     </div>
-                    <form method="post">
-                        {% csrf_token %} 
-                        {% if form.errors %}
-                            <div class="alert alert-danger" role="alert">
-                                Usuario o contraseña incorrectos. Por favor, intenta de nuevo.
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger bg-danger text-white border-0 small rounded-3 py-2 text-center" role="alert">
+                            <i class="bi bi-exclamation-circle me-1"></i> Usuario o contraseña incorrectos.
+                        </div>
+                    {% endif %}
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show small rounded-3 py-2 text-center" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.8rem;"></button>
                             </div>
-                        {% endif %}
-                        <div class="form-floating mb-3">
-                            <input type="text" name="username" class="form-control rounded-3 bg-light" id="floatingUser" placeholder="Usuario" required>
-                            <label for="floatingUser"><i class="bi bi-person text-muted me-2"></i>Usuario</label>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 0.05em;">DNI o Usuario</label>
+                            <input type="text" name="username" class="form-control" placeholder="12345678" required autofocus>
                         </div>
-                        <div class="form-floating mb-4">
-                            <input type="password" name="password" class="form-control rounded-3 bg-light" id="floatingPassword" placeholder="Contraseña" required>
-                            <label for="floatingPassword"><i class="bi bi-lock text-muted me-2"></i>Contraseña</label>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 0.05em;">Contraseña</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
                         </div>
-                        <button type="submit" class="btn btn-custom w-100 py-3 fw-bold rounded-pill hover-lift shadow-sm">
-                            Iniciar Sesión <i class="bi bi-arrow-right-short fs-5 align-middle"></i>
-                        </button>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-custom">Iniciar Sesión</button>
+                        </div>
                     </form>
                     
-                    <hr class="my-4 text-muted">
-                    <div class="text-center">
-                        <p class="text-muted small mb-2">¿Sos futuro ingresante?</p>
-                        <a href="{% url 'preinscripcion' %}" class="btn btn-outline-primary w-100 fw-bold rounded-pill shadow-sm hover-lift">
-                            Formulario de Preinscripción
+                    <div class="text-center mt-4 pt-2 border-top">
+                        <a href="{% url 'preinscripcion_publica' %}" class="text-decoration-none text-muted small hover-lift d-inline-block" style="transition: all 0.2s;">
+                            <i class="bi bi-person-plus me-1"></i> ¿No sos alumno? <span class="text-primary fw-bold">Preinscribite aquí</span>
                         </a>
                     </div>
                 </div>
             </div>
-            <p class="text-center mt-3 text-white-50"><small>SIGES &copy; 2026</small></p>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
