@@ -151,6 +151,7 @@ def dashboard(request):
 from django.db.models import Q
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_alumnos(request):
     planes_ids = obtener_planes_visibles(request.user)
     if planes_ids is not None:
@@ -164,6 +165,7 @@ def lista_alumnos(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_alumno(request):
     if es_solo_tutor(request.user):
         messages.error(request, "Los tutores de carrera no tienen permisos para crear alumnos.")
@@ -362,6 +364,7 @@ def legajo_alumno(request, alumno_id):
     return render(request, 'gestion/legajo_alumno.html', context)
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def editar_alumno(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_alumnos')
     alumno = get_object_or_404(Alumno, id=alumno_id)
@@ -497,6 +500,7 @@ def boletin_alumno(request, alumno_id, ciclo_lectivo):
     return render(request, 'gestion/boletin_impresion.html', {'alumno': alumno})
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_docentes(request):
     planes_ids = obtener_planes_visibles(request.user)
     if planes_ids is not None:
@@ -509,6 +513,7 @@ def lista_docentes(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_docente(request):
     if es_solo_tutor(request.user): return redirect('dashboard')
     if request.method == 'POST':
@@ -580,6 +585,7 @@ def alta_docente(request):
     return render(request, 'gestion/alta_docente.html', {'provincias': provincias, 'sexo_choices': sexo_choices, 'planes': planes})
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def editar_docente(request, docente_id):
     if es_solo_tutor(request.user): return redirect('dashboard')
     docente = get_object_or_404(Docente, id=docente_id)
@@ -664,6 +670,7 @@ def legajo_docente(request, docente_id):
     return render(request, 'gestion/legajo_docente.html', {'docente': docente, 'es_tutor': es_solo_tutor(request.user)})
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_comisiones(request):
     planes_ids = obtener_planes_visibles(request.user)
     if planes_ids is not None:
@@ -699,6 +706,7 @@ def lista_comisiones(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def apertura_masiva(request):
     if es_solo_tutor(request.user):
         messages.error(request, 'No tienes permisos para esta acción.')
@@ -777,6 +785,7 @@ def apertura_masiva(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_comision(request):
     if es_solo_tutor(request.user):
         messages.error(request, 'No tienes permisos para esta acción.')
@@ -1300,12 +1309,20 @@ def detalle_plan(request, plan_id):
 from django.views.decorators.csrf import csrf_exempt
 from .services_ia import procesar_mensaje_chatbot
 
+@login_required
+@csrf_exempt
 def api_chatbot(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             mensaje = data.get('mensaje', '')
-            alumno_id = data.get('alumno_id', 1) 
+            
+            # Seguridad: Forzar el ID del alumno logueado si es un alumno
+            if hasattr(request.user, 'perfil_alumno'):
+                alumno_id = request.user.perfil_alumno.id
+            else:
+                alumno_id = data.get('alumno_id', 1) # Fallback para admin/docente probando
+                
             respuesta_ia = procesar_mensaje_chatbot(mensaje, alumno_id)
             return JsonResponse({'respuesta': respuesta_ia})
         except Exception as e:
@@ -1401,6 +1418,7 @@ def calendario_general(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_evento_calendario(request):
     from .models import EventoInstitucional
     if request.method == 'POST':
@@ -1612,6 +1630,7 @@ def cerrar_comision(request, comision_id):
     return redirect('detalle_comision', comision_id=comision.id)
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def eliminar_comision(request, comision_id):
     if es_solo_tutor(request.user): return redirect('dashboard')
     comision = get_object_or_404(Comision, id=comision_id)
@@ -1666,6 +1685,7 @@ def acta_volante(request, comision_id):
 # ==========================================
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_mesas(request):
     from .models import MesaExamen
     planes_ids = obtener_planes_visibles(request.user)
@@ -1677,6 +1697,7 @@ def lista_mesas(request):
     return render(request, 'gestion/lista_mesas.html', {'mesas': mesas})
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_mesa(request):
     from .models import Materia, MesaExamen, Docente
     from datetime import datetime
@@ -1727,6 +1748,7 @@ def alta_mesa(request):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def eliminar_mesa(request, mesa_id):
     if es_solo_tutor(request.user): return redirect('dashboard')
     from .models import MesaExamen
@@ -2044,6 +2066,7 @@ def acta_examen(request, mesa_id):
 # ==========================================
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def alta_equivalencia(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_alumnos')
     from .models import InscripcionCarrera, Alumno, Equivalencia, Materia
@@ -2265,6 +2288,7 @@ def leer_notificacion(request, notificacion_id):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def resetear_password_alumno(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_alumnos')
     if not request.user.is_superuser and not request.user.is_staff:
