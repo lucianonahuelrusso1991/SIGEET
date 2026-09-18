@@ -29,6 +29,9 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')), 
     
     path('', dashboard, name='dashboard'),
+    path('tramites/', lista_tramites, name='lista_tramites'),
+    path('tramites/solicitar/', solicitar_tramite_alumno, name='solicitar_tramite_alumno'),
+    path('tramites/autorizar/<int:tramite_id>/', autorizar_tramite, name='autorizar_tramite'),
     path('seleccionar-perfil/', seleccionar_perfil, name='seleccionar_perfil'),
     path('establecer-perfil/<str:rol>/', establecer_perfil, name='establecer_perfil'),
     
