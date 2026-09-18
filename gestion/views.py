@@ -2652,6 +2652,8 @@ def preinscripcion_publica(request):
             alumno = form.save(commit=False)
             alumno.estado_alumno = 'ASP'
             alumno.save()
+            from .models import InscripcionCarrera
+            InscripcionCarrera.objects.create(alumno=alumno, plan=form.cleaned_data['plan'], estado='PREINSCRIPTO')
             messages.success(request, 'Tu preinscripción se ha enviado correctamente. Bedelía revisará tus datos y te dará de alta pronto.')
             return redirect('login')
     else:
@@ -2694,7 +2696,17 @@ def validar_preinscripto(request, alumno_id):
         form = RevisarPreinscriptoForm(request.POST, instance=alumno)
         if form.is_valid():
             alumno = form.save(commit=False)
+            from .models import InscripcionCarrera
             
+            # Actualizar la carrera seleccionada
+            inscripcion, created = InscripcionCarrera.objects.get_or_create(
+                alumno=alumno, 
+                defaults={'plan': form.cleaned_data['plan'], 'estado': 'PREINSCRIPTO'}
+            )
+            if not created and inscripcion.plan != form.cleaned_data['plan']:
+                inscripcion.plan = form.cleaned_data['plan']
+                inscripcion.save()
+
             if not alumno.correo_institucional:
                 # Instancia 2: Aprobó papeles pero no tiene correo
                 alumno.estado_alumno = 'ESP_CORREO'
@@ -2718,6 +2730,12 @@ def validar_preinscripto(request, alumno_id):
                     
                 alumno.estado_alumno = 'ACT'
                 alumno.save()
+                
+                insc = InscripcionCarrera.objects.filter(alumno=alumno, estado='PREINSCRIPTO').first()
+                if insc:
+                    insc.estado = 'CURSANDO'
+                    insc.save()
+                    
                 messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y ACTIVO. (Usuario: {alumno.correo_institucional}, Clave: {alumno.dni})")
                 return redirect('lista_preinscriptos')
     else:
