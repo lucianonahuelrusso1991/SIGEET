@@ -14,6 +14,19 @@
                     <p class="mb-0 mt-2 text-white-50">Completá tus datos para iniciar el proceso de admisión.</p>
                 </div>
                 <div class="card-body p-5 bg-light">
+                    {% if exito %}
+                    <div class="text-center py-5 fade-in-up">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                        <h2 class="fw-bold mt-4 text-dark">¡Gracias por preinscribirte!</h2>
+                        <p class="lead text-muted mt-3 mb-4">
+                            Hemos recibido tu solicitud correctamente. Estaremos comunicándonos pronto para indicarte los pasos a seguir.
+                        </p>
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                            Volver al Inicio
+                        </a>
+                    </div>
+                    {% else %}
+
                     
                     {% if form.errors %}
                         <div class="alert alert-danger shadow-sm">
@@ -121,6 +134,7 @@
                             <a href="{% url 'login' %}" class="text-decoration-none text-muted">Ya tengo cuenta. Ir al login.</a>
                         </div>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

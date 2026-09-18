@@ -2690,8 +2690,7 @@ def preinscripcion_publica(request):
             alumno.save()
             from .models import InscripcionCarrera
             InscripcionCarrera.objects.create(alumno=alumno, plan=form.cleaned_data['plan'], estado='PREINSCRIPTO')
-            messages.success(request, 'Tu preinscripción se ha enviado correctamente. Bedelía revisará tus datos y te dará de alta pronto.')
-            return redirect('login')
+            return render(request, 'gestion/preinscripcion.html', {'form': form, 'exito': True})
     else:
         form = PreinscripcionForm()
     
@@ -2706,11 +2705,11 @@ def lista_preinscriptos(request):
     if planes_ids is not None:
         aspirantes = Alumno.objects.filter(estado_alumno='ASP', inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('-id')
         aspirantes_esperando_correo = Alumno.objects.filter(estado_alumno='ESP_CORREO', inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('-id')
-        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO', plan_id__in=planes_ids).select_related('alumno', 'plan').order_by('-id')
+        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO', plan_id__in=planes_ids).exclude(alumno__estado_alumno__in=['ASP', 'ESP_CORREO']).select_related('alumno', 'plan').order_by('-id')
     else:
         aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
         aspirantes_esperando_correo = Alumno.objects.filter(estado_alumno='ESP_CORREO').order_by('-id')
-        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO').select_related('alumno', 'plan').order_by('-id')
+        aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO').exclude(alumno__estado_alumno__in=['ASP', 'ESP_CORREO']).select_related('alumno', 'plan').order_by('-id')
         
     return render(request, 'gestion/lista_preinscriptos.html', {
         'aspirantes': aspirantes,
