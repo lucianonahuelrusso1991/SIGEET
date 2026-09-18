@@ -481,7 +481,7 @@ def certificado_examen_alumno(request, alumno_id):
         'ultima_mesa': ultima_mesa,
         'materia_cert': materia,
         'fecha_cert': fecha_examen
-    }), 'ultima_mesa': ultima_mesa})
+    })
 
 @login_required
 def boletin_alumno(request, alumno_id, ciclo_lectivo):
