@@ -357,6 +357,9 @@ class RegistroAsistencia(models.Model):
 
     def __str__(self):
         return f"{self.alumno.apellido} - {self.get_estado_display()}"
+
+    class Meta:
+        unique_together = ['planilla', 'alumno']
         
 class JustificativoAsistencia(models.Model):
     ESTADOS = [
