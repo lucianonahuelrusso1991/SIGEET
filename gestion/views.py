@@ -102,12 +102,20 @@ def dashboard(request):
         # Materias regularizadas (aprobada la cursada, debe el final)
         cursadas_aprobadas = alumno.inscripciones.filter(estado='APR')
         
+        from .models import SolicitudTramite, Materia
+        tramites = SolicitudTramite.objects.filter(alumno=alumno).order_by('-fecha_solicitud')
+        planes_ids = alumno.carreras.values_list('id', flat=True)
+        materias_plan = Materia.objects.filter(plan_id__in=planes_ids).order_by('nombre')
+        
         return render(request, 'gestion/alumnos/dashboard_alumno.html', {
             'alumno': alumno,
             'unread_notifications': unread_notifications,
             'carreras_info': carreras_info,
             'cursando': cursando,
             'cursadas_aprobadas': cursadas_aprobadas,
+        
+            'tramites': tramites,
+            'materias_plan': materias_plan,
         })
 
     # Bifurcación para panel de docente
