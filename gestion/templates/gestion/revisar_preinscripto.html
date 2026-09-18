@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Revisar Preinscripción - {{ alumno.apellido }}, {{ alumno.nombre }}{% endblock %}
+{% block title %}Revisar PreinscripciÃ³n - {{ alumno.apellido }}, {{ alumno.nombre }}{% endblock %}
 
 {% block back_button %}
 <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light btn-sm rounded-pill fw-bold mb-3 shadow-sm hover-lift">
@@ -15,7 +15,7 @@
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-primary text-white p-4 rounded-top-4">
                     <h3 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2"></i>Revisar Datos del Aspirante</h3>
-                    <p class="mb-0 text-white-50 mt-1">Verificá los datos cargados por el postulante y tildá la documentación entregada antes de darle de alta definitivamente.</p>
+                    <p class="mb-0 text-white-50 mt-1">VerificÃ¡ los datos cargados por el postulante y tildÃ¡ la documentaciÃ³n entregada antes de darle de alta definitivamente.</p>
                 </div>
                 
                 <div class="card-body p-4 p-md-5 bg-light">
@@ -24,7 +24,7 @@
                         
                         {% if form.errors %}
                             <div class="alert alert-danger shadow-sm rounded-3">
-                                <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Por favor corregí los siguientes errores:</strong>
+                                <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Por favor corregÃ­ los siguientes errores:</strong>
                                 <ul class="mb-0 mt-2">
                                 {% for field in form %}
                                     {% for error in field.errors %}
@@ -75,7 +75,7 @@
                                 {{ form.email }}
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold text-muted small">Teléfono Fijo</label>
+                                <label class="form-label fw-semibold text-muted small">TelÃ©fono Fijo</label>
                                 {{ form.telefono }}
                             </div>
                             <div class="col-md-3">
@@ -83,7 +83,7 @@
                                 {{ form.celular }}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted small">Dirección</label>
+                                <label class="form-label fw-semibold text-muted small">DirecciÃ³n</label>
                                 {{ form.direccion }}
                             </div>
                             <div class="col-md-3">
@@ -96,8 +96,8 @@
                             </div>
                         </div>
 
-                        <!-- Académico -->
-                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">3. Académico</h5>
+                        <!-- AcadÃ©mico -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">3. AcadÃ©mico</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-12">
                                 <label class="form-label fw-semibold text-muted small">Carrera (Plan de Estudios)</label>
@@ -105,7 +105,7 @@
                             </div>
                         </div>
 
-                        <!-- Checklists de Documentación -->
+                                                <!-- Checklists de Documentación -->
                         <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">4. Documentación Físicamente Entregada</h5>
                         <div class="card border-0 shadow-sm rounded-3 mb-4">
                             <div class="card-body">
@@ -118,29 +118,25 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check form-switch fs-5 mb-2">
-                                            {{ form.doc_vacunas }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_vacunas.id_for_label }}">Certificado de Vacunas</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check form-switch fs-5 mb-2">
-                                            {{ form.doc_partida }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_partida.id_for_label }}">Partida de Nacimiento</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check form-switch fs-5 mb-2">
                                             {{ form.doc_primaria }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_primaria.id_for_label }}">Certificado Primaria</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check form-switch fs-5 mb-2">
-                                            {{ form.doc_pase }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_pase.id_for_label }}">Pase / Título Secundario</label>
+                                            <label class="form-check-label text-dark" for="{{ form.doc_primaria.id_for_label }}">Título Secundario</label>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos Institucionales -->
+                        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">5. Datos Institucionales</h5>
+                        <div class="alert alert-info shadow-sm rounded-3">
+                            <strong><i class="bi bi-info-circle-fill me-2"></i>Instrucciones de alta:</strong><br>
+                            Si aún no tiene correo institucional creado por Soporte Técnico, dejá el campo en blanco y guardá los datos. El alumno quedaráǭ en estado <b>En Espera de Correo</b>.<br>
+                            Si ya tenǸs el correo, completalo para formalizar la inscripción y crearle el usuario.
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold text-dark fs-5">Correo Institucional (Genera el usuario final)</label>
+                                {{ form.correo_institucional }}
                             </div>
                         </div>
 
@@ -148,7 +144,7 @@
                         <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
                             <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light px-4 fw-bold rounded-pill">Cancelar</a>
                             <button type="submit" class="btn btn-success px-5 fw-bold rounded-pill shadow-sm hover-lift">
-                                ✅ Confirmar Alta de Alumno
+                                <i class="bi bi-check-circle-fill me-2"></i> Confirmar y Guardar
                             </button>
                         </div>
 

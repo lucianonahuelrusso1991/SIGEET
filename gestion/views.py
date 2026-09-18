@@ -2667,14 +2667,18 @@ def lista_preinscriptos(request):
     
     if planes_ids is not None:
         aspirantes = Alumno.objects.filter(estado_alumno='ASP', inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('-id')
+        aspirantes_esperando_correo = Alumno.objects.filter(estado_alumno='ESP_CORREO', inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('-id')
         aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO', plan_id__in=planes_ids).select_related('alumno', 'plan').order_by('-id')
     else:
         aspirantes = Alumno.objects.filter(estado_alumno='ASP').order_by('-id')
+        aspirantes_esperando_correo = Alumno.objects.filter(estado_alumno='ESP_CORREO').order_by('-id')
         aspirantes_internos = InscripcionCarrera.objects.filter(estado='PREINSCRIPTO').select_related('alumno', 'plan').order_by('-id')
         
     return render(request, 'gestion/lista_preinscriptos.html', {
         'aspirantes': aspirantes,
-        'aspirantes_internos': aspirantes_internos
+        'aspirantes_esperando_correo': aspirantes_esperando_correo,
+        'aspirantes_internos': aspirantes_internos,
+        'es_tutor': es_solo_tutor(request.user),
     })
 
 @login_required
@@ -2683,29 +2687,39 @@ def validar_preinscripto(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_preinscriptos')
     from django.contrib.auth.models import User
     from .forms import RevisarPreinscriptoForm
-    alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno='ASP')
+    # Permitir ASP o ESP_CORREO para poder editarlo después
+    alumno = get_object_or_404(Alumno, id=alumno_id, estado_alumno__in=['ASP', 'ESP_CORREO'])
     
     if request.method == 'POST':
         form = RevisarPreinscriptoForm(request.POST, instance=alumno)
         if form.is_valid():
             alumno = form.save(commit=False)
             
-            # Crear usuario de django
-            if not alumno.usuario:
-                if User.objects.filter(username=alumno.dni).exists():
-                    messages.error(request, f"Ya existe un usuario con DNI {alumno.dni}. Revise si el DNI es correcto.")
-                    return redirect('lista_preinscriptos')
+            if not alumno.correo_institucional:
+                # Instancia 2: Aprobó papeles pero no tiene correo
+                alumno.estado_alumno = 'ESP_CORREO'
+                alumno.save()
+                messages.warning(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado. Pasó a EN ESPERA DE CORREO INSTITUCIONAL.")
+                return redirect('lista_preinscriptos')
+            else:
+                # Instancia 3: Tiene correo institucional, creamos usuario y activamos
+                if not alumno.usuario:
+                    username_correo = alumno.correo_institucional
+                    if User.objects.filter(username=username_correo).exists():
+                        messages.error(request, f"Ya existe un usuario con el correo {username_correo}.")
+                        return redirect('lista_preinscriptos')
+                        
+                    user = User.objects.create_user(username=username_correo, password=alumno.dni)
+                    user.first_name = alumno.nombre
+                    user.last_name = alumno.apellido
+                    user.email = alumno.correo_institucional
+                    user.save()
+                    alumno.usuario = user
                     
-                user = User.objects.create_user(username=alumno.dni, password=alumno.dni)
-                user.first_name = alumno.nombre
-                user.last_name = alumno.apellido
-                user.save()
-                alumno.usuario = user
-                
-            alumno.estado_alumno = 'ACT'
-            alumno.save()
-            messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y dado de alta exitosamente. (Usuario: DNI, Clave: DNI)")
-            return redirect('lista_preinscriptos')
+                alumno.estado_alumno = 'ACT'
+                alumno.save()
+                messages.success(request, f"Aspirante {alumno.apellido}, {alumno.nombre} validado y ACTIVO. (Usuario: {alumno.correo_institucional}, Clave: {alumno.dni})")
+                return redirect('lista_preinscriptos')
     else:
         form = RevisarPreinscriptoForm(instance=alumno)
         

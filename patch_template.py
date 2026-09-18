@@ -1,58 +1,225 @@
-import re
+﻿import sys
 
-with open(r'd:\Escritorio\GESTION ESCOLAR\gestion\templates\gestion\editar_comision.html', 'r', encoding='utf-8') as f:
+with open('gestion/templates/gestion/lista_preinscriptos.html', 'r', encoding='utf-8') as f:
     content = f.read()
 
-# Title
-content = content.replace("Nueva Comisión", "Editar Comisión")
+import re
+# We'll use regex to replace everything inside the card-body p-0 table-responsive
+pattern = r'<div class="card shadow-sm border-0">.*?</div>\s*</div>\s*{% endblock %}'
 
-# Materia select
-content = content.replace('name="materia" class="form-select" required', 'name="materia" class="form-select" required disabled')
-content = content.replace('value="{{ materia.id }}"', 'value="{{ materia.id }}" {% if materia.id == comision.materia.id %}selected{% endif %}')
+new_card = '''<div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+            <ul class="nav nav-tabs" id="preinscriptosTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold text-primary" id="nuevos-tab" data-bs-toggle="tab" data-bs-target="#nuevos" type="button" role="tab" aria-controls="nuevos" aria-selected="true">
+                        <i class="bi bi-inbox-fill me-1"></i> Formularios Recibidos ({{ aspirantes.count }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-warning" id="espera-tab" data-bs-toggle="tab" data-bs-target="#espera" type="button" role="tab" aria-controls="espera" aria-selected="false">
+                        <i class="bi bi-clock-fill me-1"></i> En Espera de Correo ({{ aspirantes_esperando_correo.count }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-success" id="internos-tab" data-bs-toggle="tab" data-bs-target="#internos" type="button" role="tab" aria-controls="internos" aria-selected="false">
+                        <i class="bi bi-person-lines-fill me-1"></i> Aspirantes Internos ({{ aspirantes_internos.count }})
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <div class="tab-content" id="preinscriptosTabsContent">
+                
+                <!-- PESTAÑA: NUEVOS (ASP) -->
+                <div class="tab-pane fade show active" id="nuevos" role="tabpanel" aria-labelledby="nuevos-tab">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="border-bottom border-dark border-opacity-25 bg-light">
+                            <tr>
+                                <th class="ps-4">Apellido y Nombre</th>
+                                <th>DNI</th>
+                                <th>Fecha de Nacimiento</th>
+                                <th>Contacto</th>
+                                <th>Carrera Solicitada</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asp in aspirantes %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">{{ asp.apellido }}, {{ asp.nombre }}</td>
+                                <td class="text-muted">{{ asp.dni }}</td>
+                                <td class="text-muted">{{ asp.fecha_nacimiento|date:"d/m/Y" }}</td>
+                                <td>
+                                    <div class="small">
+                                        <i class="bi bi-envelope text-primary"></i> {{ asp.email }}<br>
+                                        <i class="bi bi-telephone text-primary"></i> {{ asp.celular|default:"-" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% for c in asp.carreras.all %}
+                                        <span class="badge bg-secondary">{{ c.nombre }}</span><br>
+                                    {% empty %}
+                                        <span class="badge bg-warning text-dark">Sin asignar</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        {% if not es_tutor %}
+                                        <a href="{% url 'validar_preinscripto' asp.id %}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                                            <i class="bi bi-search me-1"></i> Revisar y Validar
+                                        </a>
+                                        <form method="post" action="{% url 'rechazar_preinscripto' asp.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger fw-bold shadow-sm" onclick="return confirm('¿Seguro que deseas descartar a este aspirante nuevo? Sus datos se borrarán.');">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-muted small">Solo lectura</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    No hay formularios nuevos pendientes de validación.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-# Docente select
-content = content.replace('value="{{ docente.id }}"', 'value="{{ docente.id }}" {% if comision.docente and docente.id == comision.docente.id %}selected{% endif %}')
+                <!-- PESTAÑA: ESPERANDO CORREO (ESP_CORREO) -->
+                <div class="tab-pane fade" id="espera" role="tabpanel" aria-labelledby="espera-tab">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="border-bottom border-dark border-opacity-25 bg-light">
+                            <tr>
+                                <th class="ps-4">Apellido y Nombre</th>
+                                <th>DNI</th>
+                                <th>Contacto</th>
+                                <th>Carrera Solicitada</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asp in aspirantes_esperando_correo %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">{{ asp.apellido }}, {{ asp.nombre }}</td>
+                                <td class="text-muted">{{ asp.dni }}</td>
+                                <td>
+                                    <div class="small">
+                                        <i class="bi bi-envelope text-primary"></i> {{ asp.email }}<br>
+                                        <i class="bi bi-telephone text-primary"></i> {{ asp.celular|default:"-" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% for c in asp.carreras.all %}
+                                        <span class="badge bg-secondary">{{ c.nombre }}</span><br>
+                                    {% empty %}
+                                        <span class="badge bg-warning text-dark">Sin asignar</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        {% if not es_tutor %}
+                                        <a href="{% url 'validar_preinscripto' asp.id %}" class="btn btn-sm btn-warning fw-bold shadow-sm text-dark">
+                                            <i class="bi bi-envelope-plus me-1"></i> Asignar Correo e Inscribir
+                                        </a>
+                                        {% else %}
+                                        <span class="text-muted small">Solo lectura</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-check2-circle fs-1 d-block mb-2"></i>
+                                    No hay aspirantes esperando correo institucional.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-# Ciclo lectivo
-content = content.replace('value="{{ proximo_año }}"', 'value="{{ comision.ciclo_lectivo }}"')
+                <!-- PESTAÑA: INTERNOS -->
+                <div class="tab-pane fade" id="internos" role="tabpanel" aria-labelledby="internos-tab">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="border-bottom border-dark border-opacity-25 bg-light">
+                            <tr>
+                                <th class="ps-4">Alumno</th>
+                                <th>DNI</th>
+                                <th>Carrera Actual</th>
+                                <th>Contacto</th>
+                                <th>Nueva Carrera Solicitada</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ins in aspirantes_internos %}
+                            <tr>
+                                <td class="ps-4 fw-bold text-dark">{{ ins.alumno.apellido }}, {{ ins.alumno.nombre }}</td>
+                                <td class="text-muted">{{ ins.alumno.dni }}</td>
+                                <td>
+                                    {% for cursando in ins.alumno.inscripciones_carreras.all %}
+                                        {% if cursando.estado != 'PREINSCRIPTO' %}
+                                            <span class="badge bg-info text-dark mb-1">{{ cursando.plan.nombre }} ({{ cursando.get_estado_display }})</span><br>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <i class="bi bi-envelope text-primary"></i> {{ ins.alumno.email }}
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ ins.plan.nombre }}</span></td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        {% if not es_tutor %}
+                                        <form method="post" action="{% url 'validar_preinscripto_interno' ins.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-success fw-bold shadow-sm">
+                                                <i class="bi bi-check-lg me-1"></i> Aprobar
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{% url 'rechazar_preinscripto_interno' ins.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger fw-bold shadow-sm" onclick="return confirm('¿Seguro que deseas rechazar esta solicitud?');">
+                                                <i class="bi bi-x-lg me-1"></i> Rechazar
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-muted small">Solo lectura</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-person-lines-fill fs-1 d-block mb-2"></i>
+                                    No hay aspirantes internos pendientes.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-# Cuatrimestre
-content = content.replace('value="1C"', 'value="1C" {% if comision.cuatrimestre == "1C" %}selected{% endif %}')
-content = content.replace('value="2C"', 'value="2C" {% if comision.cuatrimestre == "2C" %}selected{% endif %}')
-content = content.replace('value="AN"', 'value="AN" {% if comision.cuatrimestre == "AN" %}selected{% endif %}')
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+'''
 
-# Fechas
-content = content.replace('name="fecha_inicio" class="form-control"', 'name="fecha_inicio" class="form-control" value="{{ comision.fecha_inicio|date:\'Y-m-d\' }}"')
-content = content.replace('name="fecha_fin" class="form-control"', 'name="fecha_fin" class="form-control" value="{{ comision.fecha_fin|date:\'Y-m-d\' }}"')
+content_new = re.sub(pattern, new_card, content, flags=re.DOTALL)
 
-# Tipo aprob
-content = content.replace('value="PROM"', 'value="PROM" {% if comision.tipo_aprobacion == "PROM" %}selected{% endif %}')
-content = content.replace('value="FIN" selected', 'value="FIN" {% if comision.tipo_aprobacion == "FIN" %}selected{% endif %}')
+with open('gestion/templates/gestion/lista_preinscriptos.html', 'w', encoding='utf-8') as f:
+    f.write(content_new)
 
-# Modalidad
-content = content.replace('value="P" selected', 'value="P" {% if comision.modalidad == "P" %}selected{% endif %}')
-content = content.replace('value="V"', 'value="V" {% if comision.modalidad == "V" %}selected{% endif %}')
-content = content.replace('value="B"', 'value="B" {% if comision.modalidad == "B" %}selected{% endif %}')
-
-# Inicio Bimodal (only value="P" left because previous replaced selected)
-content = content.replace('value="P">', 'value="P" {% if comision.semana_inicio_bimodal == "P" %}selected{% endif %}>')
-
-# Checkboxes
-def cb_repl(match):
-    val = match.group(1) # e.g. value="1_17:20_18:00"
-    val_str = val.split('"')[1] # e.g. 1_17:20_18:00
-    return f'{val} {{% if "{val_str}" in horarios_actuales %}}checked{{% endif %}}'
-
-content = re.sub(r'(value="\d_\d\d:\d\d_\d\d:\d\d")', cb_repl, content)
-
-# Back button
-content = content.replace("{% url 'lista_comisiones' %}", "{% url 'detalle_comision' comision.id %}")
-content = content.replace("⬅ Volver al Listado", "⬅ Volver a la Comisión")
-
-# Add a hidden input for materia since it's disabled
-content = content.replace('</form>', '<input type="hidden" name="materia" value="{{ comision.materia.id }}"></form>')
-
-with open(r'd:\Escritorio\GESTION ESCOLAR\gestion\templates\gestion\editar_comision.html', 'w', encoding='utf-8') as f:
-    f.write(content)
-
-print("Template patched.")
+print("Template updated")
