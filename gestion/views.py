@@ -3029,3 +3029,11 @@ def autorizar_tramite(request, tramite_id):
             messages.success(request, f'Trámite de {tramite.alumno} RECHAZADO.')
             
     return redirect('lista_tramites')
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def imprimir_ficha_preinscripcion(request, alumno_id):
+    from django.shortcuts import get_object_or_404, render
+    from .models import Alumno
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    return render(request, 'gestion/ficha_inscripcion_impresion.html', {'alumno': alumno})
