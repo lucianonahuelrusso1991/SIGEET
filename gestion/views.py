@@ -258,6 +258,16 @@ from datetime import timedelta, date
 
 @login_required
 def legajo_alumno(request, alumno_id):
+    
+    # Seguridad: Sólo administradores o docentes (como tutores) pueden ver el legajo
+    es_admin = request.user.is_staff or request.user.is_superuser
+    es_docente = hasattr(request.user, 'perfil_docente')
+    if not (es_admin or es_docente):
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        messages.error(request, 'Acceso denegado. No tienes permisos para ver legajos.')
+        return redirect('dashboard')
+
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
     carreras = alumno.carreras.all()
