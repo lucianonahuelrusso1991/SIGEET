@@ -1,0 +1,249 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha de Preinscripción - {{ alumno.apellido }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #e9ecef; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        .hoja-a4 {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 20mm 20mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .header-instituto {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #289EA0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header-instituto img {
+            width: 80px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        .header-text h3 {
+            margin: 0;
+            font-weight: bold;
+            color: #1F4A75;
+            font-size: 1.3rem;
+        }
+
+        .header-text p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .titulo-doc {
+            text-align: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .seccion {
+            margin-bottom: 25px;
+        }
+
+        .seccion-titulo {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #1F4A75;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .dato-fila {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .dato-label {
+            font-weight: bold;
+            width: 200px;
+            color: #495057;
+        }
+
+        .dato-valor {
+            flex-grow: 1;
+            border-bottom: 1px dotted #adb5bd;
+            padding-left: 5px;
+        }
+
+        .firma-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 80px;
+        }
+
+        .firma-caja {
+            width: 45%;
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            color: rgba(0,0,0,0.03);
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media print {
+            body { background: white; margin: 0; }
+            .hoja-a4 {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+            .btn-imprimir { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center mt-3 mb-3 btn-imprimir">
+        <button onclick="window.print()" class="btn btn-primary btn-lg shadow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-printer-fill me-2" viewBox="0 0 16 16">
+              <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/>
+              <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+            </svg>
+            Imprimir Formulario
+        </button>
+        <button onclick="window.close()" class="btn btn-outline-secondary btn-lg ms-2">Cerrar</button>
+    </div>
+
+    <div class="hoja-a4">
+        <div class="watermark">COPIA PREINSCRIPCIÓN</div>
+        <div class="content">
+            <div class="header-instituto">
+                <img src="{% static 'gestion/img/logo.png' %}" alt="Logo Instituto">
+                <div class="header-text">
+                    <h3>INSTITUTO SUPERIOR DE FORMACIÓN DOCENTE</h3>
+                    <p>Ficha de Preinscripción Oficial - Ciclo Lectivo {% now "Y" %}</p>
+                </div>
+            </div>
+
+            <div class="titulo-doc">
+                SOLICITUD DE INSCRIPCIÓN A CARRERA
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-titulo">1. DATOS PERSONALES DEL ASPIRANTE</div>
+                
+                <div class="dato-fila">
+                    <div class="dato-label">Apellido:</div>
+                    <div class="dato-valor">{{ alumno.apellido }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Nombre(s):</div>
+                    <div class="dato-valor">{{ alumno.nombre }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">DNI:</div>
+                    <div class="dato-valor">{{ alumno.dni }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Fecha de Nacimiento:</div>
+                    <div class="dato-valor">{{ alumno.fecha_nacimiento|date:"d/m/Y"|default:"-" }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Lugar de Nacimiento:</div>
+                    <div class="dato-valor">{{ alumno.lugar_nacimiento|default:"-" }}</div>
+                </div>
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-titulo">2. DATOS DE CONTACTO Y DOMICILIO</div>
+                
+                <div class="dato-fila">
+                    <div class="dato-label">Correo Electrónico (Personal):</div>
+                    <div class="dato-valor">{{ alumno.email }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Teléfono / Celular:</div>
+                    <div class="dato-valor">{{ alumno.celular|default:"-" }}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Domicilio / Barrio:</div>
+                    <div class="dato-valor">{{ alumno.barrio|default:"-" }}</div>
+                </div>
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-titulo">3. CARRERA/S SOLICITADA/S</div>
+                
+                <div class="dato-fila">
+                    <div class="dato-label">Carreras:</div>
+                    <div class="dato-valor">
+                        {% for carrera in alumno.carreras.all %}
+                            {{ carrera.nombre }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            No asignada
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccion">
+                <div class="seccion-titulo">4. DOCUMENTACIÓN ENTREGADA</div>
+                <div class="dato-fila">
+                    <div class="dato-label">Fotocopia DNI:</div>
+                    <div class="dato-valor">{% if alumno.doc_fotocopia_dni %}Sí (Entregado){% else %}No{% endif %}</div>
+                </div>
+                <div class="dato-fila">
+                    <div class="dato-label">Título Secundario:</div>
+                    <div class="dato-valor">{% if alumno.doc_titulo_secundario %}Sí (Entregado){% else %}No{% endif %}</div>
+                </div>
+                <p class="small text-muted mt-2 mb-0"><em>* La presente solicitud se encuentra sujeta a la posterior asignación de correo institucional y verificación definitiva por parte de la institución.</em></p>
+            </div>
+
+            <div class="firma-container">
+                <div class="firma-caja">
+                    <p class="mb-0 fw-bold">Firma del Aspirante</p>
+                    <p class="small text-muted">Aclaración: {{ alumno.nombre }} {{ alumno.apellido }}</p>
+                </div>
+                <div class="firma-caja">
+                    <p class="mb-0 fw-bold">Firma y Sello Bedelía</p>
+                    <p class="small text-muted">Recepción conforme</p>
+                </div>
+            </div>
+            
+            <div class="mt-5 text-center small text-muted">
+                Generado a través de SiGeEt el {% now "d/m/Y H:i" %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

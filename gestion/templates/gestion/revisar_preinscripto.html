@@ -143,6 +143,9 @@
                         <!-- Submit -->
                         <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
                             <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light px-4 fw-bold rounded-pill">Cancelar</a>
+                            <a href="{% url 'imprimir_ficha_preinscripcion' alumno.id %}" target="_blank" class="btn btn-outline-secondary bg-white px-4 fw-bold rounded-pill">
+                                <i class="bi bi-printer me-2"></i> Imprimir Ficha
+                            </a>
                             <button type="submit" class="btn btn-success px-5 fw-bold rounded-pill shadow-sm hover-lift">
                                 <i class="bi bi-check-circle-fill me-2"></i> Confirmar y Guardar
                             </button>
