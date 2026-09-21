@@ -141,6 +141,7 @@ class InscripcionCarrera(models.Model):
 class PlanDeEstudio(models.Model):
     nombre = models.CharField('Nombre del Plan', max_length=150)
     resolucion_ministerial = models.CharField('Resolución', max_length=50)
+    activo = models.BooleanField('Activo', default=True, help_text='Desmarcar para planes históricos que ya no se dictan')
 
     def __str__(self):
         return self.nombre
