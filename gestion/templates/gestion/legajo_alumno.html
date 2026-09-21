@@ -78,7 +78,7 @@
                             <ul class="list-unstyled mb-0">
                                 <li class="mb-2"><strong>Email:</strong> {% if alumno.email %}{{ alumno.email }}{% else %}<span class="text-muted small">No registrado</span>{% endif %}</li>
                                 <li class="mb-2"><strong>Nacionalidad:</strong> {{ alumno.nacionalidad|default:"-" }}</li>
-                                <li class="mb-2"><strong>Sexo:</strong> {{ alumno.get_sexo_display|default:"-" }}</li>
+                                <li class="mb-2"><strong>Género:</strong> {{ alumno.get_sexo_display|default:"-" }}</li>
                                 <li class="mb-2"><strong>Lugar Nac.:</strong> {{ alumno.lugar_nacimiento|default:"-" }}</li>
                                 <li class="mb-2"><strong>Tel. Fijo:</strong> {{ alumno.telefono|default:"-" }}</li>
                                 <li class="mb-2"><strong>Celular:</strong> {{ alumno.celular|default:"-" }}</li>

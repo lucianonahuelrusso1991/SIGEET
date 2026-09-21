@@ -38,8 +38,8 @@ class Docente(models.Model):
     provincia = models.CharField(max_length=100, choices=PROVINCIAS, blank=True, null=True)
     localidad = models.CharField(max_length=100, blank=True, null=True)
     
-    SEXO_CHOICES = [('M', 'Masculino'), ('F', 'Femenino')]
-    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
+    SEXO_CHOICES = [('M', 'Masculino'), ('F', 'Femenino'), ('X', 'No Binario / X')]
+    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True, verbose_name='Género')
     lugar_nacimiento = models.CharField(max_length=100, blank=True, null=True)
     
     # Rol de Director de Carrera
@@ -83,8 +83,8 @@ class Alumno(models.Model):
     provincia = models.CharField(max_length=100, choices=PROVINCIAS, blank=True, null=True)
     localidad = models.CharField(max_length=100, blank=True, null=True)
     
-    SEXO_CHOICES = [('M', 'Masculino'), ('F', 'Femenino')]
-    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True)
+    SEXO_CHOICES = [('M', 'Masculino'), ('F', 'Femenino'), ('X', 'No Binario / X')]
+    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, blank=True, null=True, verbose_name='Género')
     lugar_nacimiento = models.CharField(max_length=100, blank=True, null=True)
     
     # Documentación
