@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from gestion.models import Alumno, PlanDeEstudio, Materia, InscripcionCursada, Nota
+from gestion.models import Alumno, PlanDeEstudio, Materia, Inscripcion, Nota
 from django.db import transaction
 
 class Command(BaseCommand):
