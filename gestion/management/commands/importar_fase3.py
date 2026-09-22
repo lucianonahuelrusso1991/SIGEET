@@ -1,12 +1,11 @@
 ﻿import os
-from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio
 from django.contrib.auth.models import User
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3: Parche Final'
+    help = 'Importa Fase 3'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -38,33 +37,32 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         sql_file = options['sql_file']
-        if not os.path.exists(sql_file):
-            self.stdout.write(self.style.ERROR('No se encontró el archivo.'))
-            return
-
+        
         try:
             with transaction.atomic():
                 self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
                 
-                self.stdout.write('1. Limpiando datos de prueba (manteniendo Planes Activos)...')
+                plan_default = PlanDeEstudio.objects.first()
+                if not plan_default:
+                    plan_default, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Default Histórico', activo=False)
+
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
                 
-                self.stdout.write('2. Importando 925 Materias (sin crear aulas virtuales)...')
                 materias_rows = self.parse_sql_lines(sql_file, 'materias')
-                
                 materia_dict = {}
                 for row in materias_rows:
                     parts = row.split(',')
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
-                        m_name = parts[1].strip().strip("'")
-                        m_obj, _ = Materia.objects.get_or_create(nombre=m_name[:149], defaults={'cuatrimestre': 'AN'})
+                        m_name = parts[1].strip().strip("'")[:149]
+                        m_obj = Materia.objects.filter(nombre=m_name).first()
+                        if not m_obj:
+                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_default, año_dictado=1, cuatrimestre_dictado='AN')
                         materia_dict[m_id] = m_obj
                 
-                self.stdout.write(f'Materias registradas: {len(materia_dict)}')
+                self.stdout.write(f'Materias registradas/vinculadas: {len(materia_dict)}')
                 
-                self.stdout.write('3. Mapeando 32.250 Libretas y Notas...')
                 libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
                 
                 user_dotti = User.objects.filter(username='33774806').first()
@@ -99,7 +97,6 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f'>> Procesadas y limpiadas las materias.'))
                 self.stdout.write(self.style.SUCCESS(f'>> Inyectadas inscripciones y notas para el lote actual ({count_inscripciones} inscripciones, {count_notas} finales).'))
-                self.stdout.write(self.style.SUCCESS('--- MIGRACIÓN FASE 3 FINALIZADA CON ÉXITO ---'))
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
