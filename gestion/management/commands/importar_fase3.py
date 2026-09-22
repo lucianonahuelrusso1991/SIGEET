@@ -125,11 +125,11 @@ class Command(BaseCommand):
                         
                         if norm_name in materias_existentes:
                             m_obj = materias_existentes[norm_name]
-                            if m_obj.plan != plan_correcto:
-                                m_obj.plan = plan_correcto
-                                m_obj.save()
+                            # NO TOCAMOS EL PLAN DE LA MATERIA. Si el usuario la puso en Locucion 2025, queda ahi.
                         else:
-                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_correcto, año_dictado=1, cuatrimestre_dictado='AN')
+                            # Si no existe, es una materia vieja de Ezequiel que no está en los planes modernos.
+                            # La aislamos en el Plan Histórico para no ensuciar los planes vigentes.
+                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_historico, año_dictado=1, cuatrimestre_dictado='AN')
                             materias_existentes[norm_name] = m_obj
                                 
                         materia_dict[m_id] = m_obj
