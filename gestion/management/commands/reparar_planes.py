@@ -69,7 +69,7 @@ class Command(BaseCommand):
             plan_sagradas: ['9'],
             plan_tv: ['17'],
             plan_sistemas: ['13'],
-            plan_loc19: ['16', '8'],
+            plan_loc19: ['16'],
             plan_loc25: ['24']
         }
         
@@ -134,7 +134,7 @@ class Command(BaseCommand):
                         try: anio_int = int(anio)
                         except: anio_int = 1
                         self.stdout.write(f"  Creando: {l_name}")
-                        Materia.objects.create(nombre=l_name, plan=django_plan, ao_dictado=anio_int, cuatrimestre_dictado='AN')
+                        Materia.objects.create(nombre=l_name, plan=django_plan, año_dictado=anio_int, cuatrimestre_dictado='AN')
                         django_names_norm.append(norm_l)
                         agregadas += 1
                         
