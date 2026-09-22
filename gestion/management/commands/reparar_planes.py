@@ -140,6 +140,18 @@ class Command(BaseCommand):
                         
             self.stdout.write(f"Agregadas/Recuperadas: {agregadas}")
             
+            
+            # DEDUPLICATION
+            vistas = set()
+            for ds in Materia.objects.filter(plan=django_plan).order_by('id'):
+                norm_d = normalize(ds.nombre)
+                if norm_d in vistas:
+                    ds.plan = plan_hist
+                    ds.save()
+                    self.stdout.write(f"  -> Movida a Historico (DUPLICADA): {ds.nombre} (ID: {ds.id})")
+                else:
+                    vistas.add(norm_d)
+
             sobrantes = 0
             for ds in Materia.objects.filter(plan=django_plan):
                 norm_d = normalize(ds.nombre)
