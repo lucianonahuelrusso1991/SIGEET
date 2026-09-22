@@ -4,12 +4,17 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.utils import timezone
 import datetime
+import unicodedata
 from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera, MesaExamen, InscripcionMesa
 from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
+def normalize_string(s):
+    s = s.lower().strip()
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
 class Command(BaseCommand):
-    help = 'Importa Fase 3 - Reparacion de Planes y Fechas de Promociones'
+    help = 'Importa Fase 3 - Reparacion de Duplicados y Fechas'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -53,12 +58,28 @@ class Command(BaseCommand):
                     plan_historico.activo = False
                     plan_historico.save()
 
-                # Limpieza de corridas anteriores
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
                 InscripcionMesa.objects.all().delete()
                 
-                # Mapeo de carreras legacy a SiGeEt
+                # ELIMINAR DUPLICADOS EN MAYUSCULA (Fuzzy Match)
+                self.stdout.write('Limpiando Materias duplicadas en mayuscula...')
+                all_materias = list(Materia.objects.all())
+                norm_dict = {}
+                for m in all_materias:
+                    norm = normalize_string(m.nombre)
+                    if norm not in norm_dict:
+                        norm_dict[norm] = []
+                    norm_dict[norm].append(m)
+                    
+                for norm, m_list in norm_dict.items():
+                    if len(m_list) > 1:
+                        # Priorizar la que NO es toda mayuscula
+                        m_list.sort(key=lambda x: (x.nombre.isupper(), x.id))
+                        keeper = m_list[0]
+                        for duplicate in m_list[1:]:
+                            duplicate.delete()
+                
                 plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
                 plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
                 plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
@@ -87,37 +108,41 @@ class Command(BaseCommand):
                 
                 fecha_historica = timezone.now()
                 
+                # Volver a cachear las materias luego de la limpieza
+                materias_existentes = {normalize_string(m.nombre): m for m in Materia.objects.all()}
+                
                 for row in materias_rows:
                     parts = row.split("','") if "','" in row else row.split(',')
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
                         m_name = parts[1].strip().strip("'")[:149]
+                        norm_name = normalize_string(m_name)
                         
                         legacy_c_id = materia_to_carrera.get(m_id)
                         plan_correcto = map_carrera.get(legacy_c_id, plan_historico)
                         
-                        m_obj = Materia.objects.filter(nombre=m_name).first()
-                        if not m_obj:
-                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_correcto, año_dictado=1, cuatrimestre_dictado='AN')
-                        else:
-                            # REPARAR EL PLAN!
+                        if norm_name in materias_existentes:
+                            m_obj = materias_existentes[norm_name]
                             if m_obj.plan != plan_correcto:
                                 m_obj.plan = plan_correcto
                                 m_obj.save()
+                        else:
+                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_correcto, año_dictado=1, cuatrimestre_dictado='AN')
+                            materias_existentes[norm_name] = m_obj
                                 
                         materia_dict[m_id] = m_obj
                         
-                        # Comision: Si es Cursando, abrimos una comision actual. Si es viejo, cerrada.
+                        # Usar 1900 para que el template sepa que es historica y muestre el año de la fecha real
                         c_obj, _ = Comision.objects.get_or_create(
                             materia=m_obj,
-                            ciclo_lectivo=2024, # Usamos 2024 como base para que el template no lo pise feo, o 1900 si cerramos
+                            ciclo_lectivo=1900,
                             defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': False}
                         )
                         comision_dict[m_id] = c_obj
                         
                         mesa_obj, _ = MesaExamen.objects.get_or_create(
                             materia=m_obj,
-                            ciclo_lectivo=2024,
+                            ciclo_lectivo=1900,
                             defaults={'turno': 'ESPECIAL', 'fecha_hora': fecha_historica, 'cerrada': True}
                         )
                         mesa_dict[m_id] = mesa_obj
@@ -130,11 +155,9 @@ class Command(BaseCommand):
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
                 
-                # Inscribirlos en el plan real de Locucion para que vean sus materias pendientes!
                 for al in [alumno_dotti, alumno_britos]:
                     if al and plan_locucion:
                         InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
-                        # Borrar la historica si la tienen
                         InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
                         InscripcionCarrera.objects.filter(alumno=al, plan=plan_sistemas).delete()
                 
@@ -185,7 +208,7 @@ class Command(BaseCommand):
                                 estado_cursada = 'LIB'
                             elif l_motivo_id == '10':
                                 estado_cursada = 'REG'
-                                c_cerrada = False # Cursando actualmente
+                                c_cerrada = False 
                             elif l_motivo_id == '90': 
                                 if l_libro or l_folio:
                                     estado_cursada = 'APR'  
@@ -193,7 +216,6 @@ class Command(BaseCommand):
                                     estado_cursada = 'PROM' 
                             
                             c_act = comision_dict[l_materia_id]
-                            # Ajustar comision si esta abierta o cerrada
                             if c_cerrada and not c_act.cerrada:
                                 c_act.cerrada = True
                                 c_act.save()
@@ -208,6 +230,8 @@ class Command(BaseCommand):
                             if not created and jerarquia.get(estado_cursada, 1) > jerarquia.get(insc.estado, 1):
                                 insc.estado = estado_cursada
                                 
+                            # LA CLAVE ESTA AQUI: fecha_cursada es fechaCursadaAprobada (el final de la cursada)
+                            # Si no hay, fallback a la de inscripcion.
                             fecha_real_cursada = fecha_cursada or fecha_insc or datetime.date.today()
                             insc.fecha_inscripcion = fecha_real_cursada
                             insc.save()
@@ -238,7 +262,6 @@ class Command(BaseCommand):
                                     count_finales += 1
                                 else:
                                     n, _ = Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
-                                    # Fix de la fecha de la nota
                                     Nota.objects.filter(id=n.id).update(fecha=fecha_final or fecha_real_cursada)
                                     count_promociones += 1
 
