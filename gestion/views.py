@@ -322,18 +322,20 @@ def legajo_alumno(request, alumno_id):
     regulares = []
     recursar = libres_db.copy()
     
-    def sumar_años(d, anios):
-        try:
-            return d.replace(year=d.year + anios)
-        except ValueError:
-            return d + timedelta(days=365 * anios)
+        def sumar_anios(d, anios):
+        # El vencimiento es el último turno del año correspondiente (ej: 31 de marzo del año siguiente al 3er año, o 31 de diciembre)
+        # Ajustamos al 31 de Diciembre del 3er año por defecto, o 31 de Marzo del 4to. 
+        # La convención general para "3 años de validez" si cursó en 2020, vence a fines de 2023 (o turno mar 2024).
+        # Vamos a poner 31 de Diciembre del año (d.year + anios).
+        from datetime import date
+        return date(d.year + anios, 12, 31)
             
     hoy = date.today()
     
     for reg in regulares_db:
         # Calcular fecha vencimiento
         fecha_fin_cursada = reg.comision.fecha_fin or reg.fecha_inscripcion
-        fecha_vencimiento = sumar_años(fecha_fin_cursada, 3)
+        fecha_vencimiento = sumar_anios(fecha_fin_cursada, 3)
         vencida_por_tiempo = hoy > fecha_vencimiento
         
         # Calcular intentos (Mesas REP)
@@ -1875,10 +1877,7 @@ def inscribir_alumno_mesa(request, mesa_id):
                     
                 # Tiempo (3 años)
                 fecha_fin_cursada = inscripcion_cursada.comision.fecha_fin or inscripcion_cursada.fecha_inscripcion
-                try:
-                    fecha_vencimiento = fecha_fin_cursada.replace(year=fecha_fin_cursada.year + 3)
-                except ValueError:
-                    fecha_vencimiento = fecha_fin_cursada + timedelta(days=365*3)
+                fecha_vencimiento = date(fecha_fin_cursada.year + 3, 12, 31)
                     
                 if date.today() > fecha_vencimiento:
                     errores_validacion.append("Se han vencido los 3 años de regularidad para rendir el final.")
