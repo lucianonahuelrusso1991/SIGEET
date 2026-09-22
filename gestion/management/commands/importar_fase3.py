@@ -6,7 +6,7 @@ from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio
 from django.contrib.auth.models import User
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3 (Parche): Lector optimizado'
+    help = 'Importa Fase 3: Parche Final'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -16,7 +16,7 @@ class Command(BaseCommand):
         in_insert = False
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f:
-                if line.startswith(f'INSERT INTO {table_name}'):
+                if line.startswith(f"INSERT INTO `{table_name}`"):
                     in_insert = True
                     continue
                 if in_insert:
@@ -55,7 +55,6 @@ class Command(BaseCommand):
                 
                 materia_dict = {}
                 for row in materias_rows:
-                    # Splitting by comma carefully avoiding inner strings is tough, simple split is enough for ID and Name
                     parts = row.split(',')
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
