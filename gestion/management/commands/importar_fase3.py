@@ -87,6 +87,7 @@ class Command(BaseCommand):
                             duplicate.delete()
                 
                 plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
+                  plan_locucion_2025 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
                 plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
                 plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
                 plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
@@ -190,7 +191,11 @@ class Command(BaseCommand):
                 if not user_julieta.password: user_julieta.set_password('39462473'); user_julieta.save()
                 alumno_julieta, _ = Alumno.objects.get_or_create(dni='39462473', defaults={'usuario': user_julieta, 'nombre': 'JULIETA JAZMIN', 'apellido': 'WHEELER', 'email': 'jwheeler@pioix.edu.ar'})
                 
-                for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella, alumno_martina, alumno_julieta]:
+                user_ignacio, _ = User.objects.get_or_create(username='47130185', defaults={'email': 'iwinkler@pioix.edu.ar', 'first_name': 'IGNACIO', 'last_name': 'WINKLER'})
+                if not user_ignacio.password: user_ignacio.set_password('47130185'); user_ignacio.save()
+                alumno_ignacio, _ = Alumno.objects.get_or_create(dni='47130185', defaults={'usuario': user_ignacio, 'nombre': 'IGNACIO', 'apellido': 'WINKLER', 'email': 'iwinkler@pioix.edu.ar'})
+                
+                for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella, alumno_martina, alumno_julieta, alumno_ignacio]:
                     if al:
                         if al == alumno_martina and plan_television:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_television, defaults={'estado': 'CURSANDO'})
@@ -201,6 +206,9 @@ class Command(BaseCommand):
                         elif al == alumno_isabella and plan_sistemas:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sistemas, defaults={'estado': 'CURSANDO'})
                             InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sistemas).delete()
+                        elif al == alumno_ignacio and plan_locucion_2025:
+                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion_2025, defaults={'estado': 'CURSANDO'})
+                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_locucion_2025).delete()
                         elif plan_locucion:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
                             InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_locucion).delete()
@@ -247,6 +255,7 @@ class Command(BaseCommand):
                         elif l_user_id == '2231' and alumno_isabella: al = alumno_isabella
                         elif l_user_id == '2127' and alumno_martina: al = alumno_martina
                         elif l_user_id == '1152' and alumno_julieta: al = alumno_julieta
+                        elif l_user_id == '2343' and alumno_ignacio: al = alumno_ignacio
                         
                         if al and l_materia_id in comision_dict:
                             estado_cursada = 'REG' 
