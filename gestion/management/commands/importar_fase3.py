@@ -47,9 +47,11 @@ class Command(BaseCommand):
             with transaction.atomic():
                 self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
                 
-                plan_default = PlanDeEstudio.objects.first()
-                if not plan_default:
-                    plan_default, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Default Histórico', activo=False)
+                # REPARACION DE ERROR DE PLAN DE ESTUDIOS
+                plan_historico, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Histórico (Migración)', defaults={'activo': False})
+                if plan_historico.activo:
+                    plan_historico.activo = False
+                    plan_historico.save()
 
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
@@ -69,7 +71,13 @@ class Command(BaseCommand):
                         m_name = parts[1].strip().strip("'")[:149]
                         m_obj = Materia.objects.filter(nombre=m_name).first()
                         if not m_obj:
-                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_default, año_dictado=1, cuatrimestre_dictado='AN')
+                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_historico, año_dictado=1, cuatrimestre_dictado='AN')
+                        else:
+                            # Asegurar que las materias migradas viejas esten en el plan historico y no ensucien Sistemas
+                            if m_obj.plan != plan_historico:
+                                m_obj.plan = plan_historico
+                                m_obj.save()
+                                
                         materia_dict[m_id] = m_obj
                         
                         c_obj, _ = Comision.objects.get_or_create(
@@ -97,10 +105,14 @@ class Command(BaseCommand):
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
                 
-                if alumno_dotti:
-                    InscripcionCarrera.objects.get_or_create(alumno=alumno_dotti, plan=plan_default, defaults={'estado': 'EGRESADO'})
-                if alumno_britos:
-                    InscripcionCarrera.objects.get_or_create(alumno=alumno_britos, plan=plan_default, defaults={'estado': 'EGRESADO'})
+                # Limpiar inscripcion a carrera incorrecta
+                for al in [alumno_dotti, alumno_britos]:
+                    if al:
+                        inscs_carrera = InscripcionCarrera.objects.filter(alumno=al)
+                        for ic in inscs_carrera:
+                            if ic.plan != plan_historico and 'Histórico' not in ic.plan.nombre:
+                                ic.delete()
+                        InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_historico, defaults={'estado': 'EGRESADO'})
                 
                 count_inscripciones = 0
                 count_finales = 0
@@ -129,16 +141,16 @@ class Command(BaseCommand):
                         elif l_user_id == '2226' and alumno_britos: al = alumno_britos
                         
                         if al and l_materia_id in comision_dict:
-                            estado_cursada = 'REG' # 10 u otros quedan como regulares
-                            if l_motivo_id in ['40', '95']:  # Aprobo cursada o debe final
+                            estado_cursada = 'REG' 
+                            if l_motivo_id in ['40', '95']:  
                                 estado_cursada = 'APR'
-                            elif l_motivo_id == '51': # Libre o dejo cursada
+                            elif l_motivo_id == '51': 
                                 estado_cursada = 'LIB'
-                            elif l_motivo_id == '90': # Aprobo asignatura
+                            elif l_motivo_id == '90': 
                                 if l_libro or l_folio:
-                                    estado_cursada = 'APR'  # Final, asi que cursada esta APR
+                                    estado_cursada = 'APR'  
                                 else:
-                                    estado_cursada = 'PROM' # Promocion directa
+                                    estado_cursada = 'PROM' 
                             
                             insc, created = Inscripcion.objects.get_or_create(
                                 alumno=al, 
