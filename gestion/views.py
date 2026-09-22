@@ -293,7 +293,7 @@ def legajo_alumno(request, alumno_id):
             'materia': insc.comision.materia,
             'tipo': 'Promoción',
             'nota': nota_val,
-            'fecha': insc.comision.fecha_fin or date.today(),
+            'fecha': insc.comision.fecha_fin or (nota_obj.fecha if nota_obj else insc.fecha_inscripcion),
             'detalle': f"Comisión: {insc.comision.ciclo_lectivo}"
         })
         
