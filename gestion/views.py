@@ -350,6 +350,11 @@ def legajo_alumno(request, alumno_id):
         else:
             fecha_fin_cursada = reg.comision.fecha_fin or reg.fecha_inscripcion
             
+        # Regla de Marzo
+        if fecha_fin_cursada and fecha_fin_cursada.month in [1, 2, 3]:
+            from datetime import date
+            fecha_fin_cursada = date(fecha_fin_cursada.year - 1, 12, 20)
+            
         fecha_vencimiento = sumar_anios(fecha_fin_cursada, 3)
         vencida_por_tiempo = hoy > fecha_vencimiento
         
@@ -1281,10 +1286,15 @@ def cargar_notas(request, comision_id):
                     
                     if nuevo_estado == 'APR':
                         import datetime
+                        fecha_base = datetime.date.today()
+                        # Regla de Marzo
+                        if fecha_base.month in [1, 2, 3]:
+                            fecha_base = datetime.date(fecha_base.year - 1, 12, 20)
+                        
                         try:
-                            venc = datetime.date.today().replace(year=datetime.date.today().year + 3)
+                            venc = fecha_base.replace(year=fecha_base.year + 3)
                         except ValueError:
-                            venc = datetime.date.today() + datetime.timedelta(days=365*3)
+                            venc = fecha_base + datetime.timedelta(days=365*3)
                         insc.vencimiento_cursada = venc
                         insc.chances_restantes = 10
                         
@@ -1895,6 +1905,11 @@ def inscribir_alumno_mesa(request, mesa_id):
                     fecha_fin_cursada = inscripcion_cursada.fecha_inscripcion
                 else:
                     fecha_fin_cursada = inscripcion_cursada.comision.fecha_fin or inscripcion_cursada.fecha_inscripcion
+                    
+                # Regla de Marzo
+                if fecha_fin_cursada and fecha_fin_cursada.month in [1, 2, 3]:
+                    from datetime import date
+                    fecha_fin_cursada = date(fecha_fin_cursada.year - 1, 12, 20)
                     
                 from datetime import timedelta
                 try:
