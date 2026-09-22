@@ -147,13 +147,19 @@ class Command(BaseCommand):
                 
                 libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
                 
-                user_dotti = User.objects.filter(username='33774806').first()
-                alumno_dotti = Alumno.objects.filter(dni='33774806').first()
+                user_dotti, _ = User.objects.get_or_create(username='33774806', defaults={'email': 'fdotti@pioix.edu.ar', 'first_name': 'FERNANDO', 'last_name': 'DOTTI'})
+                alumno_dotti, _ = Alumno.objects.get_or_create(dni='33774806', defaults={'usuario': user_dotti, 'nombre': 'FERNANDO', 'apellido': 'DOTTI'})
                 
-                user_britos = User.objects.filter(username='44363997').first()
-                alumno_britos = Alumno.objects.filter(dni='44363997').first()
+                user_britos, _ = User.objects.get_or_create(username='44363997', defaults={'email': 'vbritos@pioix.edu.ar', 'first_name': 'VICTORIA', 'last_name': 'BRITOS'})
+                alumno_britos, _ = Alumno.objects.get_or_create(dni='44363997', defaults={'usuario': user_britos, 'nombre': 'VICTORIA', 'apellido': 'BRITOS'})
                 
-                for al in [alumno_dotti, alumno_britos]:
+                user_micieli, _ = User.objects.get_or_create(username='30149595', defaults={'email': 'dmicieli@pioix.edu.ar', 'first_name': 'ESTEFANIA', 'last_name': 'MICIELI'})
+                if not user_micieli.password:
+                    user_micieli.set_password('30149595')
+                    user_micieli.save()
+                alumno_micieli, _ = Alumno.objects.get_or_create(dni='30149595', defaults={'usuario': user_micieli, 'nombre': 'ESTEFANIA', 'apellido': 'MICIELI', 'email': 'dmicieli@pioix.edu.ar'})
+                
+                for al in [alumno_dotti, alumno_britos, alumno_micieli]:
                     if al and plan_locucion:
                         InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
                         InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
@@ -195,6 +201,7 @@ class Command(BaseCommand):
                         al = None
                         if l_user_id == '2080' and alumno_dotti: al = alumno_dotti
                         elif l_user_id == '2226' and alumno_britos: al = alumno_britos
+                        elif l_user_id == '2255' and alumno_micieli: al = alumno_micieli
                         
                         if al and l_materia_id in comision_dict:
                             estado_cursada = 'REG' 
