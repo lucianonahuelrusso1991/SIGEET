@@ -352,8 +352,8 @@ def legajo_alumno(request, alumno_id):
             
         # Regla de Marzo
         if fecha_fin_cursada and fecha_fin_cursada.month in [1, 2, 3]:
-            from datetime import date
-            fecha_fin_cursada = date(fecha_fin_cursada.year - 1, 12, 20)
+            import datetime
+            fecha_fin_cursada = datetime.date(fecha_fin_cursada.year - 1, 12, 20)
             
         fecha_vencimiento = sumar_anios(fecha_fin_cursada, 3)
         vencida_por_tiempo = hoy > fecha_vencimiento
@@ -1908,8 +1908,8 @@ def inscribir_alumno_mesa(request, mesa_id):
                     
                 # Regla de Marzo
                 if fecha_fin_cursada and fecha_fin_cursada.month in [1, 2, 3]:
-                    from datetime import date
-                    fecha_fin_cursada = date(fecha_fin_cursada.year - 1, 12, 20)
+                    import datetime
+                    fecha_fin_cursada = datetime.date(fecha_fin_cursada.year - 1, 12, 20)
                     
                 from datetime import timedelta
                 try:
