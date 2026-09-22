@@ -96,11 +96,16 @@ def dashboard(request):
                 'porcentaje_avance': round(porcentaje_avance, 1)
             })
         
+        # Extraer IDs de materias ya acreditadas
+        materias_acreditadas_ids = list(alumno.equivalencias.values_list('materia_id', flat=True)) +                                    list(alumno.inscripciones.filter(estado='PROM').values_list('comision__materia_id', flat=True)) +                                    list(alumno.mesas_inscriptas.filter(estado='APR').values_list('mesa__materia_id', flat=True))
+                                   
         # Materias cursando
-        cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+        cursando_raw = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+        cursando = [c for c in cursando_raw if c.comision.materia_id not in materias_acreditadas_ids]
         
         # Materias regularizadas (aprobada la cursada, debe el final)
-        cursadas_aprobadas = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
+        cursadas_aprobadas_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
+        cursadas_aprobadas = [c for c in cursadas_aprobadas_raw if c.comision.materia_id not in materias_acreditadas_ids]
         
         from .models import SolicitudTramite, Materia
         tramites = SolicitudTramite.objects.filter(alumno=alumno).order_by('-fecha_solicitud')
@@ -312,11 +317,18 @@ def legajo_alumno(request, alumno_id):
     # Ordenar acreditadas por fecha descendente
     acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
     
+    # Extraer IDs de materias ya acreditadas
+    materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a.get('materia')]
+
     # 3. Cursando (Activas)
-    cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+    # Excluir materias que ya fueron acreditadas
+    cursando_raw = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+    cursando = [c for c in cursando_raw if c.comision.materia.id not in materias_acreditadas_ids]
     
     # 4. Regulares (Final Pendiente) y Libres/Recursar
-    regulares_db = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
+    regulares_db_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
+    regulares_db = [r for r in regulares_db_raw if r.comision.materia.id not in materias_acreditadas_ids]
+    
     libres_db = list(alumno.inscripciones.filter(estado='LIB'))
     
     regulares = []
@@ -360,7 +372,7 @@ def legajo_alumno(request, alumno_id):
             regulares.append(item)
             
     # 5. Materias Pendientes (General)
-    materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a['materia']]
+    
     todas_materias = Materia.objects.filter(plan__in=alumno.carreras.filter(activo=True)).order_by('año_dictado', 'nombre').distinct() if alumno.carreras.exists() else []
     pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids]
     
