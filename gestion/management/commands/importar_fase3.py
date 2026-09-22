@@ -241,18 +241,20 @@ class Command(BaseCommand):
                             
                             if l_motivo_id == '90':
                                 if l_libro or l_folio:
-                                    mesa_act = mesa_dict[l_materia_id]
+                                    # Para que no compartan la misma fecha los que rindieron distintos dias
+                                    mesa_fecha = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0))) if fecha_final else fecha_historica
+                                    
+                                    mesa_act, _ = MesaExamen.objects.get_or_create(
+                                        materia=c_act.materia,
+                                        fecha_hora=mesa_fecha,
+                                        defaults={'ciclo_lectivo': 1900, 'turno': 'ESPECIAL', 'cerrada': True}
+                                    )
                                     if l_libro and not mesa_act.libro:
                                         mesa_act.libro = l_libro[:49]
                                         mesa_act.save()
                                     if l_folio and not mesa_act.folio:
                                         mesa_act.folio = l_folio[:49]
                                         mesa_act.save()
-                                        
-                                    if fecha_final:
-                                        if mesa_act.fecha_hora.date() == timezone.now().date():
-                                            mesa_act.fecha_hora = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0)))
-                                            mesa_act.save()
                                         
                                     InscripcionMesa.objects.get_or_create(
                                         alumno=al, 
