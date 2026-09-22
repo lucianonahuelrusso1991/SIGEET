@@ -121,7 +121,7 @@
     <!-- Métricas KPIs -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
-            <div class="card bg-primary text-white shadow h-100 border-0 rounded-4">
+            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-primary) !important;">
                 <div class="card-body text-center">
                     <h1 class="display-4 fw-bold mb-0">{{ porcentaje_avance }}%</h1>
                     <p class="fs-5 mb-0">Carrera Completada</p>
@@ -132,7 +132,7 @@
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card bg-success text-white shadow h-100 border-0 rounded-4">
+            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-success) !important;">
                 <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h1 class="display-4 fw-bold mb-0">{{ total_acreditadas }}</h1>
                     <p class="fs-5 mb-0">Materias Acreditadas</p>
@@ -140,7 +140,7 @@
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card bg-secondary text-white shadow h-100 border-0 rounded-4">
+            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-secondary) !important;">
                 <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h1 class="display-4 fw-bold mb-0">{{ materias_faltantes }}</h1>
                     <p class="fs-5 mb-0">Materias Restantes</p>
@@ -166,9 +166,7 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link text-danger" id="pendientes-gral-tab" data-bs-toggle="tab" data-bs-target="#pendientes-gral" type="button" role="tab"><i class="bi bi-journal-x"></i> Materias Pendientes</button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-danger" id="recursar-tab" data-bs-toggle="tab" data-bs-target="#recursar" type="button" role="tab"><i class="bi bi-exclamation-triangle"></i> A Recursar / Vencidas</button>
-        </li>
+        
     </ul>
 
     <!-- Tab panes -->
