@@ -61,6 +61,8 @@ class Command(BaseCommand):
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
                 InscripcionMesa.objects.all().delete()
+                MesaExamen.objects.filter(ciclo_lectivo=1900).delete()
+                Comision.objects.filter(ciclo_lectivo=1900).delete()
                 
                 # ELIMINAR DUPLICADOS EN MAYUSCULA (Fuzzy Match)
                 self.stdout.write('Limpiando Materias duplicadas en mayuscula...')
@@ -133,18 +135,14 @@ class Command(BaseCommand):
                         materia_dict[m_id] = m_obj
                         
                         # Usar 1900 para que el template sepa que es historica y muestre el año de la fecha real
-                        c_obj, _ = Comision.objects.get_or_create(
-                            materia=m_obj,
-                            ciclo_lectivo=1900,
-                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': False}
-                        )
+                        c_obj = Comision.objects.filter(materia=m_obj, ciclo_lectivo=1900).first()
+                        if not c_obj:
+                            c_obj = Comision.objects.create(materia=m_obj, ciclo_lectivo=1900, cuatrimestre='AN', tipo_aprobacion='FIN', modalidad='P', cerrada=False)
                         comision_dict[m_id] = c_obj
                         
-                        mesa_obj, _ = MesaExamen.objects.get_or_create(
-                            materia=m_obj,
-                            ciclo_lectivo=1900,
-                            defaults={'turno': 'ESPECIAL', 'fecha_hora': fecha_historica, 'cerrada': True}
-                        )
+                        mesa_obj = MesaExamen.objects.filter(materia=m_obj, ciclo_lectivo=1900).first()
+                        if not mesa_obj:
+                            mesa_obj = MesaExamen.objects.create(materia=m_obj, ciclo_lectivo=1900, turno='ESPECIAL', fecha_hora=fecha_historica, cerrada=True)
                         mesa_dict[m_id] = mesa_obj
                 
                 libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
@@ -244,11 +242,9 @@ class Command(BaseCommand):
                                     # Para que no compartan la misma fecha los que rindieron distintos dias
                                     mesa_fecha = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0))) if fecha_final else fecha_historica
                                     
-                                    mesa_act, _ = MesaExamen.objects.get_or_create(
-                                        materia=c_act.materia,
-                                        fecha_hora=mesa_fecha,
-                                        defaults={'ciclo_lectivo': 1900, 'turno': 'ESPECIAL', 'cerrada': True}
-                                    )
+                                    mesa_act = MesaExamen.objects.filter(materia=c_act.materia, fecha_hora=mesa_fecha, ciclo_lectivo=1900).first()
+                                    if not mesa_act:
+                                        mesa_act = MesaExamen.objects.create(materia=c_act.materia, fecha_hora=mesa_fecha, ciclo_lectivo=1900, turno='ESPECIAL', cerrada=True)
                                     if l_libro and not mesa_act.libro:
                                         mesa_act.libro = l_libro[:49]
                                         mesa_act.save()
