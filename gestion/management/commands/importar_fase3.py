@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3 (Estructura Comision/Materia)'
+    help = 'Importa Fase 3: Parche Final 4'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -41,7 +41,6 @@ class Command(BaseCommand):
         sql_file = options['sql_file']
         
         try:
-            # Desconectar signal temporalmente
             post_save.disconnect(sync_inscripcion_classroom, sender=Inscripcion)
             
             with transaction.atomic():
@@ -70,8 +69,8 @@ class Command(BaseCommand):
                         
                         c_obj, _ = Comision.objects.get_or_create(
                             materia=m_obj,
-                            codigo='HIST',
-                            defaults={'anio_lectivo': 2026, 'cupo_maximo': 100}
+                            ciclo_lectivo=1900,
+                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P'}
                         )
                         comision_dict[m_id] = c_obj
                 
@@ -115,5 +114,4 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
         finally:
-            # Reconectar signal
             post_save.connect(sync_inscripcion_classroom, sender=Inscripcion)
