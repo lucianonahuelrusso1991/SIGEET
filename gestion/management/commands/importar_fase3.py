@@ -196,14 +196,23 @@ class Command(BaseCommand):
                 alumno_ignacio, _ = Alumno.objects.get_or_create(dni='47130185', defaults={'usuario': user_ignacio, 'nombre': 'IGNACIO', 'apellido': 'WINKLER', 'email': 'iwinkler@pioix.edu.ar'})
                 
                 
+                import csv
+                from io import StringIO
                 self.stdout.write('Enriqueciendo legajos con datos personales (Fase 3b)...')
                 users_rows = self.parse_sql_lines(sql_file, 'users')
-                for parts in users_rows:
+                for row_str in users_rows:
+                    f_csv = StringIO(row_str)
+                    reader = csv.reader(f_csv, delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\')
+                    try:
+                        parts = next(reader)
+                    except:
+                        continue
+                        
                     if len(parts) > 13:
-                        l_dni = parts[4].strip("'")
-                        l_tel = parts[7].strip("'").strip('"') if parts[7] != 'NULL' else None
-                        l_dir = parts[9].strip("'").strip('"') if parts[9] != 'NULL' else None
-                        l_nac = parts[13].strip("'").strip('"') if parts[13] != 'NULL' else None
+                        l_dni = parts[4]
+                        l_tel = parts[7] if parts[7] != 'NULL' else None
+                        l_dir = parts[9] if parts[9] != 'NULL' else None
+                        l_nac = parts[13] if parts[13] != 'NULL' else None
                         
                         if l_dni in ['33774806', '44363997', '30149595', '46027726', '7766086', '42649322', '37687214', '39462473', '47130185']:
                             alumno = Alumno.objects.filter(dni=l_dni).first()
