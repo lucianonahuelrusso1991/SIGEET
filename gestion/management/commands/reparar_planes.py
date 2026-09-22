@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 recuperadas_25 = 0
                 for hm in Materia.objects.filter(plan=plan_hist, id__gte=747):
                     n_norm = normalize(hm.nombre)
-                    if "locucion" in n_norm or "radio" in n_norm or "podcast" in n_norm or "doblaje" in n_norm or "edi" in n_norm:
+                    if "locucion" in n_norm or "radio" in n_norm or "podcast" in n_norm or "doblaje" in n_norm or "edi" in n_norm or "conduccion" in n_norm or hm.id >= 785:
                         hm.plan = plan_loc25
                         hm.save()
                         recuperadas_25 += 1
