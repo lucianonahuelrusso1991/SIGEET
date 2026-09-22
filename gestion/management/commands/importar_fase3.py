@@ -89,7 +89,7 @@ class Command(BaseCommand):
                 plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
                 plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
                 plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
-                  plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
+                plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
                 
                 map_carrera = {
                     '16': plan_locucion or plan_historico,
