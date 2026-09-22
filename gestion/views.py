@@ -1467,7 +1467,7 @@ def alta_evento_calendario(request):
 def calendario_alumno(request, alumno_id):
     alumno = get_object_or_404(Alumno, id=alumno_id)
     # Comisiones a las que está inscripto
-    inscripciones = Inscripcion.objects.filter(alumno=alumno, estado='REG')
+    inscripciones = Inscripcion.objects.filter(alumno=alumno, estado__in=['REG', 'APR', 'PROM'])
     comisiones_ids = inscripciones.values_list('comision_id', flat=True)
     
     from .models import HorarioComision
@@ -1815,7 +1815,7 @@ def inscribir_alumno_mesa(request, mesa_id):
     inscripciones_validas = Inscripcion.objects.filter(
         comision__materia=mesa.materia,
         comision__cerrada=True,
-        estado='REG'
+        estado__in=['REG', 'APR']
     )
     alumnos_ids_cursada = inscripciones_validas.values_list('alumno_id', flat=True)
     
@@ -1907,7 +1907,7 @@ def inscribir_alumno_mesa(request, mesa_id):
                 if tipo == 'APR' and not cumple_aprobado:
                     errores_validacion.append(f"Falta FINAL APROBADO de correlativa: {req_mat.nombre}.")
                 elif tipo == 'CUR' and not cumple_aprobado:
-                    tiene_reg = alumno.inscripciones.filter(comision__materia=req_mat, estado='REG').exists()
+                    tiene_reg = alumno.inscripciones.filter(comision__materia=req_mat, estado__in=['REG', 'APR', 'PROM']).exists()
                     if not tiene_reg:
                         errores_validacion.append(f"Falta CURSADA REGULAR de correlativa: {req_mat.nombre}.")
 
