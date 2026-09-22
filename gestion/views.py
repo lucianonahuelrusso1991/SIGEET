@@ -97,10 +97,10 @@ def dashboard(request):
             })
         
         # Materias cursando
-        cursando = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False)
+        cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
         
         # Materias regularizadas (aprobada la cursada, debe el final)
-        cursadas_aprobadas = alumno.inscripciones.filter(estado='APR')
+        cursadas_aprobadas = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
         
         from .models import SolicitudTramite, Materia
         tramites = SolicitudTramite.objects.filter(alumno=alumno).order_by('-fecha_solicitud')
