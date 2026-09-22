@@ -169,7 +169,13 @@ class Command(BaseCommand):
                     user_rivas.save()
                 alumno_rivas, _ = Alumno.objects.get_or_create(dni='46027726', defaults={'usuario': user_rivas, 'nombre': 'AGUSTINA', 'apellido': 'RIVAS', 'email': 'arivas@pioix.edu.ar'})
                 
-                for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas]:
+                user_carlos, _ = User.objects.get_or_create(username='7766086', defaults={'email': 'carlosfernandez@pioix.edu.ar', 'first_name': 'CARLOS ALBERTO', 'last_name': 'FERNANDEZ'})
+                if not user_carlos.password:
+                    user_carlos.set_password('7766086')
+                    user_carlos.save()
+                alumno_carlos, _ = Alumno.objects.get_or_create(dni='7766086', defaults={'usuario': user_carlos, 'nombre': 'CARLOS ALBERTO', 'apellido': 'FERNANDEZ', 'email': 'carlosfernandez@pioix.edu.ar'})
+                
+                for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos]:
                     if al and plan_locucion:
                         InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
                         InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
@@ -213,6 +219,7 @@ class Command(BaseCommand):
                         elif l_user_id == '2226' and alumno_britos: al = alumno_britos
                         elif l_user_id == '2255' and alumno_micieli: al = alumno_micieli
                         elif l_user_id == '2105' and alumno_rivas: al = alumno_rivas
+                        elif l_user_id == '2241' and alumno_carlos: al = alumno_carlos
                         
                         if al and l_materia_id in comision_dict:
                             estado_cursada = 'REG' 
