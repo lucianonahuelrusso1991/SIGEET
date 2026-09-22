@@ -1268,10 +1268,11 @@ def cargar_notas(request, comision_id):
                     insc.estado = nuevo_estado
                     
                     if nuevo_estado == 'APR':
+                        import datetime
                         try:
-                                venc = datetime.date.today().replace(year=datetime.date.today().year + 3)
-                            except ValueError:
-                                venc = datetime.date.today() + datetime.timedelta(days=365*3)
+                            venc = datetime.date.today().replace(year=datetime.date.today().year + 3)
+                        except ValueError:
+                            venc = datetime.date.today() + datetime.timedelta(days=365*3)
                         insc.vencimiento_cursada = venc
                         insc.chances_restantes = 10
                         
