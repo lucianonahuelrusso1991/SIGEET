@@ -1,11 +1,13 @@
 ﻿import os
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio
+from django.db.models.signals import post_save
+from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision
 from django.contrib.auth.models import User
+from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3'
+    help = 'Importa Fase 3 (Estructura Comision/Materia)'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -39,6 +41,9 @@ class Command(BaseCommand):
         sql_file = options['sql_file']
         
         try:
+            # Desconectar signal temporalmente
+            post_save.disconnect(sync_inscripcion_classroom, sender=Inscripcion)
+            
             with transaction.atomic():
                 self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
                 
@@ -51,6 +56,8 @@ class Command(BaseCommand):
                 
                 materias_rows = self.parse_sql_lines(sql_file, 'materias')
                 materia_dict = {}
+                comision_dict = {}
+                
                 for row in materias_rows:
                     parts = row.split(',')
                     if len(parts) >= 2:
@@ -60,6 +67,13 @@ class Command(BaseCommand):
                         if not m_obj:
                             m_obj = Materia.objects.create(nombre=m_name, plan=plan_default, año_dictado=1, cuatrimestre_dictado='AN')
                         materia_dict[m_id] = m_obj
+                        
+                        c_obj, _ = Comision.objects.get_or_create(
+                            materia=m_obj,
+                            codigo='HIST',
+                            defaults={'anio_lectivo': 2026, 'cupo_maximo': 100}
+                        )
+                        comision_dict[m_id] = c_obj
                 
                 self.stdout.write(f'Materias registradas/vinculadas: {len(materia_dict)}')
                 
@@ -81,15 +95,15 @@ class Command(BaseCommand):
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
                         
-                        if l_user_id == '2080' and alumno_dotti and l_materia_id in materia_dict:
-                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_dotti, materia=materia_dict[l_materia_id], defaults={'estado': 'Regular'})
+                        if l_user_id == '2080' and alumno_dotti and l_materia_id in comision_dict:
+                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_dotti, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
                             count_inscripciones += 1
                             if l_motivo_id in ['40', '41', '90', '95']:
                                 Nota.objects.get_or_create(inscripcion=insc, tipo='Final', defaults={'calificacion': 7})
                                 count_notas += 1
                                 
-                        if l_user_id == '2226' and alumno_britos and l_materia_id in materia_dict:
-                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_britos, materia=materia_dict[l_materia_id], defaults={'estado': 'Regular'})
+                        if l_user_id == '2226' and alumno_britos and l_materia_id in comision_dict:
+                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_britos, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
                             count_inscripciones += 1
                             if l_motivo_id in ['40', '41', '90', '95']:
                                 Nota.objects.get_or_create(inscripcion=insc, tipo='Final', defaults={'calificacion': 8})
@@ -100,3 +114,6 @@ class Command(BaseCommand):
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
+        finally:
+            # Reconectar signal
+            post_save.connect(sync_inscripcion_classroom, sender=Inscripcion)
