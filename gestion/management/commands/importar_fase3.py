@@ -2,12 +2,12 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models.signals import post_save
-from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision
+from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera
 from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3: Parche Final 5'
+    help = 'Importa Fase 3'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -83,6 +83,12 @@ class Command(BaseCommand):
                 
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
+                
+                # Enroll them in the career so it shows up in their dashboard
+                if alumno_dotti:
+                    InscripcionCarrera.objects.get_or_create(alumno=alumno_dotti, plan=plan_default, defaults={'estado': 'EGRESADO'})
+                if alumno_britos:
+                    InscripcionCarrera.objects.get_or_create(alumno=alumno_britos, plan=plan_default, defaults={'estado': 'EGRESADO'})
                 
                 count_inscripciones = 0
                 count_notas = 0
