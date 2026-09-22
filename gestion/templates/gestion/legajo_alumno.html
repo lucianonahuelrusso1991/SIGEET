@@ -259,7 +259,13 @@
                             {% for reg in regulares %}
                                 <tr>
                                     <td class="fw-bold">{{ reg.materia.nombre }}</td>
-                                    <td class="text-muted">{{ reg.inscripcion.comision.ciclo_lectivo }}</td>
+                                    <td class="text-muted">
+                                          {% if reg.inscripcion.comision.ciclo_lectivo == 1900 %}
+                                              {{ reg.inscripcion.fecha_inscripcion.year }}
+                                          {% else %}
+                                              {{ reg.inscripcion.comision.ciclo_lectivo }}
+                                          {% endif %}
+                                      </td>
                                     <td class="text-center">
                                         <span class="badge {% if reg.intentos == 0 %}bg-success{% elif reg.intentos == 1 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
                                             {{ reg.intentos }} / 3
