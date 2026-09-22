@@ -1,29 +1,39 @@
 ﻿import os
-import re
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.db import transaction
-# Disable signals safely by not importing or triggering specific creation flows if possible
 from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio
 from django.contrib.auth.models import User
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3: Eliminación de prueba, Materias Viejas y Notas Reales'
+    help = 'Importa Fase 3 (Parche): Lector optimizado'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
 
-    def parse_sql_values(self, content, table_name):
-        pattern = rf'INSERT INTO {table_name}.*?VALUES\s*(.*?);'
-        matches = re.findall(pattern, content, re.IGNORECASE | re.DOTALL)
+    def parse_sql_lines(self, file_path, table_name):
         rows = []
-        for match in matches:
-            tuples = match.split('),')
-            for t in tuples:
-                t = t.strip()
-                if t.startswith('('): t = t[1:]
-                if t.endswith(')'): t = t[:-1]
-                if t: rows.append(t)
+        in_insert = False
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            for line in f:
+                if line.startswith(f'INSERT INTO {table_name}'):
+                    in_insert = True
+                    continue
+                if in_insert:
+                    line = line.strip()
+                    if line.endswith(';'):
+                        if line != ';':
+                            row = line[:-1].strip()
+                            if row.startswith('('): row = row[1:]
+                            if row.endswith(')'): row = row[:-1]
+                            rows.append(row)
+                        in_insert = False
+                    elif line.endswith(','):
+                        if line != ',':
+                            row = line[:-1].strip()
+                            if row.startswith('('): row = row[1:]
+                            if row.endswith(')'): row = row[:-1]
+                            rows.append(row)
         return rows
 
     def handle(self, *args, **options):
@@ -31,29 +41,21 @@ class Command(BaseCommand):
         if not os.path.exists(sql_file):
             self.stdout.write(self.style.ERROR('No se encontró el archivo.'))
             return
-            
-        with open(sql_file, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
 
         try:
             with transaction.atomic():
                 self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
                 
                 self.stdout.write('1. Limpiando datos de prueba (manteniendo Planes Activos)...')
-                # Wipe old dummy Materias and Inscripciones to avoid clashes
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
-                # We do not delete PlanDeEstudio to preserve the 5 active ones
                 
                 self.stdout.write('2. Importando 925 Materias (sin crear aulas virtuales)...')
-                materias_rows = self.parse_sql_values(content, 'materias')
+                materias_rows = self.parse_sql_lines(sql_file, 'materias')
                 
-                # We extract ID and Name to create Materias
-                # Format: (1, 'INTRODUCCION A LA FILOSOFIA', ...)
                 materia_dict = {}
-                plan_default = PlanDeEstudio.objects.first()
-                
                 for row in materias_rows:
+                    # Splitting by comma carefully avoiding inner strings is tough, simple split is enough for ID and Name
                     parts = row.split(',')
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
@@ -64,9 +66,8 @@ class Command(BaseCommand):
                 self.stdout.write(f'Materias registradas: {len(materia_dict)}')
                 
                 self.stdout.write('3. Mapeando 32.250 Libretas y Notas...')
-                libretas_rows = self.parse_sql_values(content, 'libretas')
+                libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
                 
-                # Fetching our sample users to map data correctly
                 user_dotti = User.objects.filter(username='33774806').first()
                 alumno_dotti = Alumno.objects.filter(dni='33774806').first()
                 
@@ -83,7 +84,6 @@ class Command(BaseCommand):
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
                         
-                        # Just inserting the ones that match our sample imported students for safety
                         if l_user_id == '2080' and alumno_dotti and l_materia_id in materia_dict:
                             insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_dotti, materia=materia_dict[l_materia_id], defaults={'estado': 'Regular'})
                             count_inscripciones += 1
@@ -100,7 +100,6 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f'>> Procesadas y limpiadas las materias.'))
                 self.stdout.write(self.style.SUCCESS(f'>> Inyectadas inscripciones y notas para el lote actual ({count_inscripciones} inscripciones, {count_notas} finales).'))
-                
                 self.stdout.write(self.style.SUCCESS('--- MIGRACIÓN FASE 3 FINALIZADA CON ÉXITO ---'))
                 
         except Exception as e:
