@@ -1,6 +1,6 @@
 import os
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sigeet.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sistema_escolar.settings")
 django.setup()
 
 from gestion.models import Alumno, Materia, PlanDeEstudio, InscripcionCarrera
@@ -18,6 +18,7 @@ else:
     plan_sis = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
     if plan_sis:
         print(f"Plan: {plan_sis.nombre}")
+        print("Materias:")
         for m in Materia.objects.filter(plan=plan_sis).order_by('nombre'):
             print(f"  - {m.nombre}")
     else:
