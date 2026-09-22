@@ -1877,9 +1877,17 @@ def inscribir_alumno_mesa(request, mesa_id):
                 if intentos >= 3:
                     errores_validacion.append("Ha agotado los 3 intentos para rendir este final.")
                     
-                # Tiempo (3 años)
-                fecha_fin_cursada = inscripcion_cursada.comision.fecha_fin or inscripcion_cursada.fecha_inscripcion
-                fecha_vencimiento = date(fecha_fin_cursada.year + 3, 12, 31)
+                # Tiempo (3 años exactos)
+                if inscripcion_cursada.comision.ciclo_lectivo == 1900:
+                    fecha_fin_cursada = inscripcion_cursada.fecha_inscripcion
+                else:
+                    fecha_fin_cursada = inscripcion_cursada.comision.fecha_fin or inscripcion_cursada.fecha_inscripcion
+                    
+                from datetime import timedelta
+                try:
+                    fecha_vencimiento = fecha_fin_cursada.replace(year=fecha_fin_cursada.year + 3)
+                except ValueError:
+                    fecha_vencimiento = fecha_fin_cursada + timedelta(days=365 * 3)
                     
                 if date.today() > fecha_vencimiento:
                     errores_validacion.append("Se han vencido los 3 años de regularidad para rendir el final.")
