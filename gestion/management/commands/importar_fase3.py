@@ -95,9 +95,10 @@ class Command(BaseCommand):
                 map_carrera = {
                     '16': plan_locucion or plan_historico,
                     '8': plan_locucion or plan_historico,
+                    '24': plan_locucion_2025 or plan_historico,
                     '17': plan_television or plan_historico,
-                    '18': plan_sistemas or plan_historico,
-                    '1': plan_sistemas or plan_historico,
+                    '9': plan_sagradas or plan_historico,
+                    '13': plan_sistemas or plan_historico,
                 }
                 
                 cm_rows = self.parse_sql_lines(sql_file, 'carreras_materias')
