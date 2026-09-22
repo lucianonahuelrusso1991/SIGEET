@@ -322,11 +322,8 @@ def legajo_alumno(request, alumno_id):
     regulares = []
     recursar = libres_db.copy()
     
-        def sumar_anios(d, anios):
-        # El vencimiento es el último turno del año correspondiente (ej: 31 de marzo del año siguiente al 3er año, o 31 de diciembre)
-        # Ajustamos al 31 de Diciembre del 3er año por defecto, o 31 de Marzo del 4to. 
-        # La convención general para "3 años de validez" si cursó en 2020, vence a fines de 2023 (o turno mar 2024).
-        # Vamos a poner 31 de Diciembre del año (d.year + anios).
+    def sumar_anios(d, anios):
+        # El vencimiento es el último turno del año correspondiente
         from datetime import date
         return date(d.year + anios, 12, 31)
             
