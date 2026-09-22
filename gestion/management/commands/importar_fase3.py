@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3'
+    help = 'Importa Fase 3 Final y Notas Reales'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -45,7 +45,7 @@ class Command(BaseCommand):
             post_save.disconnect(sync_inscripcion_classroom, sender=Inscripcion)
             
             with transaction.atomic():
-                self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
+                self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 CON NOTAS REALES ---'))
                 
                 plan_default = PlanDeEstudio.objects.first()
                 if not plan_default:
@@ -63,7 +63,8 @@ class Command(BaseCommand):
                 fecha_historica = timezone.now()
                 
                 for row in materias_rows:
-                    parts = row.split(',')
+                    # Diviendo cuidando por comas simples
+                    parts = row.split("','") if "','".__contains__(row) else row.split(',')
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
                         m_name = parts[1].strip().strip("'")[:149]
@@ -86,8 +87,6 @@ class Command(BaseCommand):
                         )
                         mesa_dict[m_id] = mesa_obj
                 
-                self.stdout.write(f'Materias registradas/vinculadas: {len(materia_dict)}')
-                
                 libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
                 
                 user_dotti = User.objects.filter(username='33774806').first()
@@ -105,18 +104,29 @@ class Command(BaseCommand):
                 count_finales = 0
                 
                 for row in libretas_rows:
+                    # En libretas no solemos tener comas dentro del texto salvo quiza lugar
                     parts = row.split(',')
-                    if len(parts) > 5:
+                    if len(parts) > 15:
                         l_materia_id = parts[2].strip()
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
+                        
+                        l_calif_raw = parts[9].strip().strip("'")
+                        try:
+                            nota_real = int(l_calif_raw)
+                        except ValueError:
+                            nota_real = 7 # Promedio por si era NULL y aprobo
+                            
+                        l_libro = parts[13].strip().strip("'")
+                        l_folio = parts[14].strip().strip("'")
+                        if l_libro == 'NULL': l_libro = ''
+                        if l_folio == 'NULL': l_folio = ''
                         
                         al = None
                         if l_user_id == '2080' and alumno_dotti: al = alumno_dotti
                         elif l_user_id == '2226' and alumno_britos: al = alumno_britos
                         
                         if al and l_materia_id in comision_dict:
-                            # 40 = Aprobo Cursada, 90 = Aprobo Final, 95 = Debe Final, 10 = Cursa
                             estado_cursada = 'REG'
                             if l_motivo_id in ['40', '90', '95']:
                                 estado_cursada = 'APR'
@@ -126,23 +136,29 @@ class Command(BaseCommand):
                                 comision=comision_dict[l_materia_id], 
                                 defaults={'estado': estado_cursada}
                             )
-                            # Si ya existia pero encontramos un motivo superior, actualizarlo
                             if not created and estado_cursada == 'APR' and insc.estado != 'APR':
                                 insc.estado = 'APR'
                                 insc.save()
                                 
                             count_inscripciones += 1
                             
-                            if l_motivo_id == '90':  # Aprobó la asignatura
+                            if l_motivo_id == '90':  
+                                mesa_act = mesa_dict[l_materia_id]
+                                if l_libro and not mesa_act.libro:
+                                    mesa_act.libro = l_libro[:49]
+                                    mesa_act.save()
+                                if l_folio and not mesa_act.folio:
+                                    mesa_act.folio = l_folio[:49]
+                                    mesa_act.save()
+                                    
                                 InscripcionMesa.objects.get_or_create(
                                     alumno=al, 
-                                    mesa=mesa_dict[l_materia_id], 
-                                    defaults={'nota_final': 7, 'estado': 'APR'}
+                                    mesa=mesa_act, 
+                                    defaults={'nota_final': nota_real, 'estado': 'APR'}
                                 )
                                 count_finales += 1
 
-                self.stdout.write(self.style.SUCCESS(f'>> Procesadas y limpiadas las materias.'))
-                self.stdout.write(self.style.SUCCESS(f'>> Inyectadas inscripciones y notas para el lote actual ({count_inscripciones} inscripciones, {count_finales} finales reales).'))
+                self.stdout.write(self.style.SUCCESS(f'>> Notas reales procesadas. Total: {count_inscripciones} inscripciones, {count_finales} actas de final.'))
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
