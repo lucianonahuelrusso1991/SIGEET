@@ -3,12 +3,13 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.utils import timezone
+import datetime
 from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera, MesaExamen, InscripcionMesa
 from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3 Final y Distingue Promociones'
+    help = 'Importa Fase 3 Final - Ajustando Fechas Históricas Reales'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -47,7 +48,6 @@ class Command(BaseCommand):
             with transaction.atomic():
                 self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
                 
-                # REPARACION DE ERROR DE PLAN DE ESTUDIOS
                 plan_historico, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Histórico (Migración)', defaults={'activo': False})
                 if plan_historico.activo:
                     plan_historico.activo = False
@@ -73,7 +73,6 @@ class Command(BaseCommand):
                         if not m_obj:
                             m_obj = Materia.objects.create(nombre=m_name, plan=plan_historico, año_dictado=1, cuatrimestre_dictado='AN')
                         else:
-                            # Asegurar que las materias migradas viejas esten en el plan historico y no ensucien Sistemas
                             if m_obj.plan != plan_historico:
                                 m_obj.plan = plan_historico
                                 m_obj.save()
@@ -105,7 +104,6 @@ class Command(BaseCommand):
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
                 
-                # Limpiar inscripcion a carrera incorrecta
                 for al in [alumno_dotti, alumno_britos]:
                     if al:
                         inscs_carrera = InscripcionCarrera.objects.filter(alumno=al)
@@ -114,6 +112,13 @@ class Command(BaseCommand):
                                 ic.delete()
                         InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_historico, defaults={'estado': 'EGRESADO'})
                 
+                def str_to_date(d_str):
+                    if not d_str or d_str == 'NULL' or len(d_str) < 10: return None
+                    try:
+                        return datetime.datetime.strptime(d_str[:10], '%Y-%m-%d').date()
+                    except:
+                        return None
+                        
                 count_inscripciones = 0
                 count_finales = 0
                 count_promociones = 0
@@ -124,6 +129,11 @@ class Command(BaseCommand):
                         l_materia_id = parts[2].strip()
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
+                        
+                        # Extraer fechas reales
+                        fecha_insc = str_to_date(parts[6].strip().strip("'"))
+                        fecha_cursada = str_to_date(parts[7].strip().strip("'"))
+                        fecha_final = str_to_date(parts[8].strip().strip("'"))
                         
                         l_calif_raw = parts[9].strip().strip("'")
                         try:
@@ -161,8 +171,16 @@ class Command(BaseCommand):
                             jerarquia = {'LIB': 0, 'REG': 1, 'APR': 2, 'PROM': 3}
                             if not created and jerarquia.get(estado_cursada, 1) > jerarquia.get(insc.estado, 1):
                                 insc.estado = estado_cursada
-                                insc.save()
                                 
+                            # Asignar fecha real a la cursada
+                            fecha_real_cursada = fecha_cursada or fecha_insc or datetime.date.today()
+                            insc.fecha_inscripcion = fecha_real_cursada
+                            # Django's auto_now_add on fecha_inscripcion might override it on save. 
+                            # So we update it via queryset below if needed, but lets try assigning it here
+                            insc.save()
+                            # Forzar actualizacion para evadir auto_now_add si aplica
+                            Inscripcion.objects.filter(id=insc.id).update(fecha_inscripcion=fecha_real_cursada)
+                            
                             count_inscripciones += 1
                             
                             if l_motivo_id == '90':
@@ -175,6 +193,12 @@ class Command(BaseCommand):
                                         mesa_act.folio = l_folio[:49]
                                         mesa_act.save()
                                         
+                                    if fecha_final:
+                                        # Actualizar la fecha de la mesa si la original era timezone.now()
+                                        if mesa_act.fecha_hora.date() == timezone.now().date():
+                                            mesa_act.fecha_hora = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0)))
+                                            mesa_act.save()
+                                        
                                     InscripcionMesa.objects.get_or_create(
                                         alumno=al, 
                                         mesa=mesa_act, 
@@ -185,7 +209,7 @@ class Command(BaseCommand):
                                     Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
                                     count_promociones += 1
 
-                self.stdout.write(self.style.SUCCESS(f'>> Notas reales procesadas. Total: {count_inscripciones} cursadas, {count_finales} finales, {count_promociones} promociones.'))
+                self.stdout.write(self.style.SUCCESS(f'>> Notas reales procesadas con fechas exactas. Total: {count_inscripciones} cursadas, {count_finales} finales, {count_promociones} promociones.'))
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
