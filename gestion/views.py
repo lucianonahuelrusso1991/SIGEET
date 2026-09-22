@@ -97,7 +97,7 @@ def dashboard(request):
             })
         
         # Materias cursando
-        cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+        cursando = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False)
         
         # Materias regularizadas (aprobada la cursada, debe el final)
         cursadas_aprobadas = alumno.inscripciones.filter(estado='APR')
@@ -313,10 +313,10 @@ def legajo_alumno(request, alumno_id):
     acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
     
     # 3. Cursando (Activas)
-    cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
+    cursando = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False)
     
     # 4. Regulares (Final Pendiente) y Libres/Recursar
-    regulares_db = alumno.inscripciones.filter(estado='REG', comision__cerrada=True)
+    regulares_db = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=True)
     libres_db = list(alumno.inscripciones.filter(estado='LIB'))
     
     regulares = []
