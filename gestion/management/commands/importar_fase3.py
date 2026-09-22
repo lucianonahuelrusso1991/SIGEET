@@ -193,12 +193,12 @@ class Command(BaseCommand):
                 for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella, alumno_martina, alumno_julieta]:
                     if al:
                         if al == alumno_martina and plan_television:
-                              InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_television, defaults={'estado': 'CURSANDO'})
-                              InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_television).delete()
-                          elif al == alumno_julieta and plan_sagradas:
-                              InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sagradas, defaults={'estado': 'CURSANDO'})
-                              InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sagradas).delete()
-                          elif al == alumno_isabella and plan_sistemas:
+                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_television, defaults={'estado': 'CURSANDO'})
+                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_television).delete()
+                        elif al == alumno_julieta and plan_sagradas:
+                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sagradas, defaults={'estado': 'CURSANDO'})
+                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sagradas).delete()
+                        elif al == alumno_isabella and plan_sistemas:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sistemas, defaults={'estado': 'CURSANDO'})
                             InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sistemas).delete()
                         elif plan_locucion:
