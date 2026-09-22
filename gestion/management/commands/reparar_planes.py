@@ -10,8 +10,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         sql_file = '/tmp/redarg_pdb.sql'
         if not os.path.exists(sql_file):
-            self.stdout.write(self.style.ERROR('No se encontro el archivo /tmp/redarg_pdb.sql'))
-            return
+            sql_file = r'D:\Escritorio\Migracion\sql\redarg_pdb.sql'
+            if not os.path.exists(sql_file):
+                self.stdout.write(self.style.ERROR('No se encontro el archivo redarg_pdb.sql'))
+                return
             
         def normalize(n):
             return n.lower().strip().replace('á','a').replace('é','e').replace('í','i').replace('ó','o').replace('ú','u').replace('ñ','n').replace(' ', '')
@@ -63,12 +65,11 @@ class Command(BaseCommand):
         plan_loc25 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
         plan_hist = PlanDeEstudio.objects.filter(nombre__icontains='Hist').first()
         
-        # Agrupamos por plan real de Django para no pisar
         sync_map = {
             plan_sagradas: ['9'],
             plan_tv: ['17'],
             plan_sistemas: ['13'],
-            plan_loc19: ['16', '8'], # Fusionamos ambas porque tenian la misma info
+            plan_loc19: ['16', '8'],
             plan_loc25: ['24']
         }
         
@@ -76,9 +77,7 @@ class Command(BaseCommand):
             if not django_plan: continue
             self.stdout.write(f"\n--- Sincronizando {django_plan.nombre} (IDs Legacy: {c_ids}) ---")
             
-            # Si el plan es el de Locucion 2025 (ID 24) y no está en la base vieja, NO HACER NADA (lo armó a mano el usuario).
             if django_plan == plan_loc25:
-                # Restaurar todas las materias recientes que el sistema pudo haber pisado a Historico
                 recuperadas_25 = 0
                 for hm in Materia.objects.filter(plan=plan_hist, id__gte=747):
                     n_norm = normalize(hm.nombre)
@@ -97,7 +96,6 @@ class Command(BaseCommand):
                 self.stdout.write(f"No se encontraron materias legacy en SQL")
                 continue
                 
-            # Extraer nombres unicos esperados
             legacy_names = {}
             for m_id, anio in legacy_items:
                 n = m_map.get(m_id)
@@ -106,10 +104,6 @@ class Command(BaseCommand):
                     if norm_n not in legacy_names:
                         legacy_names[norm_n] = (n, anio)
                         
-            # Sagradas hack: el usuario quiere 67 pero el DB viejo tiene 68. 
-            # Hay una materia "Filosofia" (id 668) y "Filosofia para Teologos" (id 685). Probablemente una este de mas. 
-            # Lo dejamos tal cual esta en la BD, total si queda una extra no pasa nada.
-                
             self.stdout.write(f"Materias legacy unicas esperadas: {len(legacy_names)}")
             
             django_subjects = list(Materia.objects.filter(plan=django_plan))
@@ -119,14 +113,14 @@ class Command(BaseCommand):
             for norm_l, (l_name, anio) in legacy_names.items():
                 match = False
                 for dn in django_names_norm:
-                    if norm_l in dn or dn in norm_l:
+                    if norm_l == dn:
                         match = True
                         break
                 
                 if not match:
                     hist_match = None
                     for hm in Materia.objects.filter(plan=plan_hist):
-                        if normalize(hm.nombre) == norm_l or norm_l in normalize(hm.nombre) or normalize(hm.nombre) in norm_l:
+                        if normalize(hm.nombre) == norm_l:
                             hist_match = hm
                             break
                     
@@ -151,7 +145,7 @@ class Command(BaseCommand):
                 norm_d = normalize(ds.nombre)
                 match = False
                 for norm_l in legacy_names.keys():
-                    if norm_d in norm_l or norm_l in norm_d:
+                    if norm_d == norm_l:
                         match = True
                         break
                 
