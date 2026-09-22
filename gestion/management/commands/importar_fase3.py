@@ -77,6 +77,9 @@ class Command(BaseCommand):
                             ciclo_lectivo=1900,
                             defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': True}
                         )
+                        if not c_obj.cerrada:
+                            c_obj.cerrada = True
+                            c_obj.save()
                         comision_dict[m_id] = c_obj
                         
                         mesa_obj, _ = MesaExamen.objects.get_or_create(
@@ -126,23 +129,24 @@ class Command(BaseCommand):
                         elif l_user_id == '2226' and alumno_britos: al = alumno_britos
                         
                         if al and l_materia_id in comision_dict:
-                            estado_cursada = 'REG'
+                            estado_cursada = 'REG' # 10 u otros quedan como regulares
                             if l_motivo_id in ['40', '95']:  # Aprobo cursada o debe final
                                 estado_cursada = 'APR'
+                            elif l_motivo_id == '51': # Libre o dejo cursada
+                                estado_cursada = 'LIB'
                             elif l_motivo_id == '90': # Aprobo asignatura
-                                # Distinguimos si es PROMOCION o FINAL
                                 if l_libro or l_folio:
-                                    estado_cursada = 'APR'  # Rindio final, la cursada esta aprobada
+                                    estado_cursada = 'APR'  # Final, asi que cursada esta APR
                                 else:
-                                    estado_cursada = 'PROM' # No hay acta, es promocion directa
+                                    estado_cursada = 'PROM' # Promocion directa
                             
                             insc, created = Inscripcion.objects.get_or_create(
                                 alumno=al, 
                                 comision=comision_dict[l_materia_id], 
                                 defaults={'estado': estado_cursada}
                             )
-                            # Actualizamos estado si es de mayor jerarquia
-                            jerarquia = {'REG': 1, 'APR': 2, 'PROM': 3}
+                            
+                            jerarquia = {'LIB': 0, 'REG': 1, 'APR': 2, 'PROM': 3}
                             if not created and jerarquia.get(estado_cursada, 1) > jerarquia.get(insc.estado, 1):
                                 insc.estado = estado_cursada
                                 insc.save()
@@ -151,7 +155,6 @@ class Command(BaseCommand):
                             
                             if l_motivo_id == '90':
                                 if l_libro or l_folio:
-                                    # Es un Final
                                     mesa_act = mesa_dict[l_materia_id]
                                     if l_libro and not mesa_act.libro:
                                         mesa_act.libro = l_libro[:49]
@@ -167,7 +170,6 @@ class Command(BaseCommand):
                                     )
                                     count_finales += 1
                                 else:
-                                    # Es una Promocion, guardamos la nota final
                                     Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
                                     count_promociones += 1
 
