@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3: Parche Final 4'
+    help = 'Importa Fase 3: Parche Final 5'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -98,14 +98,14 @@ class Command(BaseCommand):
                             insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_dotti, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
                             count_inscripciones += 1
                             if l_motivo_id in ['40', '41', '90', '95']:
-                                Nota.objects.get_or_create(inscripcion=insc, tipo='Final', defaults={'calificacion': 7})
+                                Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': 7})
                                 count_notas += 1
                                 
                         if l_user_id == '2226' and alumno_britos and l_materia_id in comision_dict:
                             insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_britos, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
                             count_inscripciones += 1
                             if l_motivo_id in ['40', '41', '90', '95']:
-                                Nota.objects.get_or_create(inscripcion=insc, tipo='Final', defaults={'calificacion': 8})
+                                Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': 8})
                                 count_notas += 1
 
                 self.stdout.write(self.style.SUCCESS(f'>> Procesadas y limpiadas las materias.'))
