@@ -87,7 +87,7 @@ class Command(BaseCommand):
                             duplicate.delete()
                 
                 plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
-                  plan_locucion_2025 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
+                plan_locucion_2025 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
                 plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
                 plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
                 plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
