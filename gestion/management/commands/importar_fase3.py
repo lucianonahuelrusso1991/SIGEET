@@ -2,7 +2,8 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models.signals import post_save
-from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera
+from django.utils import timezone
+from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera, MesaExamen, InscripcionMesa
 from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
@@ -52,10 +53,14 @@ class Command(BaseCommand):
 
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
+                InscripcionMesa.objects.all().delete()
                 
                 materias_rows = self.parse_sql_lines(sql_file, 'materias')
                 materia_dict = {}
                 comision_dict = {}
+                mesa_dict = {}
+                
+                fecha_historica = timezone.now()
                 
                 for row in materias_rows:
                     parts = row.split(',')
@@ -70,9 +75,16 @@ class Command(BaseCommand):
                         c_obj, _ = Comision.objects.get_or_create(
                             materia=m_obj,
                             ciclo_lectivo=1900,
-                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P'}
+                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': True}
                         )
                         comision_dict[m_id] = c_obj
+                        
+                        mesa_obj, _ = MesaExamen.objects.get_or_create(
+                            materia=m_obj,
+                            ciclo_lectivo=1900,
+                            defaults={'turno': 'ESPECIAL', 'fecha_hora': fecha_historica, 'cerrada': True}
+                        )
+                        mesa_dict[m_id] = mesa_obj
                 
                 self.stdout.write(f'Materias registradas/vinculadas: {len(materia_dict)}')
                 
@@ -84,14 +96,13 @@ class Command(BaseCommand):
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
                 
-                # Enroll them in the career so it shows up in their dashboard
                 if alumno_dotti:
                     InscripcionCarrera.objects.get_or_create(alumno=alumno_dotti, plan=plan_default, defaults={'estado': 'EGRESADO'})
                 if alumno_britos:
                     InscripcionCarrera.objects.get_or_create(alumno=alumno_britos, plan=plan_default, defaults={'estado': 'EGRESADO'})
                 
                 count_inscripciones = 0
-                count_notas = 0
+                count_finales = 0
                 
                 for row in libretas_rows:
                     parts = row.split(',')
@@ -100,22 +111,38 @@ class Command(BaseCommand):
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
                         
-                        if l_user_id == '2080' and alumno_dotti and l_materia_id in comision_dict:
-                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_dotti, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
-                            count_inscripciones += 1
-                            if l_motivo_id in ['40', '41', '90', '95']:
-                                Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': 7})
-                                count_notas += 1
+                        al = None
+                        if l_user_id == '2080' and alumno_dotti: al = alumno_dotti
+                        elif l_user_id == '2226' and alumno_britos: al = alumno_britos
+                        
+                        if al and l_materia_id in comision_dict:
+                            # 40 = Aprobo Cursada, 90 = Aprobo Final, 95 = Debe Final, 10 = Cursa
+                            estado_cursada = 'REG'
+                            if l_motivo_id in ['40', '90', '95']:
+                                estado_cursada = 'APR'
+                            
+                            insc, created = Inscripcion.objects.get_or_create(
+                                alumno=al, 
+                                comision=comision_dict[l_materia_id], 
+                                defaults={'estado': estado_cursada}
+                            )
+                            # Si ya existia pero encontramos un motivo superior, actualizarlo
+                            if not created and estado_cursada == 'APR' and insc.estado != 'APR':
+                                insc.estado = 'APR'
+                                insc.save()
                                 
-                        if l_user_id == '2226' and alumno_britos and l_materia_id in comision_dict:
-                            insc, _ = Inscripcion.objects.get_or_create(alumno=alumno_britos, comision=comision_dict[l_materia_id], defaults={'estado': 'REG'})
                             count_inscripciones += 1
-                            if l_motivo_id in ['40', '41', '90', '95']:
-                                Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': 8})
-                                count_notas += 1
+                            
+                            if l_motivo_id == '90':  # Aprobó la asignatura
+                                InscripcionMesa.objects.get_or_create(
+                                    alumno=al, 
+                                    mesa=mesa_dict[l_materia_id], 
+                                    defaults={'nota_final': 7, 'estado': 'APR'}
+                                )
+                                count_finales += 1
 
                 self.stdout.write(self.style.SUCCESS(f'>> Procesadas y limpiadas las materias.'))
-                self.stdout.write(self.style.SUCCESS(f'>> Inyectadas inscripciones y notas para el lote actual ({count_inscripciones} inscripciones, {count_notas} finales).'))
+                self.stdout.write(self.style.SUCCESS(f'>> Inyectadas inscripciones y notas para el lote actual ({count_inscripciones} inscripciones, {count_finales} finales reales).'))
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
