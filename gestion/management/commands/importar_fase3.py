@@ -182,10 +182,15 @@ class Command(BaseCommand):
                 alumno_isabella, _ = Alumno.objects.get_or_create(dni='42649322', defaults={'usuario': user_isabella, 'nombre': 'BRENDA', 'apellido': 'ISABELLA', 'email': 'ibrenda@pioix.edu.ar'})
                 
                 for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella]:
-                    if al and plan_locucion:
-                        InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
-                        InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
-                        InscripcionCarrera.objects.filter(alumno=al, plan=plan_sistemas).delete()
+                    if al:
+                        if al == alumno_isabella and plan_sistemas:
+                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sistemas, defaults={'estado': 'CURSANDO'})
+                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
+                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_locucion).delete()
+                        elif plan_locucion:
+                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
+                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
+                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_sistemas).delete()
                 
                 def str_to_date(d_str):
                     if not d_str or d_str == 'NULL' or len(d_str) < 10: return None
