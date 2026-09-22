@@ -356,7 +356,7 @@ def legajo_alumno(request, alumno_id):
             
     # 5. Materias Pendientes (General)
     materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a['materia']]
-    todas_materias = Materia.objects.filter(plan__in=alumno.carreras.all()).order_by('año_dictado', 'nombre').distinct() if alumno.carreras.exists() else []
+    todas_materias = Materia.objects.filter(plan__in=alumno.carreras.filter(activo=True)).order_by('año_dictado', 'nombre').distinct() if alumno.carreras.exists() else []
     pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids]
     
     context = {
