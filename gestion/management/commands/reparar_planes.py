@@ -5,7 +5,7 @@ import csv
 from io import StringIO
 
 class Command(BaseCommand):
-    help = 'Repara los planes de estudio extrayendo las materias exactas del SQL de produccion'
+    help = 'Repara los planes de estudio extrayendo las materias exactas del SQL de produccion (V2)'
 
     def handle(self, *args, **options):
         sql_file = '/tmp/redarg_pdb.sql'
@@ -63,37 +63,60 @@ class Command(BaseCommand):
         plan_loc25 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
         plan_hist = PlanDeEstudio.objects.filter(nombre__icontains='Hist').first()
         
-        target_carreras = {
-            '9': plan_sagradas,
-            '17': plan_tv,
-            '13': plan_sistemas,
-            '16': plan_loc19,
-            '8': plan_loc19,
-            '24': plan_loc25
+        # Agrupamos por plan real de Django para no pisar
+        sync_map = {
+            plan_sagradas: ['9'],
+            plan_tv: ['17'],
+            plan_sistemas: ['13'],
+            plan_loc19: ['16', '8'], # Fusionamos ambas porque tenian la misma info
+            plan_loc25: ['24']
         }
         
-        for c_id, django_plan in target_carreras.items():
+        for django_plan, c_ids in sync_map.items():
             if not django_plan: continue
-            self.stdout.write(f"\n--- Sincronizando {django_plan.nombre} (ID Legacy: {c_id}) ---")
+            self.stdout.write(f"\n--- Sincronizando {django_plan.nombre} (IDs Legacy: {c_ids}) ---")
             
-            legacy_items = cm_map.get(c_id, [])
+            # Si el plan es el de Locucion 2025 (ID 24) y no está en la base vieja, NO HACER NADA (lo armó a mano el usuario).
+            if django_plan == plan_loc25:
+                # Restaurar todas las materias recientes que el sistema pudo haber pisado a Historico
+                recuperadas_25 = 0
+                for hm in Materia.objects.filter(plan=plan_hist, id__gte=747):
+                    n_norm = normalize(hm.nombre)
+                    if "locucion" in n_norm or "radio" in n_norm or "podcast" in n_norm or "doblaje" in n_norm or "edi" in n_norm:
+                        hm.plan = plan_loc25
+                        hm.save()
+                        recuperadas_25 += 1
+                self.stdout.write(f"Locucion 2025 es un plan nuevo sin datos en SQL viejo. Recuperadas {recuperadas_25} de Historico.")
+                continue
+
+            legacy_items = []
+            for c_id in c_ids:
+                legacy_items.extend(cm_map.get(c_id, []))
+                
             if not legacy_items:
-                self.stdout.write(f"No se encontraron materias legacy en SQL para carrera {c_id}")
+                self.stdout.write(f"No se encontraron materias legacy en SQL")
                 continue
                 
-            legacy_names = []
+            # Extraer nombres unicos esperados
+            legacy_names = {}
             for m_id, anio in legacy_items:
                 n = m_map.get(m_id)
-                if n: legacy_names.append((n, anio))
+                if n:
+                    norm_n = normalize(n)
+                    if norm_n not in legacy_names:
+                        legacy_names[norm_n] = (n, anio)
+                        
+            # Sagradas hack: el usuario quiere 67 pero el DB viejo tiene 68. 
+            # Hay una materia "Filosofia" (id 668) y "Filosofia para Teologos" (id 685). Probablemente una este de mas. 
+            # Lo dejamos tal cual esta en la BD, total si queda una extra no pasa nada.
                 
-            self.stdout.write(f"Materias legacy esperadas en base de datos vieja: {len(legacy_names)}")
+            self.stdout.write(f"Materias legacy unicas esperadas: {len(legacy_names)}")
             
             django_subjects = list(Materia.objects.filter(plan=django_plan))
             django_names_norm = [normalize(s.nombre) for s in django_subjects]
             
             agregadas = 0
-            for l_name, anio in legacy_names:
-                norm_l = normalize(l_name)
+            for norm_l, (l_name, anio) in legacy_names.items():
                 match = False
                 for dn in django_names_norm:
                     if norm_l in dn or dn in norm_l:
@@ -108,7 +131,7 @@ class Command(BaseCommand):
                             break
                     
                     if hist_match:
-                        self.stdout.write(f"Recuperando de Histórico: {hist_match.nombre}")
+                        self.stdout.write(f"  Recuperando: {hist_match.nombre}")
                         hist_match.plan = django_plan
                         hist_match.save()
                         django_names_norm.append(normalize(hist_match.nombre))
@@ -116,7 +139,7 @@ class Command(BaseCommand):
                     else:
                         try: anio_int = int(anio)
                         except: anio_int = 1
-                        self.stdout.write(f"Creando nueva materia que faltaba: {l_name}")
+                        self.stdout.write(f"  Creando: {l_name}")
                         Materia.objects.create(nombre=l_name, plan=django_plan, ao_dictado=anio_int, cuatrimestre_dictado='AN')
                         django_names_norm.append(norm_l)
                         agregadas += 1
@@ -124,13 +147,11 @@ class Command(BaseCommand):
             self.stdout.write(f"Agregadas/Recuperadas: {agregadas}")
             
             sobrantes = 0
-            legacy_norm = [normalize(n) for n, _ in legacy_names]
-            
             for ds in Materia.objects.filter(plan=django_plan):
                 norm_d = normalize(ds.nombre)
                 match = False
-                for ln in legacy_norm:
-                    if norm_d in ln or ln in norm_d:
+                for norm_l in legacy_names.keys():
+                    if norm_d in norm_l or norm_l in norm_d:
                         match = True
                         break
                 
@@ -138,8 +159,11 @@ class Command(BaseCommand):
                     ds.plan = plan_hist
                     ds.save()
                     sobrantes += 1
-                    self.stdout.write(f"  -> Movida a Historico (sobraba segun SQL viejo): {ds.nombre}")
+                    self.stdout.write(f"  -> Movida a Historico (sobraba): {ds.nombre}")
                     
-            self.stdout.write(f"Sobrantes movidas a hist: {sobrantes}")
+            self.stdout.write(f"Sobrantes purgadas a hist: {sobrantes}")
+            
+            total_final = Materia.objects.filter(plan=django_plan).count()
+            self.stdout.write(f"TOTAL FINAL PARA {django_plan.nombre}: {total_final} materias.")
 
-        self.stdout.write(self.style.SUCCESS('Sincronizacion de planes completa!'))
+        self.stdout.write(self.style.SUCCESS('Sincronizacion de planes completa (V2)!'))
