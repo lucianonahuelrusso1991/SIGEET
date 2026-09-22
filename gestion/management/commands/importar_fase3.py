@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from gestion.signals import sync_inscripcion_classroom
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3 Final - Ajustando Fechas Históricas Reales'
+    help = 'Importa Fase 3 - Reparacion de Planes y Fechas de Promociones'
 
     def add_arguments(self, parser):
         parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
@@ -46,16 +46,39 @@ class Command(BaseCommand):
             post_save.disconnect(sync_inscripcion_classroom, sender=Inscripcion)
             
             with transaction.atomic():
-                self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 ---'))
+                self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 (REPARACION FINAL) ---'))
                 
                 plan_historico, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Histórico (Migración)', defaults={'activo': False})
                 if plan_historico.activo:
                     plan_historico.activo = False
                     plan_historico.save()
 
+                # Limpieza de corridas anteriores
                 Inscripcion.objects.all().delete()
                 Nota.objects.all().delete()
                 InscripcionMesa.objects.all().delete()
+                
+                # Mapeo de carreras legacy a SiGeEt
+                plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
+                plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
+                plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
+                
+                map_carrera = {
+                    '16': plan_locucion or plan_historico,
+                    '8': plan_locucion or plan_historico,
+                    '17': plan_television or plan_historico,
+                    '18': plan_sistemas or plan_historico,
+                    '1': plan_sistemas or plan_historico,
+                }
+                
+                cm_rows = self.parse_sql_lines(sql_file, 'carreras_materias')
+                materia_to_carrera = {}
+                for row in cm_rows:
+                    parts = row.split(',')
+                    if len(parts) > 2:
+                        c_id = parts[1].strip()
+                        m_id = parts[2].strip()
+                        materia_to_carrera[m_id] = c_id
                 
                 materias_rows = self.parse_sql_lines(sql_file, 'materias')
                 materia_dict = {}
@@ -69,29 +92,32 @@ class Command(BaseCommand):
                     if len(parts) >= 2:
                         m_id = parts[0].strip()
                         m_name = parts[1].strip().strip("'")[:149]
+                        
+                        legacy_c_id = materia_to_carrera.get(m_id)
+                        plan_correcto = map_carrera.get(legacy_c_id, plan_historico)
+                        
                         m_obj = Materia.objects.filter(nombre=m_name).first()
                         if not m_obj:
-                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_historico, año_dictado=1, cuatrimestre_dictado='AN')
+                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_correcto, año_dictado=1, cuatrimestre_dictado='AN')
                         else:
-                            if m_obj.plan != plan_historico:
-                                m_obj.plan = plan_historico
+                            # REPARAR EL PLAN!
+                            if m_obj.plan != plan_correcto:
+                                m_obj.plan = plan_correcto
                                 m_obj.save()
                                 
                         materia_dict[m_id] = m_obj
                         
+                        # Comision: Si es Cursando, abrimos una comision actual. Si es viejo, cerrada.
                         c_obj, _ = Comision.objects.get_or_create(
                             materia=m_obj,
-                            ciclo_lectivo=1900,
-                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': True}
+                            ciclo_lectivo=2024, # Usamos 2024 como base para que el template no lo pise feo, o 1900 si cerramos
+                            defaults={'cuatrimestre': 'AN', 'tipo_aprobacion': 'FIN', 'modalidad': 'P', 'cerrada': False}
                         )
-                        if not c_obj.cerrada:
-                            c_obj.cerrada = True
-                            c_obj.save()
                         comision_dict[m_id] = c_obj
                         
                         mesa_obj, _ = MesaExamen.objects.get_or_create(
                             materia=m_obj,
-                            ciclo_lectivo=1900,
+                            ciclo_lectivo=2024,
                             defaults={'turno': 'ESPECIAL', 'fecha_hora': fecha_historica, 'cerrada': True}
                         )
                         mesa_dict[m_id] = mesa_obj
@@ -104,13 +130,13 @@ class Command(BaseCommand):
                 user_britos = User.objects.filter(username='44363997').first()
                 alumno_britos = Alumno.objects.filter(dni='44363997').first()
                 
+                # Inscribirlos en el plan real de Locucion para que vean sus materias pendientes!
                 for al in [alumno_dotti, alumno_britos]:
-                    if al:
-                        inscs_carrera = InscripcionCarrera.objects.filter(alumno=al)
-                        for ic in inscs_carrera:
-                            if ic.plan != plan_historico and 'Histórico' not in ic.plan.nombre:
-                                ic.delete()
-                        InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_historico, defaults={'estado': 'EGRESADO'})
+                    if al and plan_locucion:
+                        InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
+                        # Borrar la historica si la tienen
+                        InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
+                        InscripcionCarrera.objects.filter(alumno=al, plan=plan_sistemas).delete()
                 
                 def str_to_date(d_str):
                     if not d_str or d_str == 'NULL' or len(d_str) < 10: return None
@@ -130,7 +156,6 @@ class Command(BaseCommand):
                         l_user_id = parts[3].strip()
                         l_motivo_id = parts[4].strip()
                         
-                        # Extraer fechas reales
                         fecha_insc = str_to_date(parts[6].strip().strip("'"))
                         fecha_cursada = str_to_date(parts[7].strip().strip("'"))
                         fecha_final = str_to_date(parts[8].strip().strip("'"))
@@ -152,19 +177,30 @@ class Command(BaseCommand):
                         
                         if al and l_materia_id in comision_dict:
                             estado_cursada = 'REG' 
+                            c_cerrada = True
+                            
                             if l_motivo_id in ['40', '95']:  
                                 estado_cursada = 'APR'
                             elif l_motivo_id == '51': 
                                 estado_cursada = 'LIB'
+                            elif l_motivo_id == '10':
+                                estado_cursada = 'REG'
+                                c_cerrada = False # Cursando actualmente
                             elif l_motivo_id == '90': 
                                 if l_libro or l_folio:
                                     estado_cursada = 'APR'  
                                 else:
                                     estado_cursada = 'PROM' 
                             
+                            c_act = comision_dict[l_materia_id]
+                            # Ajustar comision si esta abierta o cerrada
+                            if c_cerrada and not c_act.cerrada:
+                                c_act.cerrada = True
+                                c_act.save()
+                            
                             insc, created = Inscripcion.objects.get_or_create(
                                 alumno=al, 
-                                comision=comision_dict[l_materia_id], 
+                                comision=c_act, 
                                 defaults={'estado': estado_cursada}
                             )
                             
@@ -172,13 +208,9 @@ class Command(BaseCommand):
                             if not created and jerarquia.get(estado_cursada, 1) > jerarquia.get(insc.estado, 1):
                                 insc.estado = estado_cursada
                                 
-                            # Asignar fecha real a la cursada
                             fecha_real_cursada = fecha_cursada or fecha_insc or datetime.date.today()
                             insc.fecha_inscripcion = fecha_real_cursada
-                            # Django's auto_now_add on fecha_inscripcion might override it on save. 
-                            # So we update it via queryset below if needed, but lets try assigning it here
                             insc.save()
-                            # Forzar actualizacion para evadir auto_now_add si aplica
                             Inscripcion.objects.filter(id=insc.id).update(fecha_inscripcion=fecha_real_cursada)
                             
                             count_inscripciones += 1
@@ -194,7 +226,6 @@ class Command(BaseCommand):
                                         mesa_act.save()
                                         
                                     if fecha_final:
-                                        # Actualizar la fecha de la mesa si la original era timezone.now()
                                         if mesa_act.fecha_hora.date() == timezone.now().date():
                                             mesa_act.fecha_hora = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0)))
                                             mesa_act.save()
@@ -206,7 +237,9 @@ class Command(BaseCommand):
                                     )
                                     count_finales += 1
                                 else:
-                                    Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
+                                    n, _ = Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
+                                    # Fix de la fecha de la nota
+                                    Nota.objects.filter(id=n.id).update(fecha=fecha_final or fecha_real_cursada)
                                     count_promociones += 1
 
                 self.stdout.write(self.style.SUCCESS(f'>> Notas reales procesadas con fechas exactas. Total: {count_inscripciones} cursadas, {count_finales} finales, {count_promociones} promociones.'))
