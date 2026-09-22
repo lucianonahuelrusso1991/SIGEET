@@ -185,12 +185,10 @@ class Command(BaseCommand):
                     if al:
                         if al == alumno_isabella and plan_sistemas:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sistemas, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
-                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_locucion).delete()
+                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sistemas).delete()
                         elif plan_locucion:
                             InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_historico).delete()
-                            InscripcionCarrera.objects.filter(alumno=al, plan=plan_sistemas).delete()
+                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_locucion).delete()
                 
                 def str_to_date(d_str):
                     if not d_str or d_str == 'NULL' or len(d_str) < 10: return None
