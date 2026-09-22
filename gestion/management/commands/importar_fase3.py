@@ -195,6 +195,28 @@ class Command(BaseCommand):
                 if not user_ignacio.password: user_ignacio.set_password('47130185'); user_ignacio.save()
                 alumno_ignacio, _ = Alumno.objects.get_or_create(dni='47130185', defaults={'usuario': user_ignacio, 'nombre': 'IGNACIO', 'apellido': 'WINKLER', 'email': 'iwinkler@pioix.edu.ar'})
                 
+                
+                self.stdout.write('Enriqueciendo legajos con datos personales (Fase 3b)...')
+                users_rows = self.parse_sql_lines(sql_file, 'users')
+                for parts in users_rows:
+                    if len(parts) > 13:
+                        l_dni = parts[4].strip("'")
+                        l_tel = parts[7].strip("'").strip('"') if parts[7] != 'NULL' else None
+                        l_dir = parts[9].strip("'").strip('"') if parts[9] != 'NULL' else None
+                        l_nac = parts[13].strip("'").strip('"') if parts[13] != 'NULL' else None
+                        
+                        if l_dni in ['33774806', '44363997', '30149595', '46027726', '7766086', '42649322', '37687214', '39462473', '47130185']:
+                            alumno = Alumno.objects.filter(dni=l_dni).first()
+                            if alumno:
+                                if l_tel and l_tel.lower() != 'null': alumno.celular = l_tel
+                                if l_dir and l_dir.lower() != 'null': alumno.direccion = l_dir
+                                if l_nac and l_nac.lower() != 'null' and l_nac != '':
+                                    try:
+                                        alumno.fecha_nacimiento = datetime.datetime.strptime(l_nac, '%Y-%m-%d').date()
+                                    except Exception:
+                                        pass
+                                alumno.save()
+
                 for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella, alumno_martina, alumno_julieta, alumno_ignacio]:
                     if al:
                         if al == alumno_martina and plan_television:
