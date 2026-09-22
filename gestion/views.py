@@ -313,25 +313,31 @@ def legajo_alumno(request, alumno_id):
     acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
     
     # 3. Cursando (Activas)
-    cursando = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False)
+    cursando = alumno.inscripciones.filter(estado='REG', comision__cerrada=False)
     
     # 4. Regulares (Final Pendiente) y Libres/Recursar
-    regulares_db = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=True)
+    regulares_db = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
     libres_db = list(alumno.inscripciones.filter(estado='LIB'))
     
     regulares = []
     recursar = libres_db.copy()
     
+    from datetime import timedelta
     def sumar_anios(d, anios):
-        # El vencimiento es el último turno del año correspondiente
-        from datetime import date
-        return date(d.year + anios, 12, 31)
+        try:
+            return d.replace(year=d.year + anios)
+        except ValueError:
+            return d + timedelta(days=365 * anios)
             
     hoy = date.today()
     
     for reg in regulares_db:
-        # Calcular fecha vencimiento
-        fecha_fin_cursada = reg.comision.fecha_fin or reg.fecha_inscripcion
+        # Calcular fecha vencimiento: Si es histórica (1900), usar la fecha real que guardamos en fecha_inscripcion.
+        if reg.comision.ciclo_lectivo == 1900:
+            fecha_fin_cursada = reg.fecha_inscripcion
+        else:
+            fecha_fin_cursada = reg.comision.fecha_fin or reg.fecha_inscripcion
+            
         fecha_vencimiento = sumar_anios(fecha_fin_cursada, 3)
         vencida_por_tiempo = hoy > fecha_vencimiento
         
@@ -1262,7 +1268,10 @@ def cargar_notas(request, comision_id):
                     insc.estado = nuevo_estado
                     
                     if nuevo_estado == 'APR':
-                        venc = date(date.today().year + 3, 12, 31)
+                        try:
+                                venc = datetime.date.today().replace(year=datetime.date.today().year + 3)
+                            except ValueError:
+                                venc = datetime.date.today() + datetime.timedelta(days=365*3)
                         insc.vencimiento_cursada = venc
                         insc.chances_restantes = 10
                         
