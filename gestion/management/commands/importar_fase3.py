@@ -13,7 +13,7 @@ def normalize_string(s):
     import re
     s = s.upper().strip()
     # Remover divisiones y ruidos (ej: " - A", " A", " (A)", "1ro A")
-    s = re.sub(r'(?i)(\s*-\s*[A-E]|\s+["']?[A-E]["']?|\s+\([A-E]\)|\s+[1-3]RO\s+[A-E])$', '', s)
+    s = re.sub(r'(?i)(\s*-\s*[A-E]|\s+["\']?[A-E]["\']?|\s+\([A-E]\)|\s+[1-3]RO\s+[A-E])$', '', s)
     s = s.lower().strip()
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
