@@ -174,8 +174,12 @@ def lista_alumnos(request):
         
     alumnos = alumnos.distinct().order_by('apellido')
         
+    from .models import PlanDeEstudio
+    planes_list = PlanDeEstudio.objects.filter(activo=True).order_by('nombre')
+    
     return render(request, 'gestion/lista_alumnos.html', {
         'alumnos': alumnos,
+        'planes': planes_list,
         'es_tutor': es_solo_tutor(request.user),
     })
 

@@ -19,14 +19,29 @@
     {% endif %}
 
     <div class="row mb-4">
-        <div class="col-md-5">
+        <div class="col-12 col-xl-4 mb-3 mb-xl-0">
             <h2 class="text-primary fw-bold">Alumnos Matriculados</h2>
             <p class="text-muted">Sistema de gestión para secretaría</p>
         </div>
-        <div class="col-md-7 text-end align-self-center">
-            <div class="d-inline-block me-2" style="width: 300px;">
-                <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
-            </div>
+        <div class="col-12 col-xl-8 text-end align-self-center">
+            <div class="d-flex flex-wrap justify-content-md-end gap-2 align-items-center">
+                <select id="filterEstado" class="form-select shadow-sm" style="width: 170px;">
+                    <option value="">Todos los Estados</option>
+                    <option value="ACT">Activos</option>
+                    <option value="INA">Inactivos</option>
+                    <option value="EGR">Egresados</option>
+                    <option value="COND_DOC">Cond. (Doc)</option>
+                    <option value="COND_PAG">Cond. (Pago)</option>
+                </select>
+                
+                <select id="filterCarrera" class="form-select shadow-sm" style="width: 200px;">
+                    <option value="">Todas las Carreras</option>
+                    {% for p in planes %}
+                    <option value="{{ p.id }}">{{ p.nombre|truncatechars:30 }}</option>
+                    {% endfor %}
+                </select>
+                
+                <input type="text" id="filterText" class="form-control shadow-sm" style="width: 250px;" placeholder="🔍 Buscar DNI o Nombre...">
             
             <a href="{% if request.GET.historicos == '1' %}?historicos=0{% else %}?historicos=1{% endif %}" class="btn btn-outline-secondary shadow-sm me-2">
                 {% if request.GET.historicos == '1' %}
@@ -57,7 +72,7 @@
                 </thead>
                 <tbody>
                     {% for alumno in alumnos %}
-                        <tr class="alumno-row">
+                        <tr class="alumno-row" data-estado="{{ alumno.estado_alumno }}" data-carreras="{% for c in alumno.carreras.all %}{{ c.id }},{% endfor %}">
                             <td class="ps-4 alumno-nombre">
                                 <strong>{{ alumno.apellido }}</strong>, {{ alumno.nombre }}
                                 {% if alumno.estado_alumno == 'ACT' %}
@@ -110,32 +125,45 @@ document.addEventListener("DOMContentLoaded", function() {
     const rows = document.querySelectorAll('.alumno-row');
     const noResultsRow = document.getElementById('noResultsRow');
 
-    if(filterInput) {
-        filterInput.addEventListener('keyup', function() {
-            const filterValue = filterInput.value.toLowerCase();
-            let hasVisibleRows = false;
+    const filterEstado = document.getElementById('filterEstado');
+    const filterCarrera = document.getElementById('filterCarrera');
 
-            rows.forEach(row => {
-                const nombre = row.querySelector('.alumno-nombre').textContent.toLowerCase();
-                const dni = row.querySelector('.alumno-dni').textContent.toLowerCase();
+    function applyFilters() {
+        const textVal = filterInput ? filterInput.value.toLowerCase() : '';
+        const estadoVal = filterEstado ? filterEstado.value : '';
+        const carreraVal = filterCarrera ? filterCarrera.value : '';
+        let hasVisibleRows = false;
 
-                if (nombre.includes(filterValue) || dni.includes(filterValue)) {
-                    row.classList.remove('d-none');
-                    hasVisibleRows = true;
-                } else {
-                    row.classList.add('d-none');
-                }
-            });
+        rows.forEach(row => {
+            const nombre = row.querySelector('.alumno-nombre').textContent.toLowerCase();
+            const dni = row.querySelector('.alumno-dni').textContent.toLowerCase();
+            const rowEstado = row.getAttribute('data-estado');
+            const rowCarreras = row.getAttribute('data-carreras');
 
-            if (noResultsRow) {
-                if (!hasVisibleRows && rows.length > 0) {
-                    noResultsRow.classList.remove('d-none');
-                } else {
-                    noResultsRow.classList.add('d-none');
-                }
+            const matchText = nombre.includes(textVal) || dni.includes(textVal);
+            const matchEstado = estadoVal === '' || rowEstado === estadoVal;
+            const matchCarrera = carreraVal === '' || rowCarreras.includes(carreraVal + ',');
+
+            if (matchText && matchEstado && matchCarrera) {
+                row.classList.remove('d-none');
+                hasVisibleRows = true;
+            } else {
+                row.classList.add('d-none');
             }
         });
+
+        if (noResultsRow) {
+            if (!hasVisibleRows && rows.length > 0) {
+                noResultsRow.classList.remove('d-none');
+            } else {
+                noResultsRow.classList.add('d-none');
+            }
+        }
     }
+
+    if(filterInput) filterInput.addEventListener('keyup', applyFilters);
+    if(filterEstado) filterEstado.addEventListener('change', applyFilters);
+    if(filterCarrera) filterCarrera.addEventListener('change', applyFilters);
 });
 </script>
 {% endblock %}
