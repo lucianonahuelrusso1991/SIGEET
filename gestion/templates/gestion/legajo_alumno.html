@@ -232,6 +232,9 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link text-warning" id="pendientes-tab-{{ c_info.plan.id }}" data-bs-toggle="tab" data-bs-target="#pendientes-{{ c_info.plan.id }}" type="button" role="tab"><i class="bi bi-clock-history"></i> Finales Pendientes</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-danger" id="pendientes-gral-tab-{{ c_info.plan.id }}" data-bs-toggle="tab" data-bs-target="#pendientes-gral-{{ c_info.plan.id }}" type="button" role="tab"><i class="bi bi-journal-x"></i> Materias Pendientes</button>
+                </li>
             </ul>
 
             <div class="tab-content" id="legajoTabsContent-{{ c_info.plan.id }}">
@@ -332,16 +335,46 @@
                                             </td>
                                             <td><i class="bi bi-calendar-event me-2"></i>{{ reg.fecha_vencimiento|date:"d/m/Y" }}</td>
                                         </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="3" class="text-center py-4 text-muted">No hay finales regulares pendientes.</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">No hay finales regulares pendientes.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
+
+            <!-- Materias Pendientes Generales -->
+            <div class="tab-pane fade" id="pendientes-gral-{{ c_info.plan.id }}" role="tabpanel" tabindex="0">
+                <div class="card shadow-sm border-0 mb-5">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-danger">
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>A&ntilde;o de Dictado</th>
+                                    <th>Carga Horaria</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mat in c_info.pendientes_general %}
+                                    <tr>
+                                        <td class="fw-bold">{{ mat.nombre }}</td>
+                                        <td>{{ mat.get_ao_dictado_display }}</td>
+                                        <td>{{ mat.carga_horaria }} hs</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">No tiene materias pendientes. &iexcl;Carrera completada!</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             </div> <!-- End inner tab content -->
             
         </div> <!-- End carrera tab pane -->

@@ -348,6 +348,10 @@ def legajo_alumno(request, alumno_id):
             
         materias_faltantes = total_materias - total_acreditadas
         
+        # Calcular materias que no estn en ninguna otra lista
+        materias_en_curso_o_regulares_ids = [c.comision.materia.id for c in cursando] + [r['inscripcion'].comision.materia.id for r in regulares]
+        pendientes_general = [m for m in plan.materias.all() if m.id not in materias_acreditadas_ids and m.id not in materias_en_curso_o_regulares_ids]
+        
         insc_carrera = alumno.inscripciones_carreras.filter(plan=plan).first()
         carreras_data.append({
             'plan': plan,
@@ -357,6 +361,7 @@ def legajo_alumno(request, alumno_id):
             'cursando': cursando,
             'regulares': regulares,
             'recursar': recursar,
+            'pendientes_general': pendientes_general,
             'porcentaje_avance': round(porcentaje_avance, 1),
             'materias_faltantes': materias_faltantes,
             'total_materias': total_materias
