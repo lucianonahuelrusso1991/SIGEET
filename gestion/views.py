@@ -3148,14 +3148,14 @@ def gestionar_historial_alumno(request, alumno_id):
                 mesa=mesa, 
                 defaults={'nota_final': nota, 'estado': 'APR' if nota is None or nota >= 4 else 'REP'}
             )
-            messages.success(request, f'Nota histrica registrada en {materia.nombre}.')
+            messages.success(request, f'Nota histórica registrada en {materia.nombre}.')
             return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
             
         elif action == 'delete_final':
             insc_id = request.POST.get('insc_id')
             insc = get_object_or_404(InscripcionMesa, id=insc_id, alumno=alumno)
             insc.delete()
-            messages.success(request, 'Registro histrico eliminado correctamente.')
+            messages.success(request, 'Registro histórico eliminado correctamente.')
             return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
             
         elif action == 'edit_final':
@@ -3181,7 +3181,7 @@ def gestionar_historial_alumno(request, alumno_id):
             insc.nota_final = nota
             insc.estado = 'APR' if nota is None or nota >= 4 else 'REP'
             insc.save()
-            messages.success(request, 'Registro histrico modificado correctamente.')
+            messages.success(request, 'Registro histórico modificado correctamente.')
             return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
             
     context = {
