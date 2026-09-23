@@ -658,15 +658,18 @@ def editar_docente(request, docente_id):
             
         try:
             # Update User if email changed
-            if docente.usuario and docente.email != email and email:
-                usuario = docente.usuario
-                usuario.email = email
-                usuario.username = email
-                usuario.save()
+            if docente.usuario:
+                best_email = request.POST.get('correo_institucional') or email
+                if best_email and docente.usuario.email != best_email:
+                    usuario = docente.usuario
+                    usuario.email = best_email
+                    # usuario.username = best_email # Desactivamos cambiar el username al email porque username es el DNI
+                    usuario.save()
                 
             # Update Docente
             docente.dni = dni
             docente.email = email
+            docente.correo_institucional = request.POST.get('correo_institucional')
             docente.nombre = nombre
             docente.apellido = apellido
             docente.telefono = telefono
