@@ -315,10 +315,21 @@ def legajo_alumno(request, alumno_id):
         for mesa_insc in [m for m in todas_apr if m.mesa.materia.plan_id == plan.id]:
             acreditadas.append({'materia': mesa_insc.mesa.materia, 'tipo': 'Final', 'nota': mesa_insc.nota_final, 'fecha': mesa_insc.mesa.fecha_hora.date(), 'detalle': f"Libro: {mesa_insc.mesa.libro or '-'} Folio: {mesa_insc.mesa.folio or '-'})"})
             
+        acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
+        
+        # Eliminar duplicados de materias acreditadas (mantener la ms reciente)
+        acreditadas_unicas = []
+        materias_vistas = set()
+        for a in acreditadas:
+            m_id = a.get('materia').id if a.get('materia') else None
+            if m_id and m_id not in materias_vistas:
+                acreditadas_unicas.append(a)
+                materias_vistas.add(m_id)
+        
+        acreditadas = acreditadas_unicas
         total_acreditadas = len(acreditadas)
         porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
-        acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
-        materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a.get('materia')]
+        materias_acreditadas_ids = list(materias_vistas)
 
         cursando = [c for c in todas_reg if c.comision.materia.plan_id == plan.id and c.comision.materia.id not in materias_acreditadas_ids]
         
