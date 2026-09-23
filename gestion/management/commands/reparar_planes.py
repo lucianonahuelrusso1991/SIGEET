@@ -22,19 +22,7 @@ class Command(BaseCommand):
         in_cm = False
         with open(sql_file, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f:
-                if line.startswith('INSERT INTO `carreras_materias`'): in_cm = True; 
-                # Purge extra stuff from Loc25
-                purgadas = 0
-                for ds in Materia.objects.filter(plan=django_plan):
-                    n_d = normalize(ds.nombre).replace('\r', '').replace('\n', '').replace('', '').replace('
-', '')
-                    if n_d not in loc25_expected:
-                        ds.plan = plan_hist
-                        ds.save()
-                        purgadas += 1
-                self.stdout.write(f"Locucion 2025 purgadas a historico: {purgadas}")
-
-                continue
+                if line.startswith('INSERT INTO `carreras_materias`'): in_cm = True; continue
                 if in_cm:
                     line = line.strip()
                     is_end = line.endswith(';')
@@ -90,43 +78,50 @@ class Command(BaseCommand):
             self.stdout.write(f"\n--- Sincronizando {django_plan.nombre} (IDs Legacy: {c_ids}) ---")
             
             if django_plan == plan_loc25:
+                loc25_expected = [
+                    "introduccionalalocucion",
+                    "practicaprofesionalizanteenlocucionparatelevision",
+                    "expresioncorporal",
+                    "herramientasdeproduccionyediciondigital",
+                    "edi1",
+                    "locucion,interpretacionylectura",
+                    "entrenamientovocal",
+                    "practicaprofesionalizanteenlocucionpararadio",
+                    "redaccionyediciondecontenidos",
+                    "pronunciaciondeitalianoyfrances",
+                    "edi2",
+                    "ediciondesonido",
+                    "radio",
+                    "edicionaudiovisual",
+                    "edi1:culturasyesteticascontemporaneas",
+                    "locucion",
+                    "edi2:legislacionyeticadelacomunicacion",
+                    "practicaprofesionalizanteenconduccionpararadio",
+                    "practicaprofesionalizanteenconduccionparatelevision",
+                    "practicaprofesionalizanteenpodcastyproducciondecontenidos"
+                ]
+                
                 recuperadas_25 = 0
                 for hm in Materia.objects.filter(plan=plan_hist, id__gte=747):
-                    n_norm = normalize(hm.nombre)
-                    
-                    loc25_expected = [
-                        "introduccionalalocucion",
-                        "practicaprofesionalizanteenlocucionparatelevision",
-                        "expresioncorporal",
-                        "herramientasdeproduccionyediciondigital",
-                        "edi1",
-                        "locucion,interpretacionylectura",
-                        "entrenamientovocal",
-                        "practicaprofesionalizanteenlocucionpararadio",
-                        "redaccionyediciondecontenidos",
-                        "pronunciaciondeitalianoyfrances",
-                        "edi2",
-                        "ediciondesonido",
-                        "radio",
-                        "edicionaudiovisual",
-                        "edi1:culturasyesteticascontemporaneas",
-                        "locucion",
-                        "edi2:legislacionyeticadelacomunicacion",
-                        "practicaprofesionalizanteenconduccionpararadio",
-                        "practicaprofesionalizanteenconduccionparatelevision",
-                        "practicaprofesionalizanteenpodcastyproducciondecontenidos"
-                    ]
-                    
-                    # Sanitize line breaks
-                    n_norm = n_norm.replace('\r', '').replace('\n', '').replace('', '').replace('
-', '')
-                    
+                    n_norm = normalize(hm.nombre).replace(chr(13), '').replace(chr(10), '').replace('\r', '').replace('\n', '')
                     if n_norm in loc25_expected:
-
                         hm.plan = plan_loc25
                         hm.save()
                         recuperadas_25 += 1
                 self.stdout.write(f"Locucion 2025 es un plan nuevo sin datos en SQL viejo. Recuperadas {recuperadas_25} de Historico.")
+                
+                # Purgar extra subjects that were accidentally added by the old ID >= 785 rule
+                purgadas_25 = 0
+                for ds in Materia.objects.filter(plan=plan_loc25):
+                    n_d = normalize(ds.nombre).replace(chr(13), '').replace(chr(10), '').replace('\r', '').replace('\n', '')
+                    if n_d not in loc25_expected:
+                        ds.plan = plan_hist
+                        ds.save()
+                        purgadas_25 += 1
+                self.stdout.write(f"Purgadas materias extra de Locucion 2025: {purgadas_25}")
+                
+                total_final = Materia.objects.filter(plan=django_plan).count()
+                self.stdout.write(f"TOTAL FINAL PARA {django_plan.nombre}: {total_final} materias.")
                 continue
 
             legacy_items = []
@@ -181,7 +176,6 @@ class Command(BaseCommand):
                         
             self.stdout.write(f"Agregadas/Recuperadas: {agregadas}")
             
-            
             # DEDUPLICATION
             vistas = set()
             for ds in Materia.objects.filter(plan=django_plan).order_by('id'):
@@ -192,7 +186,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"  -> Movida a Historico (DUPLICADA): {ds.nombre} (ID: {ds.id})")
                 else:
                     vistas.add(norm_d)
-
+            
             sobrantes = 0
             for ds in Materia.objects.filter(plan=django_plan):
                 norm_d = normalize(ds.nombre)
