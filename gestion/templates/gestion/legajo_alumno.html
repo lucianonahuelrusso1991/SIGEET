@@ -118,210 +118,188 @@
         </div>
     </div>
 
-    <!-- Métricas KPIs -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-primary) !important;">
-                <div class="card-body text-center">
-                    <h1 class="display-4 fw-bold mb-0">{{ porcentaje_avance }}%</h1>
-                    <p class="fs-5 mb-0">Carrera Completada</p>
-                    <div class="progress mt-3" style="height: 10px;">
-                        <div class="progress-bar bg-light text-dark fw-bold" role="progressbar" style="width: {{ porcentaje_avance }}%;" aria-valuenow="{{ porcentaje_avance }}" aria-valuemin="0" aria-valuemax="100"></div>
+    <!-- Carreras Nav Pills -->
+    {% if carreras_data|length > 1 %}
+    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-2" id="carrerasTab" role="tablist">
+        {% for c_info in carreras_data %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-bold {% if forloop.first %}active{% endif %}" id="tab-carrera-{{ c_info.plan.id }}" data-bs-toggle="pill" data-bs-target="#pane-carrera-{{ c_info.plan.id }}" type="button" role="tab" style="padding: 10px 20px;">
+                <i class="bi bi-mortarboard me-2"></i>{{ c_info.plan.nombre }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="tab-content" id="carrerasTabContent">
+        {% for c_info in carreras_data %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pane-carrera-{{ c_info.plan.id }}" role="tabpanel">
+
+            {% if carreras_data|length > 1 %}
+            <h4 class="fw-bold text-primary mb-3">{{ c_info.plan.nombre }}</h4>
+            {% endif %}
+
+            <!-- Mtricas KPIs para esta carrera -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-primary) !important;">
+                        <div class="card-body text-center">
+                            <h1 class="display-4 fw-bold mb-0">{{ c_info.porcentaje_avance }}%</h1>
+                            <p class="fs-5 mb-0">Carrera Completada</p>
+                            <div class="progress mt-3" style="height: 10px;">
+                                <div class="progress-bar bg-light text-dark fw-bold" role="progressbar" style="width: {{ c_info.porcentaje_avance|stringformat:'s' }}%;" aria-valuenow="{{ c_info.porcentaje_avance|stringformat:'s' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-success) !important;">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h1 class="display-4 fw-bold mb-0">{{ c_info.total_acreditadas }}</h1>
+                            <p class="fs-5 mb-0">Materias Acreditadas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-secondary) !important;">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h1 class="display-4 fw-bold mb-0">{{ c_info.materias_faltantes }}</h1>
+                            <p class="fs-5 mb-0">Materias Restantes</p>
+                            <small>de {{ c_info.total_materias }} totales</small>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-success) !important;">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <h1 class="display-4 fw-bold mb-0">{{ total_acreditadas }}</h1>
-                    <p class="fs-5 mb-0">Materias Acreditadas</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-white shadow h-100 border-0 rounded-4" style="background-color: var(--bs-secondary) !important;">
-                <div class="card-body text-center d-flex flex-column justify-content-center">
-                    <h1 class="display-4 fw-bold mb-0">{{ materias_faltantes }}</h1>
-                    <p class="fs-5 mb-0">Materias Restantes</p>
-                    <small>de {{ total_materias }} totales</small>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <hr class="my-4">
+            <hr class="my-4">
 
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs fw-bold mb-4" id="legajoTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="matriz-tab" data-bs-toggle="tab" data-bs-target="#matriz" type="button" role="tab"><i class="bi bi-book-half"></i> Acreditadas</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-primary" id="cursando-tab" data-bs-toggle="tab" data-bs-target="#cursando" type="button" role="tab"><i class="bi bi-pencil-square"></i> Cursando</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-warning" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab"><i class="bi bi-clock-history"></i> Finales Pendientes</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-danger" id="pendientes-gral-tab" data-bs-toggle="tab" data-bs-target="#pendientes-gral" type="button" role="tab"><i class="bi bi-journal-x"></i> Materias Pendientes</button>
-        </li>
-        
-    </ul>
+            <!-- Nav tabs para esta carrera -->
+            <ul class="nav nav-tabs fw-bold mb-4" id="legajoTabs-{{ c_info.plan.id }}" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="matriz-tab-{{ c_info.plan.id }}" data-bs-toggle="tab" data-bs-target="#matriz-{{ c_info.plan.id }}" type="button" role="tab"><i class="bi bi-book-half"></i> Acreditadas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-primary" id="cursando-tab-{{ c_info.plan.id }}" data-bs-toggle="tab" data-bs-target="#cursando-{{ c_info.plan.id }}" type="button" role="tab"><i class="bi bi-pencil-square"></i> Cursando</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-warning" id="pendientes-tab-{{ c_info.plan.id }}" data-bs-toggle="tab" data-bs-target="#pendientes-{{ c_info.plan.id }}" type="button" role="tab"><i class="bi bi-clock-history"></i> Finales Pendientes</button>
+                </li>
+            </ul>
 
-    <!-- Tab panes -->
-    <div class="tab-content" id="legajoTabsContent">
-        <!-- Libro Matriz -->
-        <div class="tab-pane fade show active" id="matriz" role="tabpanel" tabindex="0">
-            <div class="card shadow-sm border-0 mb-5">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-success">
-                            <tr>
-                                <th>Materia</th>
-                                <th>Tipo de Aprobación</th>
-                                <th class="text-center">Nota</th>
-                                <th>Fecha</th>
-                                <th>Detalle (Acta/Resolución)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in acreditadas %}
-                                <tr>
-                                    <td class="fw-bold">{{ item.materia.nombre }}</td>
-                                    <td>
-                                        {% if item.tipo == 'Promoción' %}
-                                            <span class="badge bg-success">Promoción Directa</span>
-                                        {% elif item.tipo == 'Final' %}
-                                            <span class="badge bg-primary">Final Aprobado</span>
-                                        {% elif item.tipo == 'Equivalencia' %}
-                                            <span class="badge bg-info text-dark">Equivalencia</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center fw-bold fs-5">{{ item.nota }}</td>
-                                    <td class="text-muted">{{ item.fecha|date:"d/m/Y" }}</td>
-                                    <td class="text-muted small">{{ item.detalle }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">Aún no hay materias acreditadas.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="tab-content" id="legajoTabsContent-{{ c_info.plan.id }}">
+                <!-- Matriz (Acreditadas) -->
+                <div class="tab-pane fade show active" id="matriz-{{ c_info.plan.id }}" role="tabpanel" tabindex="0">
+                    <div class="card shadow-sm border-0 mb-5">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-success">
+                                    <tr>
+                                        <th>Materia</th>
+                                        <th>Tipo de Aprobacin</th>
+                                        <th class="text-center">Nota</th>
+                                        <th>Fecha</th>
+                                        <th>Detalle (Acta/Resolucin)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in c_info.acreditadas %}
+                                        <tr>
+                                            <td class="fw-bold">{{ item.materia.nombre }}</td>
+                                            <td>
+                                                {% if item.tipo == 'Promocion' %}
+                                                    <span class="badge bg-success">Promocin Directa</span>
+                                                {% elif item.tipo == 'Final' %}
+                                                    <span class="badge bg-primary">Final Aprobado</span>
+                                                {% elif item.tipo == 'Equivalencia' %}
+                                                    <span class="badge bg-info text-dark">Equivalencia</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center fw-bold fs-5">{{ item.nota }}</td>
+                                            <td class="text-muted">{{ item.fecha|date:"d/m/Y" }}</td>
+                                            <td class="text-muted small">{{ item.detalle }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">An no hay materias acreditadas en este plan.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Cursando Actualmente -->
-        <div class="tab-pane fade" id="cursando" role="tabpanel" tabindex="0">
-            <div class="card shadow-sm border-0 mb-5">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Materia</th>
-                                <th>Comisión / Docente</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for insc in cursando %}
-                                <tr>
-                                    <td class="fw-bold">{{ insc.comision.materia.nombre }}</td>
-                                    <td>{{ insc.comision.get_cuatrimestre_display }} {{ insc.comision.ciclo_lectivo }} - {% if insc.comision.docente %}{{ insc.comision.docente }}{% else %}Sin asignar{% endif %}</td>
-                                    <td><span class="badge bg-primary">Regular (En curso)</span></td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">No está cursando ninguna materia actualmente.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <!-- Cursando Actualmente -->
+                <div class="tab-pane fade" id="cursando-{{ c_info.plan.id }}" role="tabpanel" tabindex="0">
+                    <div class="card shadow-sm border-0 mb-5">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Materia</th>
+                                        <th>Comisin / Docente</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for insc in c_info.cursando %}
+                                        <tr>
+                                            <td class="fw-bold">{{ insc.comision.materia.nombre }}</td>
+                                            <td>{{ insc.comision.get_cuatrimestre_display }} {{ insc.comision.ciclo_lectivo }} - {% if insc.comision.docente %}{{ insc.comision.docente }}{% else %}Sin asignar{% endif %}</td>
+                                            <td><span class="badge bg-primary">Regular (En curso)</span></td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4 text-muted">No est cursando ninguna materia actualmente.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Regulares (Final Pendiente) -->
-        <div class="tab-pane fade" id="pendientes" role="tabpanel" tabindex="0">
-            <div class="card shadow-sm border-0 mb-5">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-warning">
-                            <tr>
-                                <th>Materia</th>
-                                <th>Cursada Finalizada</th>
-                                <th class="text-center">Intentos Usados</th>
-                                <th>Vencimiento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for reg in regulares %}
-                                <tr>
-                                    <td class="fw-bold">{{ reg.materia.nombre }}</td>
-                                    <td class="text-muted">
-                                          {% if reg.inscripcion.comision.ciclo_lectivo == 1900 %}
-                                              {{ reg.inscripcion.fecha_inscripcion.year }}
-                                          {% else %}
-                                              {{ reg.inscripcion.comision.ciclo_lectivo }}
-                                          {% endif %}
-                                      </td>
-                                    <td class="text-center">
-                                        <span class="badge {% if reg.intentos == 0 %}bg-success{% elif reg.intentos == 1 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
-                                            {{ reg.intentos }} / 3
-                                        </span>
-                                    </td>
-                                    <td>
-                                        📅 {{ reg.vencimiento|date:"d/m/Y" }}
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">No hay finales pendientes.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <!-- Regulares (Final Pendiente) -->
+                <div class="tab-pane fade" id="pendientes-{{ c_info.plan.id }}" role="tabpanel" tabindex="0">
+                    <div class="card shadow-sm border-0 mb-5">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th>Materia</th>
+                                        <th>Cursada Finalizada</th>
+                                        <th>Vencimiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reg in c_info.regulares %}
+                                        <tr>
+                                            <td class="fw-bold">{{ reg.inscripcion.comision.materia.nombre }}</td>
+                                            <td class="text-muted">
+                                                {% if reg.inscripcion.comision.ciclo_lectivo == 1900 %}
+                                                    {{ reg.inscripcion.fecha_inscripcion.year }}
+                                                {% else %}
+                                                    {{ reg.inscripcion.comision.ciclo_lectivo }}
+                                                {% endif %}
+                                            </td>
+                                            <td><i class="bi bi-calendar-event me-2"></i>{{ reg.fecha_vencimiento|date:"d/m/Y" }}</td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4 text-muted">No hay finales regulares pendientes.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div> <!-- End inner tab content -->
+            
+        </div> <!-- End carrera tab pane -->
+        {% endfor %}
+    </div> <!-- End carreras tab content -->
 
-        <!-- Materias Pendientes Generales -->
-        <div class="tab-pane fade" id="pendientes-gral" role="tabpanel" tabindex="0">
-            <div class="card shadow-sm border-0 mb-5">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-danger">
-                            <tr>
-                                <th>Materia</th>
-                                <th>Año</th>
-                                <th>Tipo de Aprobación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for mat in pendientes_general %}
-                                <tr>
-                                    <td class="fw-bold">{{ mat.nombre }}</td>
-                                    <td>{{ mat.año_dictado }}º</td>
-                                    <td>
-                                        {% if mat.tipo_aprobacion == 'PROM' %}
-                                            <span class="badge bg-success">Promocionable</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Final Obligatorio</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">No tiene materias pendientes. ¡Carrera completada!</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 </div>
 {% endblock %}
