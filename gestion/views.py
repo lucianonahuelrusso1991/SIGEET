@@ -277,8 +277,7 @@ from datetime import timedelta, date
 
 @login_required
 def legajo_alumno(request, alumno_id):
-    
-    # Seguridad: Sólo administradores o docentes (como tutores) pueden ver el legajo
+    # Seguridad: Slo administradores o docentes (como tutores) pueden ver el legajo
     es_admin = request.user.is_staff or request.user.is_superuser
     es_docente = hasattr(request.user, 'perfil_docente')
     if not (es_admin or es_docente):
@@ -289,130 +288,87 @@ def legajo_alumno(request, alumno_id):
 
     alumno = get_object_or_404(Alumno, id=alumno_id)
     
-    carreras = alumno.carreras.all()
-    total_materias = sum(c.materias.count() for c in carreras) if carreras.exists() else 0
+    carreras_data = []
     
-    # 2. Acreditadas (Equivalencias + Finales + Promociones)
-    acreditadas = []
+    todas_eq = alumno.equivalencias.select_related('materia__plan').all()
+    todas_prom = alumno.inscripciones.filter(estado='PROM').select_related('comision__materia__plan').prefetch_related('notas')
+    todas_apr = alumno.mesas_inscriptas.filter(estado='APR').select_related('mesa__materia__plan')
     
-    for eq in alumno.equivalencias.all():
-        acreditadas.append({
-            'materia': eq.materia,
-            'tipo': 'Equivalencia',
-            'nota': '-',
-            'fecha': eq.fecha_otorgamiento,
-            'detalle': f"Res: {eq.resolucion}"
-        })
-        
-    for insc in alumno.inscripciones.filter(estado='PROM'):
-        # Buscar la nota final o promedio si la hay
-        nota_obj = insc.notas.last()
-        nota_val = nota_obj.valor_nota if nota_obj else '-'
-        acreditadas.append({
-            'materia': insc.comision.materia,
-            'tipo': 'Promoción',
-            'nota': nota_val,
-            'fecha': insc.comision.fecha_fin or (nota_obj.fecha if nota_obj else insc.fecha_inscripcion),
-            'detalle': f"Comisión: {insc.comision.ciclo_lectivo}"
-        })
-        
-    for mesa_insc in alumno.mesas_inscriptas.filter(estado='APR'):
-        acreditadas.append({
-            'materia': mesa_insc.mesa.materia,
-            'tipo': 'Final',
-            'nota': mesa_insc.nota_final,
-            'fecha': mesa_insc.mesa.fecha_hora.date(),
-            'detalle': f"Libro: {mesa_insc.mesa.libro or '-'} Folio: {mesa_insc.mesa.folio or '-'}"
-        })
-        
-    total_acreditadas = len(acreditadas)
-    porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
-    
-    # Ordenar acreditadas por fecha descendente
-    acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
-    
-    # Extraer IDs de materias ya acreditadas
-    materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a.get('materia')]
+    todas_reg = alumno.inscripciones.filter(estado='REG').select_related('comision__materia__plan')
+    todas_apr_cursada = alumno.inscripciones.filter(estado='APR', comision__cerrada=True).select_related('comision__materia__plan')
+    todas_libres = alumno.inscripciones.filter(estado='LIB').select_related('comision__materia__plan')
 
-    # 3. Cursando (Activas)
-    # Excluir materias que ya fueron acreditadas
-    cursando_raw = alumno.inscripciones.filter(estado='REG')
-    cursando = [c for c in cursando_raw if c.comision.materia.id not in materias_acreditadas_ids]
+    from datetime import date, timedelta
     
-    # 4. Regulares (Final Pendiente) y Libres/Recursar
-    regulares_db_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
-    regulares_db = [r for r in regulares_db_raw if r.comision.materia.id not in materias_acreditadas_ids]
-    
-    libres_db = list(alumno.inscripciones.filter(estado='LIB'))
-    
-    regulares = []
-    recursar = libres_db.copy()
-    
-    from datetime import timedelta
-    def sumar_anios(d, anios):
-        try:
-            return d.replace(year=d.year + anios)
-        except ValueError:
-            return d + timedelta(days=365 * anios)
-            
-    hoy = date.today()
-    
-    for reg in regulares_db:
-        # Calcular fecha vencimiento: Si es histórica (1900), usar la fecha real que guardamos en fecha_inscripcion.
-        if reg.comision.ciclo_lectivo == 1900:
-            fecha_fin_cursada = reg.fecha_inscripcion
-        else:
-            fecha_fin_cursada = reg.comision.fecha_fin or reg.fecha_inscripcion
-            
-        # Regla de Marzo
-        if fecha_fin_cursada and fecha_fin_cursada.month in [1, 2, 3]:
-            import datetime
-            fecha_fin_cursada = datetime.date(fecha_fin_cursada.year - 1, 12, 20)
-            
-        fecha_vencimiento = sumar_anios(fecha_fin_cursada, 3)
-        vencida_por_tiempo = hoy > fecha_vencimiento
+    for plan in alumno.carreras.all():
+        total_materias = plan.materias.count()
+        acreditadas = []
         
-        # Calcular intentos (Mesas REP)
-        intentos = reg.alumno.mesas_inscriptas.filter(mesa__materia=reg.comision.materia, estado='REP').count()
-        vencida_por_intentos = intentos >= 3
-        
-        item = {
-            'inscripcion': reg,
-            'materia': reg.comision.materia,
-            'vencimiento': fecha_vencimiento,
-            'intentos': intentos,
-            'vencida': vencida_por_tiempo or vencida_por_intentos,
-            'motivo_vencida': 'Por Tiempo' if vencida_por_tiempo else ('Por Intentos' if vencida_por_intentos else '')
-        }
-        
-        if item['vencida']:
-            recursar.append(reg) # Se manda a recursar
-        else:
-            regulares.append(item)
+        for eq in [e for e in todas_eq if e.materia.plan_id == plan.id]:
+            acreditadas.append({'materia': eq.materia, 'tipo': 'Equivalencia', 'nota': '-', 'fecha': eq.fecha_otorgamiento, 'detalle': f"Res: {eq.resolucion}"})
             
-    # 5. Materias Pendientes (General)
+        for insc in [i for i in todas_prom if i.comision.materia.plan_id == plan.id]:
+            nota_obj = insc.notas.last()
+            nota_val = nota_obj.valor_nota if nota_obj else '-'
+            acreditadas.append({'materia': insc.comision.materia, 'tipo': 'Promocion', 'nota': nota_val, 'fecha': insc.comision.fecha_fin or (nota_obj.fecha if nota_obj else insc.fecha_inscripcion), 'detalle': f"Comision: {insc.comision.ciclo_lectivo}"})
+            
+        for mesa_insc in [m for m in todas_apr if m.mesa.materia.plan_id == plan.id]:
+            acreditadas.append({'materia': mesa_insc.mesa.materia, 'tipo': 'Final', 'nota': mesa_insc.nota_final, 'fecha': mesa_insc.mesa.fecha_hora.date(), 'detalle': f"Libro: {mesa_insc.mesa.libro or '-'} Folio: {mesa_insc.mesa.folio or '-'})"})
+            
+        total_acreditadas = len(acreditadas)
+        porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
+        acreditadas.sort(key=lambda x: x['fecha'], reverse=True)
+        materias_acreditadas_ids = [a['materia'].id for a in acreditadas if a.get('materia')]
+
+        cursando = [c for c in todas_reg if c.comision.materia.plan_id == plan.id and c.comision.materia.id not in materias_acreditadas_ids]
+        
+        regulares_db = [r for r in todas_apr_cursada if r.comision.materia.plan_id == plan.id and r.comision.materia.id not in materias_acreditadas_ids]
+        recursar = [l for l in todas_libres if l.comision.materia.plan_id == plan.id]
+        regulares = []
+        
+        for reg in regulares_db:
+            fecha_fin = reg.comision.fecha_fin
+            if not fecha_fin:
+                import re as regex
+                match = regex.search(r'\d{4}', reg.comision.ciclo_lectivo)
+                year = int(match.group()) if match else date.today().year
+                fecha_fin = date(year, 12, 31)
+            fecha_venc = fecha_fin + timedelta(days=365 * 3)
+            if date.today() > fecha_venc: recursar.append(reg)
+            else: regulares.append({'inscripcion': reg, 'fecha_vencimiento': fecha_venc})
+            
+        materias_faltantes = total_materias - total_acreditadas
+        
+        carreras_data.append({
+            'plan': plan,
+            'acreditadas': acreditadas,
+            'total_acreditadas': total_acreditadas,
+            'cursando': cursando,
+            'regulares': regulares,
+            'recursar': recursar,
+            'porcentaje_avance': round(porcentaje_avance, 1),
+            'materias_faltantes': materias_faltantes,
+            'total_materias': total_materias
+        })
     
-    todas_materias = Materia.objects.filter(plan__in=alumno.carreras.filter(activo=True)).order_by('año_dictado', 'nombre').distinct() if alumno.carreras.exists() else []
-    materias_en_curso_ids = [c.comision.materia.id for c in cursando]
-    materias_regulares_ids = [r["materia"].id for r in regulares]
-    pendientes_general = [m for m in todas_materias if m.id not in materias_acreditadas_ids and m.id not in materias_en_curso_ids and m.id not in materias_regulares_ids]
-    
+    global_porcentaje_avance = round(sum(d['porcentaje_avance'] for d in carreras_data) / len(carreras_data), 1) if carreras_data else 0
+    global_total_acreditadas = sum(d['total_acreditadas'] for d in carreras_data)
+    global_materias_faltantes = sum(d['materias_faltantes'] for d in carreras_data)
+    global_total_materias = sum(d['total_materias'] for d in carreras_data)
+
     context = {
         'alumno': alumno,
-        'total_materias': total_materias,
-        'total_acreditadas': total_acreditadas,
-        'materias_faltantes': total_materias - total_acreditadas,
-        'porcentaje_avance': int(porcentaje_avance),
-        'acreditadas': acreditadas,
-        'cursando': cursando,
-        'regulares': regulares,
-        'pendientes_general': pendientes_general
+        'carreras_data': carreras_data,
+        'porcentaje_avance': global_porcentaje_avance,
+        'total_acreditadas': global_total_acreditadas,
+        'materias_faltantes': global_materias_faltantes,
+        'total_materias': global_total_materias,
+        'es_tutor': es_solo_tutor(request.user),
     }
-    
     return render(request, 'gestion/legajo_alumno.html', context)
 
+
 @login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def editar_alumno(request, alumno_id):
     if es_solo_tutor(request.user): return redirect('lista_alumnos')
     alumno = get_object_or_404(Alumno, id=alumno_id)
