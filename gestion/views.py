@@ -340,9 +340,7 @@ def legajo_alumno(request, alumno_id):
         for reg in regulares_db:
             fecha_fin = reg.comision.fecha_fin
             if not fecha_fin:
-                import re as regex
-                match = regex.search(r'\d{4}', reg.comision.ciclo_lectivo)
-                year = int(match.group()) if match else date.today().year
+                year = int(reg.comision.ciclo_lectivo) if reg.comision.ciclo_lectivo else date.today().year
                 fecha_fin = date(year, 12, 31)
             fecha_venc = fecha_fin + timedelta(days=365 * 3)
             if date.today() > fecha_venc: recursar.append(reg)
