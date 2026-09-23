@@ -83,29 +83,32 @@ def dashboard(request):
         for insc_carrera in inscripciones_carreras:
             plan = insc_carrera.plan
             total_materias = plan.materias.count()
-            total_acreditadas = (
-                alumno.equivalencias.filter(materia__plan=plan).count() + 
-                alumno.inscripciones.filter(estado='PROM', comision__materia__plan=plan).count() + 
-                alumno.mesas_inscriptas.filter(estado='APR', mesa__materia__plan=plan).count()
+            
+            # IDs de materias acreditadas EN ESTE PLAN
+            acreditadas_ids = (
+                list(alumno.equivalencias.filter(materia__plan=plan).values_list('materia_id', flat=True)) +
+                list(alumno.inscripciones.filter(estado='PROM', comision__materia__plan=plan).values_list('comision__materia_id', flat=True)) +
+                list(alumno.mesas_inscriptas.filter(estado='APR', mesa__materia__plan=plan).values_list('mesa__materia_id', flat=True))
             )
+            
+            total_acreditadas = len(set(acreditadas_ids))
             porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
+            
+            # Materias cursando EN ESTE PLAN
+            cursando_raw = alumno.inscripciones.filter(estado='REG', comision__materia__plan=plan).select_related('comision__materia')
+            cursando = [c for c in cursando_raw if c.comision.materia_id not in acreditadas_ids]
+            
+            # Materias regularizadas EN ESTE PLAN
+            cursadas_aprobadas_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True, comision__materia__plan=plan).select_related('comision__materia')
+            cursadas_aprobadas = [c for c in cursadas_aprobadas_raw if c.comision.materia_id not in acreditadas_ids]
             
             carreras_info.append({
                 'plan': plan,
                 'inscripcion_carrera': insc_carrera,
-                'porcentaje_avance': round(porcentaje_avance, 1)
+                'porcentaje_avance': round(porcentaje_avance, 1),
+                'cursando': cursando,
+                'cursadas_aprobadas': cursadas_aprobadas,
             })
-        
-        # Extraer IDs de materias ya acreditadas
-        materias_acreditadas_ids = list(alumno.equivalencias.values_list('materia_id', flat=True)) +                                    list(alumno.inscripciones.filter(estado='PROM').values_list('comision__materia_id', flat=True)) +                                    list(alumno.mesas_inscriptas.filter(estado='APR').values_list('mesa__materia_id', flat=True))
-                                   
-        # Materias cursando
-        cursando_raw = alumno.inscripciones.filter(estado='REG')
-        cursando = [c for c in cursando_raw if c.comision.materia_id not in materias_acreditadas_ids]
-        
-        # Materias regularizadas (aprobada la cursada, debe el final)
-        cursadas_aprobadas_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True)
-        cursadas_aprobadas = [c for c in cursadas_aprobadas_raw if c.comision.materia_id not in materias_acreditadas_ids]
         
         from .models import SolicitudTramite, Materia
         tramites = SolicitudTramite.objects.filter(alumno=alumno).order_by('-fecha_solicitud')
@@ -116,9 +119,6 @@ def dashboard(request):
             'alumno': alumno,
             'unread_notifications': unread_notifications,
             'carreras_info': carreras_info,
-            'cursando': cursando,
-            'cursadas_aprobadas': cursadas_aprobadas,
-        
             'tramites': tramites,
             'materias_plan': materias_plan,
         })
