@@ -79,7 +79,7 @@ class Command(BaseCommand):
             user_carreras = {}
             for row in ca_rows:
                 try:
-                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\'))
+                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\'))
                     if len(parts) > 4:
                         c_id = parts[1].strip()
                         u_id = parts[3].strip()
