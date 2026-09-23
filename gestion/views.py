@@ -3118,7 +3118,7 @@ def editar_libro_matriz(request, inscripcion_id):
 def gestionar_historial_alumno(request, alumno_id):
     alumno = get_object_or_404(Alumno, id=alumno_id)
     planes = alumno.carreras.all()
-    materias = Materia.objects.filter(plan__in=planes).order_by('plan__nombre', 'ao_dictado', 'nombre')
+    materias = Materia.objects.filter(plan__in=planes).order_by('plan__nombre', 'año_dictado', 'nombre')
     finales = alumno.mesas_inscriptas.filter(estado__in=['APR', 'PROM', 'REP']).order_by('-mesa__fecha_hora')
     
     if request.method == 'POST':
