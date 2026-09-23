@@ -111,6 +111,12 @@ class Command(BaseCommand):
                     l_dni = parts[4].strip()
                     
                     if not l_dni or l_dni == 'NULL': continue
+                    
+                    # SANITIZAR DNI (sacar puntos, comas, decimales y todo lo que no sea numero)
+                    l_dni_limpio = l_dni.split('.')[0].split(',')[0] # quitar decimales si los hay
+                    l_dni = ''.join(filter(str.isdigit, l_dni_limpio))
+                    if not l_dni: continue
+                    
                     if l_email == 'NULL' or not l_email: l_email = f"{l_dni}@test.com"
                     
                     l_tel = parts[7].strip() if parts[7] != 'NULL' else None
