@@ -62,7 +62,16 @@ class Command(BaseCommand):
                     
                     docente = Docente.objects.filter(dni=clean_dni).first()
                     if docente:
-                        if l_email and l_email != 'None': docente.email = l_email[:254]
+                        if l_email and l_email != 'None':
+                            l_email = l_email.strip()[:254]
+                            if l_email.endswith('@pioix.edu.ar'):
+                                docente.correo_institucional = l_email
+                            else:
+                                docente.email = l_email
+                                
+                            if docente.usuario:
+                                docente.usuario.email = l_email
+                                docente.usuario.save()
                         if l_telefono and l_telefono != 'None': docente.telefono = l_telefono[:20]
                         if l_nac and l_nac != 'None': docente.nacionalidad = l_nac[:100]
                         if l_dir and l_dir != 'None': docente.direccion = l_dir[:200]
