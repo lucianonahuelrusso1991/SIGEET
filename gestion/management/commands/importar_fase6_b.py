@@ -80,6 +80,16 @@ class Command(BaseCommand):
                         if l_dni_limpio: legacy_u[u_id] = l_dni_limpio
                 except: pass
                 
+            self.stdout.write(">> Mapeando Alumnos-Usuarios (El puente que faltaba)...")
+            alumnos_map = {} # alumno_id -> user_id
+            for row in self.parse_sql_lines(sql_file, 'alumnos'):
+                try:
+                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\'))
+                    a_id = parts[0].strip()
+                    u_id = parts[5].strip()
+                    alumnos_map[a_id] = u_id
+                except: pass
+
             alumnos_db = {a.dni: a for a in Alumno.objects.all()}
 
             self.stdout.write(">> Inyectando alumnos_cursos (Inscripciones Reales)...")
@@ -88,15 +98,13 @@ class Command(BaseCommand):
             created_insc = 0
             updated_insc = 0
             
-            # Map legacy states to new states
-            # ('promociona','pierde_promo','libre','reincorpora','final','reincorpor sin promocin','reincorpor con promocin','baja','cursando','No Aprueba')
             estado_map = {
                 'promociona': 'PROM',
                 'final': 'APR',
                 'libre': 'LIB',
                 'baja': 'LIB',
                 'cursando': 'REG',
-                'pierde_promo': 'APR', # goes to final
+                'pierde_promo': 'APR', 
                 'reincorpora': 'REG',
                 'reincorpor sin promocin': 'APR',
                 'reincorpor con promocin': 'PROM',
@@ -114,7 +122,9 @@ class Command(BaseCommand):
                     l_estado = parts[6].strip()
                     l_nota = parts[9].strip()
                     
-                    u_dni = legacy_u.get(l_alumno_id)
+                    # MAGIA DEL PUENTE: l_alumno_id -> u_id -> dni
+                    u_id = alumnos_map.get(l_alumno_id)
+                    u_dni = legacy_u.get(u_id)
                     curso_info = legacy_cursos.get(l_curso_id)
                     
                     if u_dni and curso_info:
@@ -126,7 +136,6 @@ class Command(BaseCommand):
                             estado_nuevo = estado_map.get(l_estado, 'REG')
                             
                             if not dry_run:
-                                # Update or create inscripcion directly on the real commission
                                 insc, c_created = Inscripcion.objects.get_or_create(
                                     alumno=al,
                                     comision=comision_real,
@@ -134,7 +143,6 @@ class Command(BaseCommand):
                                 )
                                 
                                 mod = False
-                                # Hierarchy to not downgrade an already promoted student (from libretas)
                                 jerarquia = {'LIB': 0, 'REG': 1, 'APR': 2, 'PROM': 3}
                                 if not c_created:
                                     if jerarquia.get(estado_nuevo, 1) > jerarquia.get(insc.estado, 1):
@@ -146,7 +154,6 @@ class Command(BaseCommand):
                                     insc.save()
                                     updated_insc += 1
                                     
-                                # Guardar la nota si existe (Promocion)
                                 if l_nota != 'NULL' and l_nota != 'ausente' and l_nota:
                                     try:
                                         n_val = int(l_nota)
