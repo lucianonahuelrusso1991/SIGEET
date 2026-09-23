@@ -45,9 +45,13 @@
                     <li><a class="dropdown-item" href="{% url 'calendario_alumno' alumno.id %}">📅 Ver Mi Calendario</a></li>
                     <li><a class="dropdown-item" href="{% url 'constancia_alumno' alumno.id %}" target="_blank">📄 Generar Constancia</a></li>
                     <li><a class="dropdown-item" href="{% url 'analitico_alumno' alumno.id %}" target="_blank">🎓 Analítico Parcial</a></li>
-                    {% if not es_tutor %}
+                                        {% if not es_tutor %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-success" href="{% url 'alta_equivalencia' alumno.id %}">✨ Cargar Equivalencia</a></li>
+                    <li><a class="dropdown-item text-success" href="{% url 'alta_equivalencia' alumno.id %}"> Cargar Equivalencia</a></li>
+                    {% endif %}
+                    {% if request.user.is_superuser %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger fw-bold" href="{% url 'gestionar_historial_alumno' alumno.id %}"><i class="bi bi-shield-lock-fill"></i> Editor Historico (Admin)</a></li>
                     {% endif %}
                 </ul>
             </div>

@@ -3112,3 +3112,81 @@ def editar_libro_matriz(request, inscripcion_id):
         insc.save()
         messages.success(request, f'Libro matriz actualizado para {insc.plan.nombre}.')
     return redirect('legajo_alumno', alumno_id=insc.alumno.id)
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def gestionar_historial_alumno(request, alumno_id):
+    alumno = get_object_or_404(Alumno, id=alumno_id)
+    planes = alumno.carreras.all()
+    materias = Materia.objects.filter(plan__in=planes).order_by('plan__nombre', 'ao_dictado', 'nombre')
+    finales = alumno.mesas_inscriptas.filter(estado__in=['APR', 'PROM', 'REP']).order_by('-mesa__fecha_hora')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        from datetime import datetime, time
+        from django.utils import timezone
+        
+        if action == 'add_final':
+            materia_id = request.POST.get('materia_id')
+            fecha_str = request.POST.get('fecha')
+            nota_str = request.POST.get('nota')
+            libro = request.POST.get('libro', '')
+            folio = request.POST.get('folio', '')
+            
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            nota = float(nota_str) if nota_str else None
+            materia = get_object_or_404(Materia, id=materia_id)
+            
+            fecha_aware = timezone.make_aware(datetime.combine(fecha, time.min))
+            mesa, _ = MesaExamen.objects.get_or_create(
+                materia=materia, 
+                fecha_hora=fecha_aware, 
+                defaults={'libro': libro, 'folio': folio, 'cerrada': True}
+            )
+            InscripcionMesa.objects.update_or_create(
+                alumno=alumno, 
+                mesa=mesa, 
+                defaults={'nota_final': nota, 'estado': 'APR' if nota is None or nota >= 4 else 'REP'}
+            )
+            messages.success(request, f'Nota histrica registrada en {materia.nombre}.')
+            return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
+            
+        elif action == 'delete_final':
+            insc_id = request.POST.get('insc_id')
+            insc = get_object_or_404(InscripcionMesa, id=insc_id, alumno=alumno)
+            insc.delete()
+            messages.success(request, 'Registro histrico eliminado correctamente.')
+            return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
+            
+        elif action == 'edit_final':
+            insc_id = request.POST.get('insc_id')
+            insc = get_object_or_404(InscripcionMesa, id=insc_id, alumno=alumno)
+            fecha_str = request.POST.get('fecha')
+            nota_str = request.POST.get('nota')
+            libro = request.POST.get('libro', '')
+            folio = request.POST.get('folio', '')
+            
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            nota = float(nota_str) if nota_str else None
+            fecha_aware = timezone.make_aware(datetime.combine(fecha, time.min))
+            
+            nueva_mesa, _ = MesaExamen.objects.get_or_create(
+                materia=insc.mesa.materia,
+                fecha_hora=fecha_aware,
+                defaults={'libro': libro, 'folio': folio, 'cerrada': True}
+            )
+            if nueva_mesa != insc.mesa:
+                insc.mesa = nueva_mesa
+            
+            insc.nota_final = nota
+            insc.estado = 'APR' if nota is None or nota >= 4 else 'REP'
+            insc.save()
+            messages.success(request, 'Registro histrico modificado correctamente.')
+            return redirect('gestionar_historial_alumno', alumno_id=alumno.id)
+            
+    context = {
+        'alumno': alumno,
+        'materias': materias,
+        'finales': finales,
+    }
+    return render(request, 'gestion/historial_admin.html', context)
