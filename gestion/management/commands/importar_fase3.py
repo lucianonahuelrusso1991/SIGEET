@@ -1,364 +1,173 @@
-﻿import os
-from django.core.management.base import BaseCommand
-from django.db import transaction
-from django.db.models.signals import post_save
-from django.utils import timezone
+import os
+import django
 import datetime
-import unicodedata
-from gestion.models import Alumno, Materia, Inscripcion, Nota, PlanDeEstudio, Comision, InscripcionCarrera, MesaExamen, InscripcionMesa
-from django.contrib.auth.models import User
-from gestion.signals import sync_inscripcion_classroom
-
-def normalize_string(s):
-    import re
-    s = s.upper().strip()
-    # Remover divisiones y ruidos (ej: " - A", " A", " (A)", "1ro A")
-    s = re.sub(r'(?i)(\s*-\s*[A-E]|\s+["\']?[A-E]["\']?|\s+\([A-E]\)|\s+[1-3]RO\s+[A-E])$', '', s)
-    s = s.lower().strip()
-    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+import csv
+from io import StringIO
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User, Group
 
 class Command(BaseCommand):
-    help = 'Importa Fase 3 - Reparacion de Duplicados y Fechas'
+    help = 'Migracion masiva de Alumnos (Fase 3)'
 
     def add_arguments(self, parser):
-        parser.add_argument('sql_file', type=str, help='Ruta al archivo redarg_pdb.sql')
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='Ejecuta un simulacro sin guardar cambios en la base de datos',
+        )
 
     def parse_sql_lines(self, file_path, table_name):
+        in_table = False
         rows = []
-        in_insert = False
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f:
                 if line.startswith(f"INSERT INTO `{table_name}`"):
-                    in_insert = True
+                    in_table = True
                     continue
-                if in_insert:
+                if in_table:
                     line = line.strip()
-                    if line.endswith(';'):
-                        if line != ';':
-                            row = line[:-1].strip()
-                            if row.startswith('('): row = row[1:]
-                            if row.endswith(')'): row = row[:-1]
-                            rows.append(row)
-                        in_insert = False
-                    elif line.endswith(','):
-                        if line != ',':
-                            row = line[:-1].strip()
-                            if row.startswith('('): row = row[1:]
-                            if row.endswith(')'): row = row[:-1]
-                            rows.append(row)
+                    is_end = line.endswith(';')
+                    if line.endswith(';') or line.endswith(','):
+                        line = line[:-1]
+                    if line.startswith('('):
+                        rows.append(line[1:-1])
+                    if is_end:
+                        in_table = False
         return rows
 
     def handle(self, *args, **options):
-        sql_file = options['sql_file']
+        dry_run = options['dry_run']
+        if dry_run:
+            self.stdout.write(self.style.WARNING("--- EJECUTANDO EN MODO DRY-RUN (SIMULACRO) ---"))
+            self.stdout.write(self.style.WARNING("Ningun dato sera modificado realmente.\n"))
+
+        sql_file = '/tmp/redarg_pdb.sql'
+        if not os.path.exists(sql_file):
+            sql_file = r'D:\Escritorio\Migracion\sql\redarg_pdb.sql'
+            if not os.path.exists(sql_file):
+                self.stdout.write(self.style.ERROR('No se encontr redarg_pdb.sql en /tmp/ ni local.'))
+                return
+
+        from gestion.models import Alumno, PlanDeEstudio, InscripcionCarrera
+        from gestion.signals import sync_inscripcion_classroom
+        from gestion.models import Inscripcion
         
-        try:
+        if not dry_run:
             post_save.disconnect(sync_inscripcion_classroom, sender=Inscripcion)
+
+        try:
+            plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first()
+            plan_locucion_2025 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
+            plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
+            plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
+            plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
+            plan_historico = PlanDeEstudio.objects.filter(nombre__icontains='Hist').first()
+
+            map_carrera = {
+                '16': plan_locucion,
+                '8': plan_locucion,
+                '24': plan_locucion_2025,
+                '17': plan_television,
+                '9': plan_sagradas,
+                '13': plan_sistemas,
+            }
+
+            self.stdout.write(">> Parseando carreras_alumnos...")
+            ca_rows = self.parse_sql_lines(sql_file, 'carreras_alumnos')
+            user_carreras = {}
+            for row in ca_rows:
+                try:
+                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\'))
+                    c_id = parts[1].strip()
+                    u_id = parts[2].strip()
+                    if u_id not in user_carreras:
+                        user_carreras[u_id] = set()
+                    user_carreras[u_id].add(c_id)
+                except: pass
+
+            self.stdout.write(">> Procesando alumnos (users)...")
+            users_rows = self.parse_sql_lines(sql_file, 'users')
             
-            with transaction.atomic():
-                self.stdout.write(self.style.SUCCESS('--- INICIANDO FASE 3 (REPARACION FINAL) ---'))
-                
-                plan_historico, _ = PlanDeEstudio.objects.get_or_create(nombre='Plan Histórico (Migración)', defaults={'activo': False})
-                if plan_historico.activo:
-                    plan_historico.activo = False
-                    plan_historico.save()
+            created_count = 0
+            updated_count = 0
+            
+            estudiantes_group = Group.objects.filter(name='Estudiantes').first() if not dry_run else None
+            if not estudiantes_group and not dry_run:
+                estudiantes_group, _ = Group.objects.get_or_create(name='Estudiantes')
 
-                Inscripcion.objects.all().delete()
-                Nota.objects.all().delete()
-                InscripcionMesa.objects.all().delete()
-                MesaExamen.objects.filter(ciclo_lectivo=1900).delete()
-                Comision.objects.filter(ciclo_lectivo=1900).delete()
-                
-                # ELIMINAR DUPLICADOS EN MAYUSCULA (Fuzzy Match)
-                self.stdout.write('Limpiando Materias duplicadas en mayuscula...')
-                all_materias = list(Materia.objects.all())
-                norm_dict = {}
-                for m in all_materias:
-                    norm = normalize_string(m.nombre)
-                    if norm not in norm_dict:
-                        norm_dict[norm] = []
-                    norm_dict[norm].append(m)
+            for row_str in users_rows:
+                try:
+                    parts = next(csv.reader(StringIO(row_str), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\'))
+                except: continue
                     
-                for norm, m_list in norm_dict.items():
-                    if len(m_list) > 1:
-                        # Priorizar la que NO es toda mayuscula
-                        m_list.sort(key=lambda x: (x.nombre.isupper(), x.id))
-                        keeper = m_list[0]
-                        for duplicate in m_list[1:]:
-                            duplicate.delete()
-                
-                plan_locucion = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='19').first() or PlanDeEstudio.objects.filter(nombre__icontains='Locuci').first()
-                plan_locucion_2025 = PlanDeEstudio.objects.filter(nombre__icontains='Locuci').filter(nombre__icontains='2025').first()
-                plan_television = PlanDeEstudio.objects.filter(nombre__icontains='Televis').first()
-                plan_sistemas = PlanDeEstudio.objects.filter(nombre__icontains='Sistemas').first()
-                plan_sagradas = PlanDeEstudio.objects.filter(nombre__icontains='Sagradas').first()
-                
-                map_carrera = {
-                    '16': plan_locucion or plan_historico,
-                    '8': plan_locucion or plan_historico,
-                    '24': plan_locucion_2025 or plan_historico,
-                    '17': plan_television or plan_historico,
-                    '9': plan_sagradas or plan_historico,
-                    '13': plan_sistemas or plan_historico,
-                }
-                
-                cm_rows = self.parse_sql_lines(sql_file, 'carreras_materias')
-                materia_to_carrera = {}
-                for row in cm_rows:
-                    parts = row.split(',')
-                    if len(parts) > 2:
-                        c_id = parts[1].strip()
-                        m_id = parts[2].strip()
-                        materia_to_carrera[m_id] = c_id
-                
-                materias_rows = self.parse_sql_lines(sql_file, 'materias')
-                materia_dict = {}
-                comision_dict = {}
-                mesa_dict = {}
-                
-                fecha_historica = timezone.now()
-                
-                # Volver a cachear las materias luego de la limpieza
-                materias_existentes = {normalize_string(m.nombre): m for m in Materia.objects.all()}
-                
-                for row in materias_rows:
-                    parts = row.split("','") if "','" in row else row.split(',')
-                    if len(parts) >= 2:
-                        m_id = parts[0].strip()
-                        m_name = parts[1].strip().strip("'")[:149]
-                        norm_name = normalize_string(m_name)
+                if len(parts) > 13:
+                    u_id = parts[0]
+                    l_nombre = parts[1].strip()
+                    l_ape = parts[2].strip()
+                    l_email = parts[3].strip()
+                    l_dni = parts[4].strip()
+                    
+                    if not l_dni or l_dni == 'NULL': continue
+                    if l_email == 'NULL' or not l_email: l_email = f"{l_dni}@test.com"
+                    
+                    l_tel = parts[7].strip() if parts[7] != 'NULL' else None
+                    l_dir = parts[9].strip() if parts[9] != 'NULL' else None
+                    l_nac = parts[13].strip() if parts[13] != 'NULL' else None
+                    
+                    l_nac_date = None
+                    if l_nac and len(l_nac) >= 10:
+                        try: l_nac_date = datetime.datetime.strptime(l_nac[:10], '%Y-%m-%d').date()
+                        except: pass
                         
-                        legacy_c_id = materia_to_carrera.get(m_id)
-                        plan_correcto = map_carrera.get(legacy_c_id, plan_historico)
+                    # Evaluar carreras
+                    carreras_legacy = user_carreras.get(u_id, set())
+                    planes_a_asignar = set()
+                    for c_leg in carreras_legacy:
+                        if c_leg in map_carrera and map_carrera[c_leg]:
+                            planes_a_asignar.add(map_carrera[c_leg])
+                    
+                    if not planes_a_asignar:
+                        planes_a_asignar.add(plan_historico)
                         
-                        if norm_name in materias_existentes:
-                            m_obj = materias_existentes[norm_name]
-                            # NO TOCAMOS EL PLAN DE LA MATERIA. Si el usuario la puso en Locucion 2025, queda ahi.
-                        else:
-                            # Si no existe, es una materia vieja de Ezequiel que no está en los planes modernos.
-                            # La aislamos en el Plan Histórico para no ensuciar los planes vigentes.
-                            m_obj = Materia.objects.create(nombre=m_name, plan=plan_historico, año_dictado=1, cuatrimestre_dictado='AN')
-                            materias_existentes[norm_name] = m_obj
+                    if not dry_run:
+                        alumno = Alumno.objects.filter(dni=l_dni).first()
+                        if not alumno:
+                            user, u_created = User.objects.get_or_create(username=l_dni, defaults={'email': l_email[:149], 'first_name': l_nombre[:29], 'last_name': l_ape[:29]})
+                            if u_created:
+                                user.set_password(l_dni)
+                                user.groups.add(estudiantes_group)
+                                user.save()
                                 
-                        materia_dict[m_id] = m_obj
-                        
-                        # Usar 1900 para que el template sepa que es historica y muestre el año de la fecha real
-                        c_obj = Comision.objects.filter(materia=m_obj, ciclo_lectivo=1900).first()
-                        if not c_obj:
-                            c_obj = Comision.objects.create(materia=m_obj, ciclo_lectivo=1900, cuatrimestre='AN', tipo_aprobacion='FIN', modalidad='P', cerrada=False)
-                        comision_dict[m_id] = c_obj
-                        
-                        mesa_obj = MesaExamen.objects.filter(materia=m_obj, ciclo_lectivo=1900).first()
-                        if not mesa_obj:
-                            mesa_obj = MesaExamen.objects.create(materia=m_obj, ciclo_lectivo=1900, turno='ESPECIAL', fecha_hora=fecha_historica, cerrada=True)
-                        mesa_dict[m_id] = mesa_obj
-                
-                libretas_rows = self.parse_sql_lines(sql_file, 'libretas')
-                
-                user_dotti, _ = User.objects.get_or_create(username='33774806', defaults={'email': 'fdotti@pioix.edu.ar', 'first_name': 'FERNANDO', 'last_name': 'DOTTI'})
-                alumno_dotti, _ = Alumno.objects.get_or_create(dni='33774806', defaults={'usuario': user_dotti, 'nombre': 'FERNANDO', 'apellido': 'DOTTI'})
-                
-                user_britos, _ = User.objects.get_or_create(username='44363997', defaults={'email': 'vbritos@pioix.edu.ar', 'first_name': 'VICTORIA', 'last_name': 'BRITOS'})
-                alumno_britos, _ = Alumno.objects.get_or_create(dni='44363997', defaults={'usuario': user_britos, 'nombre': 'VICTORIA', 'apellido': 'BRITOS'})
-                
-                user_micieli, _ = User.objects.get_or_create(username='30149595', defaults={'email': 'dmicieli@pioix.edu.ar', 'first_name': 'ESTEFANIA', 'last_name': 'MICIELI'})
-                if not user_micieli.password:
-                    user_micieli.set_password('30149595')
-                    user_micieli.save()
-                alumno_micieli, _ = Alumno.objects.get_or_create(dni='30149595', defaults={'usuario': user_micieli, 'nombre': 'ESTEFANIA', 'apellido': 'MICIELI', 'email': 'dmicieli@pioix.edu.ar'})
-
-                user_rivas, _ = User.objects.get_or_create(username='46027726', defaults={'email': 'arivas@pioix.edu.ar', 'first_name': 'AGUSTINA', 'last_name': 'RIVAS'})
-                if not user_rivas.password:
-                    user_rivas.set_password('46027726')
-                    user_rivas.save()
-                alumno_rivas, _ = Alumno.objects.get_or_create(dni='46027726', defaults={'usuario': user_rivas, 'nombre': 'AGUSTINA', 'apellido': 'RIVAS', 'email': 'arivas@pioix.edu.ar'})
-                
-                user_carlos, _ = User.objects.get_or_create(username='7766086', defaults={'email': 'carlosfernandez@pioix.edu.ar', 'first_name': 'CARLOS ALBERTO', 'last_name': 'FERNANDEZ'})
-                if not user_carlos.password:
-                    user_carlos.set_password('7766086')
-                    user_carlos.save()
-                alumno_carlos, _ = Alumno.objects.get_or_create(dni='7766086', defaults={'usuario': user_carlos, 'nombre': 'CARLOS ALBERTO', 'apellido': 'FERNANDEZ', 'email': 'carlosfernandez@pioix.edu.ar'})
-                
-                user_isabella, _ = User.objects.get_or_create(username='42649322', defaults={'email': 'ibrenda@pioix.edu.ar', 'first_name': 'BRENDA', 'last_name': 'ISABELLA'})
-                if not user_isabella.password:
-                    user_isabella.set_password('42649322')
-                    user_isabella.save()
-                alumno_isabella, _ = Alumno.objects.get_or_create(dni='42649322', defaults={'usuario': user_isabella, 'nombre': 'BRENDA', 'apellido': 'ISABELLA', 'email': 'ibrenda@pioix.edu.ar'})
-                
-                user_martina, _ = User.objects.get_or_create(username='37687214', defaults={'email': 'mpereira@pioix.edu.ar', 'first_name': 'MARTINA', 'last_name': 'MOÑIN PEREIRA'})
-                if not user_martina.password: user_martina.set_password('37687214'); user_martina.save()
-                alumno_martina, _ = Alumno.objects.get_or_create(dni='37687214', defaults={'usuario': user_martina, 'nombre': 'MARTINA', 'apellido': 'MOÑIN PEREIRA', 'email': 'mpereira@pioix.edu.ar'})
-
-                user_julieta, _ = User.objects.get_or_create(username='39462473', defaults={'email': 'jwheeler@pioix.edu.ar', 'first_name': 'JULIETA JAZMIN', 'last_name': 'WHEELER'})
-                if not user_julieta.password: user_julieta.set_password('39462473'); user_julieta.save()
-                alumno_julieta, _ = Alumno.objects.get_or_create(dni='39462473', defaults={'usuario': user_julieta, 'nombre': 'JULIETA JAZMIN', 'apellido': 'WHEELER', 'email': 'jwheeler@pioix.edu.ar'})
-                
-                user_ignacio, _ = User.objects.get_or_create(username='47130185', defaults={'email': 'iwinkler@pioix.edu.ar', 'first_name': 'IGNACIO', 'last_name': 'WINKLER'})
-                if not user_ignacio.password: user_ignacio.set_password('47130185'); user_ignacio.save()
-                alumno_ignacio, _ = Alumno.objects.get_or_create(dni='47130185', defaults={'usuario': user_ignacio, 'nombre': 'IGNACIO', 'apellido': 'WINKLER', 'email': 'iwinkler@pioix.edu.ar'})
-                
-                
-                import csv
-                from io import StringIO
-                self.stdout.write('Enriqueciendo legajos con datos personales (Fase 3b)...')
-                users_rows = self.parse_sql_lines(sql_file, 'users')
-                for row_str in users_rows:
-                    f_csv = StringIO(row_str)
-                    reader = csv.reader(f_csv, delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\')
-                    try:
-                        parts = next(reader)
-                    except:
-                        continue
-                        
-                    if len(parts) > 13:
-                        l_dni = parts[4]
-                        l_tel = parts[7] if parts[7] != 'NULL' else None
-                        l_dir = parts[9] if parts[9] != 'NULL' else None
-                        l_nac = parts[13] if parts[13] != 'NULL' else None
-                        
-                        if l_dni in ['33774806', '44363997', '30149595', '46027726', '7766086', '42649322', '37687214', '39462473', '47130185']:
-                            alumno = Alumno.objects.filter(dni=l_dni).first()
-                            if alumno:
-                                if l_tel and l_tel.lower() != 'null': alumno.celular = l_tel
-                                if l_dir and l_dir.lower() != 'null': alumno.direccion = l_dir
-                                if l_nac and l_nac.lower() != 'null' and l_nac != '':
-                                    try:
-                                        alumno.fecha_nacimiento = datetime.datetime.strptime(l_nac, '%Y-%m-%d').date()
-                                    except Exception:
-                                        pass
-                                alumno.save()
-
-                for al in [alumno_dotti, alumno_britos, alumno_micieli, alumno_rivas, alumno_carlos, alumno_isabella, alumno_martina, alumno_julieta, alumno_ignacio]:
-                    if al:
-                        if al == alumno_martina and plan_television:
-                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_television, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_television).delete()
-                        elif al == alumno_julieta and plan_sagradas:
-                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sagradas, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sagradas).delete()
-                        elif al == alumno_isabella and plan_sistemas:
-                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_sistemas, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_sistemas).delete()
-                        elif al == alumno_ignacio and plan_locucion_2025:
-                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion_2025, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_locucion_2025).delete()
-                        elif plan_locucion:
-                            InscripcionCarrera.objects.get_or_create(alumno=al, plan=plan_locucion, defaults={'estado': 'CURSANDO'})
-                            InscripcionCarrera.objects.filter(alumno=al).exclude(plan=plan_locucion).delete()
-                
-                def str_to_date(d_str):
-                    if not d_str or d_str == 'NULL' or len(d_str) < 10: return None
-                    try:
-                        return datetime.datetime.strptime(d_str[:10], '%Y-%m-%d').date()
-                    except:
-                        return None
-                        
-                count_inscripciones = 0
-                count_finales = 0
-                count_promociones = 0
-                
-                for row in libretas_rows:
-                    parts = row.split(',')
-                    if len(parts) > 15:
-                        l_materia_id = parts[2].strip()
-                        l_user_id = parts[3].strip()
-                        l_motivo_id = parts[4].strip()
-                        
-                        fecha_insc = str_to_date(parts[6].strip().strip("'"))
-                        fecha_cursada = str_to_date(parts[7].strip().strip("'"))
-                        fecha_final = str_to_date(parts[8].strip().strip("'"))
-                        
-                        l_calif_raw = parts[9].strip().strip("'")
-                        try:
-                            nota_real = int(l_calif_raw)
-                        except ValueError:
-                            nota_real = 7 
-                            
-                        l_libro = parts[13].strip().strip("'")
-                        l_folio = parts[14].strip().strip("'")
-                        if l_libro == 'NULL': l_libro = ''
-                        if l_folio == 'NULL': l_folio = ''
-                        
-                        al = None
-                        if l_user_id == '2080' and alumno_dotti: al = alumno_dotti
-                        elif l_user_id == '2226' and alumno_britos: al = alumno_britos
-                        elif l_user_id == '2255' and alumno_micieli: al = alumno_micieli
-                        elif l_user_id == '2105' and alumno_rivas: al = alumno_rivas
-                        elif l_user_id == '2241' and alumno_carlos: al = alumno_carlos
-                        elif l_user_id == '2231' and alumno_isabella: al = alumno_isabella
-                        elif l_user_id == '2127' and alumno_martina: al = alumno_martina
-                        elif l_user_id == '1152' and alumno_julieta: al = alumno_julieta
-                        elif l_user_id == '2343' and alumno_ignacio: al = alumno_ignacio
-                        
-                        if al and l_materia_id in comision_dict:
-                            estado_cursada = 'REG' 
-                            c_cerrada = True
-                            
-                            if l_motivo_id in ['40', '95']:  
-                                estado_cursada = 'APR'
-                            elif l_motivo_id == '51': 
-                                estado_cursada = 'LIB'
-                            elif l_motivo_id == '10':
-                                estado_cursada = 'REG'
-                                c_cerrada = False 
-                            elif l_motivo_id == '90': 
-                                if l_libro or l_folio:
-                                    estado_cursada = 'APR'  
-                                else:
-                                    estado_cursada = 'PROM' 
-                            
-                            c_act = comision_dict[l_materia_id]
-                            if c_cerrada and not c_act.cerrada:
-                                c_act.cerrada = True
-                                c_act.save()
-                            
-                            insc, created = Inscripcion.objects.get_or_create(
-                                alumno=al, 
-                                comision=c_act, 
-                                defaults={'estado': estado_cursada}
+                            alumno = Alumno.objects.create(
+                                usuario=user, dni=l_dni[:19], nombre=l_nombre[:49], apellido=l_ape[:49],
+                                email=l_email[:99], celular=l_tel[:19] if l_tel else None,
+                                direccion=l_dir[:199] if l_dir else None, fecha_nacimiento=l_nac_date
                             )
+                            created_count += 1
+                        else:
+                            # Update demograficos si faltan
+                            mod = False
+                            if not alumno.celular and l_tel: alumno.celular = l_tel[:19]; mod = True
+                            if not alumno.direccion and l_dir: alumno.direccion = l_dir[:199]; mod = True
+                            if not alumno.fecha_nacimiento and l_nac_date: alumno.fecha_nacimiento = l_nac_date; mod = True
+                            if mod: alumno.save(); updated_count += 1
                             
-                            jerarquia = {'LIB': 0, 'REG': 1, 'APR': 2, 'PROM': 3}
-                            if not created and jerarquia.get(estado_cursada, 1) > jerarquia.get(insc.estado, 1):
-                                insc.estado = estado_cursada
-                                
-                            # LA CLAVE ESTA AQUI: fecha_cursada es fechaCursadaAprobada (el final de la cursada)
-                            # Si no hay, fallback a la de inscripcion.
-                            fecha_real_cursada = fecha_cursada or fecha_insc or datetime.date.today()
-                            insc.fecha_inscripcion = fecha_real_cursada
-                            insc.save()
-                            Inscripcion.objects.filter(id=insc.id).update(fecha_inscripcion=fecha_real_cursada)
-                            
-                            count_inscripciones += 1
-                            
-                            if l_motivo_id == '90':
-                                if l_libro or l_folio:
-                                    # Para que no compartan la misma fecha los que rindieron distintos dias
-                                    mesa_fecha = timezone.make_aware(datetime.datetime.combine(fecha_final, datetime.time(0,0))) if fecha_final else fecha_historica
-                                    
-                                    mesa_act = MesaExamen.objects.filter(materia=c_act.materia, fecha_hora=mesa_fecha, ciclo_lectivo=1900).first()
-                                    if not mesa_act:
-                                        mesa_act = MesaExamen.objects.create(materia=c_act.materia, fecha_hora=mesa_fecha, ciclo_lectivo=1900, turno='ESPECIAL', cerrada=True)
-                                    if l_libro and not mesa_act.libro:
-                                        mesa_act.libro = l_libro[:49]
-                                        mesa_act.save()
-                                    if l_folio and not mesa_act.folio:
-                                        mesa_act.folio = l_folio[:49]
-                                        mesa_act.save()
-                                        
-                                    InscripcionMesa.objects.get_or_create(
-                                        alumno=al, 
-                                        mesa=mesa_act, 
-                                        defaults={'nota_final': nota_real, 'estado': 'APR'}
-                                    )
-                                    count_finales += 1
-                                else:
-                                    n, _ = Nota.objects.get_or_create(inscripcion=insc, instancia='Nota Final', defaults={'valor_nota': nota_real})
-                                    Nota.objects.filter(id=n.id).update(fecha=fecha_final or fecha_real_cursada)
-                                    count_promociones += 1
+                        # Asignar carreras (aditivo)
+                        for p in planes_a_asignar:
+                            InscripcionCarrera.objects.get_or_create(alumno=alumno, plan=p, defaults={'estado': 'CURSANDO'})
+                    else:
+                        if Alumno.objects.filter(dni=l_dni).exists():
+                            updated_count += 1
+                        else:
+                            created_count += 1
 
-                self.stdout.write(self.style.SUCCESS(f'>> Notas reales procesadas con fechas exactas. Total: {count_inscripciones} cursadas, {count_finales} finales, {count_promociones} promociones.'))
-                
+            self.stdout.write(self.style.SUCCESS(f">> Alumnos: {created_count} nuevos, {updated_count} actualizados."))
+            
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Error durante la migración: {e}'))
+            self.stdout.write(self.style.ERROR(f'Error durante la migracion: {e}'))
+            import traceback; traceback.print_exc()
         finally:
-            post_save.connect(sync_inscripcion_classroom, sender=Inscripcion)
+            if not dry_run:
+                post_save.connect(sync_inscripcion_classroom, sender=Inscripcion)
