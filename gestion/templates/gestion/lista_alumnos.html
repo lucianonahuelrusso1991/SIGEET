@@ -105,7 +105,7 @@
                             <td class="text-end pe-4 text-nowrap">
                                 <div class="btn-group shadow-sm">
                                     <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-light border text-primary fw-bold" title="Ver Legajo"><i class="bi bi-folder2-open me-1"></i>Legajo</a>
-                                    <button class="btn btn-sm btn-light border text-danger disabled" title="Borrar"><i class="bi bi-trash"></i></button>
+                                    {% if not es_tutor %}<a href="{% url 'eliminar_alumno' alumno.id %}" class="btn btn-sm btn-light border text-danger" title="Borrar"><i class="bi bi-trash"></i></a>{% endif %}
                                 </div>
                             </td>
                         </tr>

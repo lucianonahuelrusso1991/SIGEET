@@ -2953,6 +2953,7 @@ from .models import Alumno
 
 @staff_member_required
 def eliminar_alumno(request, alumno_id):
+    if es_solo_tutor(request.user): return redirect('lista_alumnos')
     alumno = get_object_or_404(Alumno, id=alumno_id)
     if request.method == 'POST':
         nombre = f'{alumno.nombre} {alumno.apellido}'
