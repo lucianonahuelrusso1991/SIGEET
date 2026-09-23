@@ -123,9 +123,11 @@ class InscripcionCarrera(models.Model):
     ]
     alumno = models.ForeignKey(Alumno, on_delete=models.CASCADE, related_name='inscripciones_carreras')
     plan = models.ForeignKey('PlanDeEstudio', on_delete=models.CASCADE, related_name='inscripciones_alumnos')
-    fecha_inscripcion = models.DateField('Fecha de Inscripción', auto_now_add=True)
+    fecha_inscripcion = models.DateField('Fecha de Inscripcion', auto_now_add=True)
     estado = models.CharField('Estado en la Carrera', max_length=15, choices=ESTADOS_CARRERA, default='CURSANDO')
-    legajo_numero = models.CharField('Número de Legajo', max_length=50, blank=True, null=True)
+    legajo_numero = models.CharField('Numero de Legajo', max_length=50, blank=True, null=True)
+    libro_matriz = models.CharField('Libro Matriz', max_length=50, blank=True, null=True)
+    folio_matriz = models.CharField('Folio Matriz', max_length=50, blank=True, null=True)
 
     class Meta:
         unique_together = ['alumno', 'plan']

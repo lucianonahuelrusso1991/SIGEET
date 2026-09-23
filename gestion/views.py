@@ -350,8 +350,10 @@ def legajo_alumno(request, alumno_id):
             
         materias_faltantes = total_materias - total_acreditadas
         
+        insc_carrera = alumno.inscripciones_carreras.filter(plan=plan).first()
         carreras_data.append({
             'plan': plan,
+            'inscripcion_carrera': insc_carrera,
             'acreditadas': acreditadas,
             'total_acreditadas': total_acreditadas,
             'cursando': cursando,
@@ -3094,3 +3096,16 @@ def imprimir_ficha_preinscripcion(request, alumno_id):
     from .models import Alumno
     alumno = get_object_or_404(Alumno, id=alumno_id)
     return render(request, 'gestion/ficha_inscripcion_impresion.html', {'alumno': alumno})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def editar_libro_matriz(request, inscripcion_id):
+    if es_solo_tutor(request.user): return redirect('lista_alumnos')
+    from .models import InscripcionCarrera
+    insc = get_object_or_404(InscripcionCarrera, id=inscripcion_id)
+    if request.method == 'POST':
+        insc.libro_matriz = request.POST.get('libro_matriz')
+        insc.folio_matriz = request.POST.get('folio_matriz')
+        insc.save()
+        messages.success(request, f'Libro matriz actualizado para {insc.plan.nombre}.')
+    return redirect('legajo_alumno', alumno_id=insc.alumno.id)

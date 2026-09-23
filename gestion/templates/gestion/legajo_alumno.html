@@ -135,9 +135,57 @@
         {% for c_info in carreras_data %}
         <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="pane-carrera-{{ c_info.plan.id }}" role="tabpanel">
 
-            {% if carreras_data|length > 1 %}
-            <h4 class="fw-bold text-primary mb-3">{{ c_info.plan.nombre }}</h4>
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <div>
+                    <h4 class="fw-bold text-primary mb-1">{{ c_info.plan.nombre }}</h4>
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-journal-bookmark-fill text-secondary"></i> Libro Matriz: <strong>{{ c_info.inscripcion_carrera.libro_matriz|default:"-" }}</strong> | 
+                        Folio: <strong>{{ c_info.inscripcion_carrera.folio_matriz|default:"-" }}</strong>
+                        {% if not es_tutor and c_info.inscripcion_carrera %}
+                        <a href="#" class="ms-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalLibro-{{ c_info.plan.id }}">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        {% endif %}
+                    </p>
+                </div>
+                {% if not es_tutor %}
+                <a href="{% url 'alta_equivalencia' alumno.id %}" class="btn btn-sm btn-outline-info shadow-sm fw-bold">
+                    <i class="bi bi-plus-circle me-1"></i> Asentar Equivalencia
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Modal Libro Matriz -->
+            {% if c_info.inscripcion_carrera %}
+            <div class="modal fade" id="modalLibro-{{ c_info.plan.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                  <form method="post" action="{% url 'editar_libro_matriz' c_info.inscripcion_carrera.id %}">
+                      {% csrf_token %}
+                      <div class="modal-header border-bottom-0 bg-light">
+                        <h5 class="modal-title fw-bold text-primary"><i class="bi bi-journal-bookmark-fill me-2"></i>Libro Matriz</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="mb-3">
+                              <label class="form-label text-muted small fw-bold">Libro N&deg; / Letra</label>
+                              <input type="text" name="libro_matriz" class="form-control" value="{{ c_info.inscripcion_carrera.libro_matriz|default:'' }}">
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label text-muted small fw-bold">Folio N&deg;</label>
+                              <input type="text" name="folio_matriz" class="form-control" value="{{ c_info.inscripcion_carrera.folio_matriz|default:'' }}">
+                          </div>
+                      </div>
+                      <div class="modal-footer border-top-0 bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                      </div>
+                  </form>
+                </div>
+              </div>
+            </div>
             {% endif %}
+
 
             <!-- Mtricas KPIs para esta carrera -->
             <div class="row mb-4">
