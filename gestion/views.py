@@ -159,10 +159,20 @@ from django.db.models import Q
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def lista_alumnos(request):
     planes_ids = obtener_planes_visibles(request.user)
+    
+    # Check if user wants to see historical students
+    mostrar_historicos = request.GET.get('historicos') == '1'
+    
     if planes_ids is not None:
-        alumnos = Alumno.objects.filter(inscripciones_carreras__plan_id__in=planes_ids).distinct().order_by('apellido')
+        alumnos = Alumno.objects.filter(inscripciones_carreras__plan_id__in=planes_ids)
     else:
-        alumnos = Alumno.objects.all().order_by('apellido')
+        alumnos = Alumno.objects.all()
+        
+    if not mostrar_historicos:
+        # Solo mostrar alumnos que estn en al menos un plan activo
+        alumnos = alumnos.filter(inscripciones_carreras__plan__activo=True)
+        
+    alumnos = alumnos.distinct().order_by('apellido')
         
     return render(request, 'gestion/lista_alumnos.html', {
         'alumnos': alumnos,

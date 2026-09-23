@@ -27,7 +27,17 @@
             <div class="d-inline-block me-2" style="width: 300px;">
                 <input type="text" id="filterText" class="form-control shadow-sm" placeholder="🔍 Buscar por DNI, Nombre o Apellido...">
             </div>
+            
+            <a href="{% if request.GET.historicos == '1' %}?historicos=0{% else %}?historicos=1{% endif %}" class="btn btn-outline-secondary shadow-sm me-2">
+                {% if request.GET.historicos == '1' %}
+                <i class="bi bi-eye-slash"></i> Ocultar Históricos
+                {% else %}
+                <i class="bi bi-eye"></i> Ver Históricos
+                {% endif %}
+            </a>
+            
             {% if not es_tutor %}
+
             <a href="{% url 'alta_alumno' %}" class="btn btn-primary shadow-sm">+ Nuevo Alumno</a>
             {% endif %}
         </div>
