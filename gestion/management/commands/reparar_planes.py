@@ -22,7 +22,19 @@ class Command(BaseCommand):
         in_cm = False
         with open(sql_file, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f:
-                if line.startswith('INSERT INTO `carreras_materias`'): in_cm = True; continue
+                if line.startswith('INSERT INTO `carreras_materias`'): in_cm = True; 
+                # Purge extra stuff from Loc25
+                purgadas = 0
+                for ds in Materia.objects.filter(plan=django_plan):
+                    n_d = normalize(ds.nombre).replace('\r', '').replace('\n', '').replace('', '').replace('
+', '')
+                    if n_d not in loc25_expected:
+                        ds.plan = plan_hist
+                        ds.save()
+                        purgadas += 1
+                self.stdout.write(f"Locucion 2025 purgadas a historico: {purgadas}")
+
+                continue
                 if in_cm:
                     line = line.strip()
                     is_end = line.endswith(';')
@@ -81,7 +93,36 @@ class Command(BaseCommand):
                 recuperadas_25 = 0
                 for hm in Materia.objects.filter(plan=plan_hist, id__gte=747):
                     n_norm = normalize(hm.nombre)
-                    if "locucion" in n_norm or "radio" in n_norm or "podcast" in n_norm or "doblaje" in n_norm or "edi" in n_norm or "conduccion" in n_norm or hm.id >= 785:
+                    
+                    loc25_expected = [
+                        "introduccionalalocucion",
+                        "practicaprofesionalizanteenlocucionparatelevision",
+                        "expresioncorporal",
+                        "herramientasdeproduccionyediciondigital",
+                        "edi1",
+                        "locucion,interpretacionylectura",
+                        "entrenamientovocal",
+                        "practicaprofesionalizanteenlocucionpararadio",
+                        "redaccionyediciondecontenidos",
+                        "pronunciaciondeitalianoyfrances",
+                        "edi2",
+                        "ediciondesonido",
+                        "radio",
+                        "edicionaudiovisual",
+                        "edi1:culturasyesteticascontemporaneas",
+                        "locucion",
+                        "edi2:legislacionyeticadelacomunicacion",
+                        "practicaprofesionalizanteenconduccionpararadio",
+                        "practicaprofesionalizanteenconduccionparatelevision",
+                        "practicaprofesionalizanteenpodcastyproducciondecontenidos"
+                    ]
+                    
+                    # Sanitize line breaks
+                    n_norm = n_norm.replace('\r', '').replace('\n', '').replace('', '').replace('
+', '')
+                    
+                    if n_norm in loc25_expected:
+
                         hm.plan = plan_loc25
                         hm.save()
                         recuperadas_25 += 1
