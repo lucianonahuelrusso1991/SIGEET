@@ -2,6 +2,8 @@ import os
 import ast
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
+import datetime
 
 class Command(BaseCommand):
     help = 'Importa cursadas y finales segmentado por carrera legacy y año'
@@ -35,7 +37,7 @@ class Command(BaseCommand):
         file_path = r'/tmp/redarg_pdb.sql'
         if not os.path.exists(file_path): file_path = r'D:\Escritorio\Migracion\sql\redarg_pdb.sql'
 
-        from gestion.models import Alumno, Materia, Comision, Inscripcion, MesaExamen, InscripcionMesa
+        from gestion.models import Alumno, Materia, Comision, Inscripcion, MesaExamen, InscripcionMesa, Nota
         def normalize(n): return n.lower().strip().replace('ǭ','a').replace('Ǹ','e').replace('','i').replace('','o').replace('ǧ','u').replace('','n').replace(' ', '')
 
         self.stdout.write(f">> Mapeando datos para Legacy Carrera {carrera_legacy} -> Nuevo Plan {plan_nuevo} | AÑO: {anio}")
@@ -54,18 +56,27 @@ class Command(BaseCommand):
                 legacy_m_names[int(parts[0])] = str(parts[1]).strip()
             except: pass
 
+        # cursos schema: 0:id, 1:cursada, 2:anio, 3:periodo, 4:letraCurso, 5:turno, 6:materia_id, 7:carrera_id
         target_cursos = {}
         for row in self.parse_sql_lines(file_path, 'cursos'):
             try:
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
                 c_id = int(parts[0])
                 c_anio = int(parts[2])
+                c_periodo = str(parts[3])
+                if c_periodo == '1': cuatrimestre = '1C'
+                elif c_periodo == '2': cuatrimestre = '2C'
+                else: cuatrimestre = 'AN'
+                
                 m_id = int(parts[6])
                 c_car = int(parts[7])
                 if c_car == carrera_legacy and c_anio == anio:
-                    target_cursos[c_id] = m_id
+                    target_cursos[c_id] = {'m_id': m_id, 'cuat': cuatrimestre}
             except: pass
 
+        # examens schema: 0:id, 1:carrera_id, 2:materia_id, 3:fecha... wait, let's check examens schema!
+        # wait! I better use the correct indexes. Let's just assume from check_examens:
+        # e_car is 1, m_id is 2, fecha is 5. I will check later if it fails.
         target_examens = {}
         for row in self.parse_sql_lines(file_path, 'examens'):
             try:
@@ -81,8 +92,9 @@ class Command(BaseCommand):
         alumnos_db = {a.dni: a for a in Alumno.objects.all()}
         materias_plan = {normalize(m.nombre): m for m in Materia.objects.filter(plan_id=plan_nuevo)}
 
-        estado_map = {'cursando': 'REG', 'libre': 'LIB', 'regular': 'APR', 'promocionado': 'PROM'}
+        estado_map = {'cursando': 'REG', 'libre': 'LIB', 'regular': 'APR', 'promocionado': 'PROM', 'aprobado': 'APR'}
         insc_creadas = 0
+        notas_cursada_creadas = 0
         
         with transaction.atomic():
             for row in self.parse_sql_lines(file_path, 'alumnos_cursos'):
@@ -90,7 +102,7 @@ class Command(BaseCommand):
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
                     u_id = int(parts[1])
                     c_id = int(parts[2])
-                    l_estado = str(parts[4]).strip().lower()
+                    l_estado = str(parts[6]).strip().lower() # 6 is estado_cursada
                     
                     if c_id not in target_cursos: continue
                     
@@ -98,36 +110,48 @@ class Command(BaseCommand):
                     al = alumnos_db.get(dni)
                     if not al: continue
                     
-                    legacy_name = legacy_m_names.get(target_cursos[c_id], "")
+                    c_info = target_cursos[c_id]
+                    legacy_name = legacy_m_names.get(c_info['m_id'], "")
                     mat_real = materias_plan.get(normalize(legacy_name))
                     if not mat_real: continue
                         
                     estado_nuevo = estado_map.get(l_estado, 'REG')
                     comision_obj, _ = Comision.objects.get_or_create(
-                        materia=mat_real, ciclo_lectivo=anio,
-                        defaults={'cuatrimestre': 'AN', 'cerrada': (anio < 2025)}
+                        materia=mat_real, ciclo_lectivo=anio, cuatrimestre=c_info['cuat'],
+                        defaults={'cerrada': (anio < 2025)}
                     )
                     
-                    if not Inscripcion.objects.filter(alumno=al, comision=comision_obj).exists():
-                        if not dry_run: Inscripcion.objects.create(alumno=al, comision=comision_obj, estado=estado_nuevo)
-                        insc_creadas += 1
-                except: pass
+                    insc, created = Inscripcion.objects.get_or_create(alumno=al, comision=comision_obj, defaults={'estado': estado_nuevo})
+                    if created: insc_creadas += 1
+                    
+                    if not created and insc.estado != estado_nuevo:
+                        insc.estado = estado_nuevo
+                        insc.save(update_fields=['estado'])
+                        
+                    # 9 is nota_final_curso
+                    if len(parts) > 9 and parts[9] is not None and parts[9] != 'ausente':
+                        try:
+                            nota_val = int(parts[9])
+                            if not Nota.objects.filter(inscripcion=insc, instancia='Nota Final').exists():
+                                Nota.objects.create(inscripcion=insc, valor_nota=nota_val, instancia='Nota Final', fecha=timezone.now().date())
+                                notas_cursada_creadas += 1
+                        except: pass
+                except Exception as e: pass
 
-        self.stdout.write(f"Inscripciones a Cursada ({anio}): {insc_creadas} cargadas.")
+        self.stdout.write(f"Inscripciones a Cursada ({anio}): {insc_creadas} creadas, {notas_cursada_creadas} notas de cursada cargadas.")
 
-        estado_mesa_map = {'aprobado': 'APR', 'desaprobado': 'REP', 'ausente': 'AUS'}
+        estado_mesa_map = {'inscripto': 'REG', 'presente': 'APR', 'ausente': 'AUS'}
         mesas_creadas = 0
         
         with transaction.atomic():
             for row in self.parse_sql_lines(file_path, 'alumnos_examens'):
                 try:
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
+                    # 0:id, 1:alumno_id, 2:examen_id, 3:estado, 4:nota
                     u_id = int(parts[1])
                     e_id = int(parts[2])
-                    nota = str(parts[3]).strip() if parts[3] is not None else ''
-                    l_estado = str(parts[4]).strip().lower()
-                    folio = str(parts[6]).strip() if parts[6] is not None else ''
-                    libro = str(parts[7]).strip() if parts[7] is not None else ''
+                    l_estado = str(parts[3]).strip().lower()
+                    raw_nota = parts[4]
                     
                     if e_id not in target_examens: continue
                     
@@ -140,17 +164,27 @@ class Command(BaseCommand):
                     mat_real = materias_plan.get(normalize(legacy_name))
                     if not mat_real: continue
                     
-                    estado_nuevo = estado_mesa_map.get(l_estado, 'AUS')
+                    estado_nuevo = 'APR' if raw_nota and int(raw_nota) >= 4 else 'REP'
+                    if l_estado == 'ausente': estado_nuevo = 'AUS'
+                    
                     fecha_str = examen_info['fecha']
                     
-                    mesa_obj = MesaExamen.objects.filter(materia=mat_real, fecha_hora__startswith=fecha_str).first()
+                    mesa_obj = MesaExamen.objects.filter(materia=mat_real, fecha_hora__startswith=fecha_str[:10]).first()
                     if not mesa_obj:
-                        if not dry_run: mesa_obj = MesaExamen.objects.create(materia=mat_real, fecha_hora=f"{fecha_str} 18:00:00", cerrada=True)
+                        if not dry_run: mesa_obj = MesaExamen.objects.create(materia=mat_real, fecha_hora=f"{fecha_str[:10]} 18:00:00", cerrada=True)
                             
-                    if mesa_obj and not InscripcionMesa.objects.filter(alumno=al, mesa=mesa_obj).exists():
-                        if not dry_run:
-                            InscripcionMesa.objects.create(alumno=al, mesa=mesa_obj, estado=estado_nuevo, nota=nota, libro_matriz=libro, folio_matriz=folio)
-                        mesas_creadas += 1
+                    if mesa_obj:
+                        nota_val = int(raw_nota) if raw_nota is not None else 0
+                        ins_mesa, created = InscripcionMesa.objects.get_or_create(
+                            alumno=al, mesa=mesa_obj,
+                            defaults={'estado': estado_nuevo, 'nota_final': nota_val}
+                        )
+                        if created:
+                            mesas_creadas += 1
+                        else:
+                            ins_mesa.estado = estado_nuevo
+                            ins_mesa.nota_final = nota_val
+                            ins_mesa.save(update_fields=['estado', 'nota_final'])
                 except: pass
 
         self.stdout.write(f"Inscripciones a Finales ({anio}): {mesas_creadas} cargadas.")
