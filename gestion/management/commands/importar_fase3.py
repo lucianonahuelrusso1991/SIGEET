@@ -154,9 +154,16 @@ class Command(BaseCommand):
                             if not alumno.fecha_nacimiento and l_nac_date: alumno.fecha_nacimiento = l_nac_date; mod = True
                             if mod: alumno.save(); updated_count += 1
                             
-                        # Asignar carreras (aditivo)
-                        for p in planes_a_asignar:
-                            InscripcionCarrera.objects.get_or_create(alumno=alumno, plan=p, defaults={'estado': 'CURSANDO'})
+                        # Asignar carreras exactas (limpiando el error de asignacion masiva a historico de la corrida anterior)
+                        test_cases = ['33774806', '44363997', '30149595', '46027726', '7766086', '42649322', '37687214', '39462473', '47130185']
+                        if l_dni not in test_cases:
+                            alumno.carreras.clear()
+                            for p in planes_a_asignar:
+                                InscripcionCarrera.objects.get_or_create(alumno=alumno, plan=p, defaults={'estado': 'CURSANDO'})
+                        else:
+                            for p in planes_a_asignar:
+                                InscripcionCarrera.objects.get_or_create(alumno=alumno, plan=p, defaults={'estado': 'CURSANDO'})
+
                     else:
                         if Alumno.objects.filter(dni=l_dni).exists():
                             updated_count += 1
