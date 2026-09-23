@@ -141,7 +141,7 @@ class Command(BaseCommand):
                                 user.save()
                                 
                             alumno = Alumno.objects.create(
-                                usuario=user, dni=l_dni[:19], nombre=l_nombre[:49], apellido=l_ape[:49],
+                                usuario=user, dni=l_dni[:15], nombre=l_nombre[:49], apellido=l_ape[:49],
                                 email=l_email[:99], celular=l_tel[:19] if l_tel else None,
                                 direccion=l_dir[:199] if l_dir else None, fecha_nacimiento=l_nac_date
                             )
