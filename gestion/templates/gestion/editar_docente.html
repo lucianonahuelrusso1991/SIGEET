@@ -34,14 +34,37 @@
                         </div>
                     </div>
                     
-                    <!-- Row 2: Email, Telefono y Celular -->
+                    <!-- Row 2: Emails -->
                     <div class="row align-items-center mb-4">
                         <div class="col-md-2 text-md-end">
-                            <label class="form-label fw-bold mb-0">Email</label>
+                            <label class="form-label fw-bold mb-0">Email Pers.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
                             <input type="email" name="email" class="form-control bg-light" value="{{ docente.email|default_if_none:'' }}">
                         </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Email Inst.</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="email" name="correo_institucional" class="form-control bg-light" value="{{ docente.correo_institucional|default_if_none:'' }}" placeholder="@pioix.edu.ar">
+                        </div>
+                    </div>
+                    
+                    <!-- Row 3: Telefono y Celular -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Tel&eacute;f.</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="text" name="telefono" class="form-control bg-light" value="{{ docente.telefono|default_if_none:'' }}">
+                        </div>
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0">Celular</label>
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <input type="text" name="celular" class="form-control bg-light" value="{{ docente.celular|default_if_none:'' }}">
+                        </div>
+                    </div>
                         <div class="col-md-1 text-md-end">
                             <label class="form-label fw-bold mb-0">Teléf.</label>
                         </div>
