@@ -24,41 +24,44 @@
             <p class="text-muted">Sistema de gestión para secretaría</p>
         </div>
         <div class="col-12 col-xl-8 text-end align-self-center">
-            <div class="d-flex flex-wrap justify-content-md-end gap-2 align-items-center">
-                <select id="filterEstado" class="form-select shadow-sm" style="width: 170px;">
-                    <option value="">Todos los Estados</option>
-                    <option value="ACT">Activos</option>
-                    <option value="INA">Inactivos</option>
-                    <option value="EGR">Egresados</option>
-                    <option value="COND_DOC">Cond. (Doc)</option>
-                    <option value="COND_PAG">Cond. (Pago)</option>
-                </select>
-                
-                <select id="filterCarrera" class="form-select shadow-sm" style="width: 200px;">
-                    <option value="">Todas las Carreras</option>
-                    {% for p in planes %}
-                    <option value="{{ p.id }}">{{ p.nombre|truncatechars:30 }}</option>
-                    {% endfor %}
-                </select>
-                
-                <input type="text" id="filterText" class="form-control shadow-sm" style="width: 250px;" placeholder="🔍 Buscar DNI o Nombre...">
+            <div class="d-flex flex-wrap justify-content-xl-end gap-2 align-items-center">
+                <!-- Filtros -->
+                <div class="input-group shadow-sm" style="width: auto; max-width: 100%;">
+                    <select id="filterEstado" class="form-select border-0 bg-light" style="max-width: 140px;">
+                        <option value="">Todos los Est.</option>
+                        <option value="ACT">Activos</option>
+                        <option value="INA">Inactivos</option>
+                        <option value="EGR">Egresados</option>
+                        <option value="COND_DOC">Cond. (Doc)</option>
+                        <option value="COND_PAG">Cond. (Pago)</option>
+                    </select>
+                    
+                    <select id="filterCarrera" class="form-select border-0 bg-light border-start border-white" style="max-width: 200px;">
+                        <option value="">Todas las Carreras</option>
+                        {% for p in planes %}
+                        <option value="{{ p.id }}">{{ p.nombre|truncatechars:30 }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <input type="text" id="filterText" class="form-control border-0" style="max-width: 180px;" placeholder="🔍 Buscar DNI o Nombre...">
+                </div>
             
-            <a href="{% if request.GET.historicos == '1' %}?historicos=0{% else %}?historicos=1{% endif %}" class="btn btn-outline-secondary shadow-sm me-2">
-                {% if request.GET.historicos == '1' %}
-                <i class="bi bi-eye-slash"></i> Ocultar Históricos
-                {% else %}
-                <i class="bi bi-eye"></i> Ver Históricos
+                <a href="{% if request.GET.historicos == '1' %}?historicos=0{% else %}?historicos=1{% endif %}" class="btn btn-outline-secondary shadow-sm text-nowrap">
+                    {% if request.GET.historicos == '1' %}
+                    <i class="bi bi-eye-slash"></i> Ocultar Hist.
+                    {% else %}
+                    <i class="bi bi-eye"></i> Ver Hist.
+                    {% endif %}
+                </a>
+                
+                {% if not es_tutor %}
+                <a href="{% url 'alta_alumno' %}" class="btn btn-primary shadow-sm text-nowrap"><i class="bi bi-person-plus me-1"></i>Nuevo Alumno</a>
                 {% endif %}
-            </a>
-            
-            {% if not es_tutor %}
-
-            <a href="{% url 'alta_alumno' %}" class="btn btn-primary shadow-sm">+ Nuevo Alumno</a>
-            {% endif %}
+            </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
 <table class="table table-hover align-middle mb-0" id="alumnosTable">
@@ -74,7 +77,7 @@
                     {% for alumno in alumnos %}
                         <tr class="alumno-row" data-estado="{{ alumno.estado_alumno }}" data-carreras="{% for c in alumno.carreras.all %}{{ c.id }},{% endfor %}">
                             <td class="ps-4 alumno-nombre">
-                                <strong>{{ alumno.apellido }}</strong>, {{ alumno.nombre }}
+                                <span class="fw-bold">{{ alumno.apellido }}</span>, {{ alumno.nombre }}
                                 {% if alumno.estado_alumno == 'ACT' %}
                                     <span class="badge bg-success ms-2">Activo</span>
                                 {% elif alumno.estado_alumno == 'INA' %}
@@ -99,9 +102,11 @@
                                     <span class="text-muted small fst-italic">Sin asignar</span>
                                 {% endif %}
                             </td>
-                            <td class="text-end pe-4">
-                               <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-outline-info">Ver Legajo</a>
-                                <button class="btn btn-sm btn-outline-danger disabled">Borrar</button>
+                            <td class="text-end pe-4 text-nowrap">
+                                <div class="btn-group shadow-sm">
+                                    <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-light border text-primary fw-bold" title="Ver Legajo"><i class="bi bi-folder2-open me-1"></i>Legajo</a>
+                                    <button class="btn btn-sm btn-light border text-danger disabled" title="Borrar"><i class="bi bi-trash"></i></button>
+                                </div>
                             </td>
                         </tr>
                     {% empty %}
