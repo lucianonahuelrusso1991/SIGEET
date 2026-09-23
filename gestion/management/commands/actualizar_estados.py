@@ -50,7 +50,8 @@ class Command(BaseCommand):
                     # Chequear cursada actual 2026 2C o AN
                     cursando_2026 = alumno.inscripciones.filter(
                         comision__ciclo_lectivo=2026,
-                        comision__cuatrimestre__in=['2C', 'AN']
+                        comision__cuatrimestre__in=['2C', 'AN'],
+                        estado__in=['REG', 'APR', 'PROM']
                     ).exists()
                     
                     if not cursando_2026:
