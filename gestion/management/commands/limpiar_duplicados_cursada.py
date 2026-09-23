@@ -40,7 +40,7 @@ class Command(BaseCommand):
                             com = mala.comision
                             mala.delete()
                             duplicados_resueltos += 1
-                            if com.inscripciones.count() == 0:
+                            if not Inscripcion.objects.filter(comision=com).exists():
                                 com.delete()
                                 comisiones_vaciadas += 1
 
