@@ -37,7 +37,7 @@ class Command(BaseCommand):
         file_path = r'/tmp/redarg_pdb.sql'
         if not os.path.exists(file_path): file_path = r'D:\Escritorio\Migracion\sql\redarg_pdb.sql'
 
-        from gestion.models import Alumno, Materia, Comision, Inscripcion, MesaExamen, InscripcionMesa, Nota
+        from gestion.models import Alumno, Docente, Materia, Comision, Inscripcion, MesaExamen, InscripcionMesa, Nota
         def normalize(n): return n.lower().strip().replace('ǭ','a').replace('Ǹ','e').replace('','i').replace('','o').replace('ǧ','u').replace('','n').replace(' ', '')
 
         self.stdout.write(f">> Mapeando datos para Legacy Carrera {carrera_legacy} -> Nuevo Plan {plan_nuevo} | AÑO: {anio}")
@@ -46,7 +46,14 @@ class Command(BaseCommand):
         for row in self.parse_sql_lines(file_path, 'users'):
             try:
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
-                legacy_u[int(parts[0])] = str(parts[4]).strip()
+                legacy_u[int(parts[0])] = str(parts[4]).strip() # id -> dni
+            except: pass
+            
+        legacy_docentes_to_uid = {}
+        for row in self.parse_sql_lines(file_path, 'docentes'):
+            try:
+                parts = ast.literal_eval(row.replace('NULL', 'None'))
+                legacy_docentes_to_uid[int(parts[0])] = int(parts[1]) # d_id -> u_id
             except: pass
             
         legacy_m_names = {}
@@ -56,7 +63,6 @@ class Command(BaseCommand):
                 legacy_m_names[int(parts[0])] = str(parts[1]).strip()
             except: pass
 
-        # cursos schema: 0:id, 1:cursada, 2:anio, 3:periodo, 4:letraCurso, 5:turno, 6:materia_id, 7:carrera_id
         target_cursos = {}
         for row in self.parse_sql_lines(file_path, 'cursos'):
             try:
@@ -70,13 +76,13 @@ class Command(BaseCommand):
                 
                 m_id = int(parts[6])
                 c_car = int(parts[7])
+                doc_id = int(parts[8]) if len(parts) > 8 and parts[8] is not None else None
+                par_id = int(parts[9]) if len(parts) > 9 and parts[9] is not None else None
+                
                 if c_car == carrera_legacy and c_anio == anio:
-                    target_cursos[c_id] = {'m_id': m_id, 'cuat': cuatrimestre}
+                    target_cursos[c_id] = {'m_id': m_id, 'cuat': cuatrimestre, 'd_id': doc_id, 'p_id': par_id}
             except: pass
 
-        # examens schema: 0:id, 1:carrera_id, 2:materia_id, 3:fecha... wait, let's check examens schema!
-        # wait! I better use the correct indexes. Let's just assume from check_examens:
-        # e_car is 1, m_id is 2, fecha is 5. I will check later if it fails.
         target_examens = {}
         for row in self.parse_sql_lines(file_path, 'examens'):
             try:
@@ -84,12 +90,36 @@ class Command(BaseCommand):
                 e_id = int(parts[0])
                 e_car = int(parts[1])
                 m_id = int(parts[2])
+                d_id = int(parts[3]) if parts[3] is not None else None
                 fecha = str(parts[5]).strip()
                 if e_car == carrera_legacy and fecha.startswith(str(anio)):
-                    target_examens[e_id] = {'m_id': m_id, 'fecha': fecha}
+                    target_examens[e_id] = {'m_id': m_id, 'fecha': fecha, 'd_id': d_id}
             except: pass
 
         alumnos_db = {a.dni: a for a in Alumno.objects.all()}
+        # Docentes por DNI. Buscamos el DNI con legacy_u
+        docentes_db = {}
+        for d in Docente.objects.all():
+            docentes_db[d.dni] = d
+            
+        def get_docente(legacy_d_id):
+            if not legacy_d_id: return None
+            u_id = legacy_docentes_to_uid.get(legacy_d_id)
+            if not u_id: return None
+            dni = legacy_u.get(u_id)
+            if not dni: return None
+            # extraemos ultimos chars si tiene formato raro pero asumimos que el dni en bd nueva coincide
+            # limpiamos puntos
+            dni_limpio = ''.join(filter(str.isdigit, str(dni).split('.')[0].split(',')[0]))
+            
+            # Buscar directo por dni, o recortado a 15
+            doc = docentes_db.get(dni_limpio)
+            if doc: return doc
+            for d_dni, obj in docentes_db.items():
+                if dni_limpio in str(d_dni) or str(d_dni) in dni_limpio:
+                    return obj
+            return None
+
         materias_plan = {normalize(m.nombre): m for m in Materia.objects.filter(plan_id=plan_nuevo)}
 
         estado_map = {'cursando': 'REG', 'libre': 'LIB', 'regular': 'APR', 'promocionado': 'PROM', 'aprobado': 'APR'}
@@ -102,7 +132,7 @@ class Command(BaseCommand):
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
                     u_id = int(parts[1])
                     c_id = int(parts[2])
-                    l_estado = str(parts[6]).strip().lower() # 6 is estado_cursada
+                    l_estado = str(parts[6]).strip().lower() 
                     
                     if c_id not in target_cursos: continue
                     
@@ -121,6 +151,18 @@ class Command(BaseCommand):
                         defaults={'cerrada': (anio < 2025)}
                     )
                     
+                    # Inyectar docente
+                    doc_pr = get_docente(c_info['d_id'])
+                    doc_aux = get_docente(c_info['p_id'])
+                    mod_c = False
+                    if comision_obj.docente != doc_pr:
+                        comision_obj.docente = doc_pr
+                        mod_c = True
+                    if comision_obj.docente_auxiliar != doc_aux:
+                        comision_obj.docente_auxiliar = doc_aux
+                        mod_c = True
+                    if mod_c and not dry_run: comision_obj.save(update_fields=['docente', 'docente_auxiliar'])
+                    
                     insc, created = Inscripcion.objects.get_or_create(alumno=al, comision=comision_obj, defaults={'estado': estado_nuevo})
                     if created: insc_creadas += 1
                     
@@ -128,7 +170,6 @@ class Command(BaseCommand):
                         insc.estado = estado_nuevo
                         insc.save(update_fields=['estado'])
                         
-                    # 9 is nota_final_curso
                     if len(parts) > 9 and parts[9] is not None and parts[9] != 'ausente':
                         try:
                             nota_val = int(parts[9])
@@ -147,7 +188,6 @@ class Command(BaseCommand):
             for row in self.parse_sql_lines(file_path, 'alumnos_examens'):
                 try:
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
-                    # 0:id, 1:alumno_id, 2:examen_id, 3:estado, 4:nota
                     u_id = int(parts[1])
                     e_id = int(parts[2])
                     l_estado = str(parts[3]).strip().lower()
@@ -168,12 +208,19 @@ class Command(BaseCommand):
                     if l_estado == 'ausente': estado_nuevo = 'AUS'
                     
                     fecha_str = examen_info['fecha']
+                    doc_mesa = get_docente(examen_info['d_id'])
                     
                     mesa_obj = MesaExamen.objects.filter(materia=mat_real, fecha_hora__startswith=fecha_str[:10]).first()
                     if not mesa_obj:
                         if not dry_run: mesa_obj = MesaExamen.objects.create(materia=mat_real, fecha_hora=f"{fecha_str[:10]} 18:00:00", cerrada=True)
                             
                     if mesa_obj:
+                        mod_m = False
+                        if mesa_obj.presidente_mesa != doc_mesa:
+                            mesa_obj.presidente_mesa = doc_mesa
+                            mod_m = True
+                        if mod_m and not dry_run: mesa_obj.save(update_fields=['presidente_mesa'])
+                            
                         nota_val = int(raw_nota) if raw_nota is not None else 0
                         ins_mesa, created = InscripcionMesa.objects.get_or_create(
                             alumno=al, mesa=mesa_obj,
