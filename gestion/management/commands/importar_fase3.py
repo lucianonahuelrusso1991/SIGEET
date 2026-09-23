@@ -74,17 +74,18 @@ class Command(BaseCommand):
                 '13': plan_sistemas,
             }
 
-            self.stdout.write(">> Parseando carreras_alumnos...")
-            ca_rows = self.parse_sql_lines(sql_file, 'carreras_alumnos')
+            self.stdout.write(">> Parseando libretas para extraer carreras...")
+            ca_rows = self.parse_sql_lines(sql_file, 'libretas')
             user_carreras = {}
             for row in ca_rows:
                 try:
-                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\\'))
-                    c_id = parts[1].strip()
-                    u_id = parts[2].strip()
-                    if u_id not in user_carreras:
-                        user_carreras[u_id] = set()
-                    user_carreras[u_id].add(c_id)
+                    parts = next(csv.reader(StringIO(row), delimiter=',', quotechar="'", skipinitialspace=True, escapechar='\'))
+                    if len(parts) > 4:
+                        c_id = parts[1].strip()
+                        u_id = parts[3].strip()
+                        if u_id not in user_carreras:
+                            user_carreras[u_id] = set()
+                        user_carreras[u_id].add(c_id)
                 except: pass
 
             self.stdout.write(">> Procesando alumnos (users)...")
