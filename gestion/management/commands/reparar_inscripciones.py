@@ -172,10 +172,9 @@ class Command(BaseCommand):
                     estado_nuevo = estado_mesa_map.get(l_estado, 'AUS')
                     fecha_str = examen['fecha']
                     
-                    mesa_real, _ = MesaExamen.objects.get_or_create(
-                        materia=mat, fecha_hora__startswith=fecha_str,
-                        defaults={'fecha_hora': f"{fecha_str} 18:00:00", 'cerrada': True}
-                    )
+                    mesa_real = MesaExamen.objects.filter(materia=mat, fecha_hora__startswith=fecha_str).first()
+                    if not mesa_real:
+                        mesa_real = MesaExamen.objects.create(materia=mat, fecha_hora=f"{fecha_str} 18:00:00", cerrada=True)
                     
                     # Find existing
                     norm_mat_name = normalize(mat.nombre)
