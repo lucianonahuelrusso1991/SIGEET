@@ -3313,3 +3313,101 @@ def cargar_notas_mesa_csv(request, mesa_id):
         return redirect('cargar_notas_mesa', mesa_id=mesa.id)
     return redirect('cargar_notas_mesa', mesa_id=mesa_id)
 
+
+
+import csv
+from datetime import datetime
+from django.utils.timezone import make_aware
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def descargar_plantilla_mesas_csv(request, plan_id):
+    from .models import Materia, PlanDeEstudio
+    plan = get_object_or_404(PlanDeEstudio, id=plan_id)
+    materias = Materia.objects.filter(plan=plan).order_by('anio', 'nombre')
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="plantilla_mesas_{plan.id}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Materia ID (NO MODIFICAR)', 'Materia', 'Anio Carrera', 'Fecha (DD/MM/AAAA)', 'Hora (HH:MM)'])
+    
+    for m in materias:
+        writer.writerow([m.id, m.nombre, m.anio, '', '18:00'])
+        
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def apertura_masiva_mesas_csv(request):
+    if es_solo_tutor(request.user): return redirect('dashboard')
+    from .models import PlanDeEstudio, MesaExamen, Materia
+    planes = PlanDeEstudio.objects.all().order_by('nombre')
+    
+    if request.method == 'POST':
+        plan_id = request.POST.get('plan')
+        turno = request.POST.get('turno')
+        ciclo_lectivo = request.POST.get('ciclo_lectivo')
+        csv_file = request.FILES.get('csv_file')
+        
+        if not plan_id or not turno or not ciclo_lectivo or not csv_file:
+            messages.error(request, 'Faltan completar campos obligatorios o el archivo CSV.')
+            return redirect('apertura_masiva_mesas_csv')
+            
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            
+            creadas = 0
+            omitidas = 0
+            
+            for row in reader:
+                m_id = row.get('Materia ID (NO MODIFICAR)')
+                fecha_str = row.get('Fecha (DD/MM/AAAA)', '').strip()
+                hora_str = row.get('Hora (HH:MM)', '').strip()
+                
+                if m_id and fecha_str:
+                    try:
+                        materia = Materia.objects.get(id=m_id)
+                        # Parse date
+                        if not hora_str: hora_str = '18:00'
+                        fecha_hora_str = f"{fecha_str} {hora_str}"
+                        fecha_hora_obj = datetime.strptime(fecha_hora_str, '%d/%m/%Y %H:%M')
+                        fecha_hora_aware = make_aware(fecha_hora_obj)
+                        
+                        # Evitar duplicados (misma materia, mismo ciclo, mismo turno)
+                        existe = MesaExamen.objects.filter(
+                            materia=materia,
+                            turno=turno,
+                            ciclo_lectivo=int(ciclo_lectivo)
+                        ).exists()
+                        
+                        if not existe:
+                            MesaExamen.objects.create(
+                                materia=materia,
+                                turno=turno,
+                                fecha_hora=fecha_hora_aware,
+                                ciclo_lectivo=int(ciclo_lectivo),
+                                inscripciones_abiertas=True,
+                                cerrada=False
+                            )
+                            creadas += 1
+                        else:
+                            omitidas += 1
+                            
+                    except (Materia.DoesNotExist, ValueError) as e:
+                        print(f"Error procesando fila {m_id}: {e}")
+                        omitidas += 1
+                        
+            messages.success(request, f'Apertura masiva completada: {creadas} mesas creadas. ({omitidas} omitidas por errores o duplicados).')
+            return redirect('lista_mesas')
+            
+        except Exception as e:
+            messages.error(request, f'Error procesando el archivo CSV: {e}')
+            return redirect('apertura_masiva_mesas_csv')
+
+    return render(request, 'gestion/apertura_masiva_mesas.html', {
+        'planes': planes,
+        'proximo_año': datetime.now().year
+    })
+

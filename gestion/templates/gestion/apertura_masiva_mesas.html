@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Apertura Masiva de Mesas (CSV){% endblock %}
+
+{% block back_button %}
+<a href="{% url 'lista_mesas' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">Volver a Mesas</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6 fade-in-up">
+        
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-main">Apertura Masiva de Mesas de Examen</h3>
+            <p class="text-muted">Crea m&uacute;ltiples mesas de examen de un tir&oacute;n usando una plantilla de Excel (CSV).</p>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 mb-5">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-main">1. Seleccionar Carrera</label>
+                        <select name="plan" id="selectPlan" class="form-select bg-body-tertiary border-0 py-2" required>
+                            <option value="">-- Elegir Plan de Estudio --</option>
+                            {% for p in planes %}
+                                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="mt-2 text-end">
+                            <button type="button" id="btnDescargarPlantilla" class="btn btn-sm btn-outline-success rounded-3 fw-bold shadow-sm" disabled>
+                                <i class="bi bi-filetype-csv me-1"></i> Descargar Plantilla CSV para esta Carrera
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-main">Turno de Examen</label>
+                            <select name="turno" class="form-select bg-body-tertiary border-0 py-2" required>
+                                <option value="FEB_MAR">Febrero / Marzo</option>
+                                <option value="JUL_AGO">Julio / Agosto</option>
+                                <option value="NOV_DIC" selected>Noviembre / Diciembre</option>
+                                <option value="ESPECIAL">Mesa Especial / &Uacute;nica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-main">Ciclo Lectivo</label>
+                            <input type="number" name="ciclo_lectivo" class="form-control bg-body-tertiary border-0 py-2" value="{{ proximo_año }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-main">2. Subir Plantilla Completada (CSV)</label>
+                        <input type="file" name="csv_file" accept=".csv" class="form-control bg-body-tertiary border-0 py-2" required>
+                        <small class="text-muted d-block mt-2">
+                            <i class="bi bi-info-circle text-primary me-1"></i>Llena &uacute;nicamente las columnas Fecha y Hora de las materias que quieras abrir. Las que dejes en blanco ser&aacute;n ignoradas. <strong class="text-danger">No modifiques la columna ID.</strong>
+                        </small>
+                    </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm hover-lift">
+                            <i class="bi bi-rocket-takeoff me-2"></i> Crear Mesas de Examen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectPlan = document.getElementById('selectPlan');
+    const btnDescargar = document.getElementById('btnDescargarPlantilla');
+    
+    selectPlan.addEventListener('change', function() {
+        if(this.value) {
+            btnDescargar.disabled = false;
+            btnDescargar.onclick = function() {
+                window.location.href = "/mesas/plantilla-csv/" + selectPlan.value + "/";
+            };
+        } else {
+            btnDescargar.disabled = true;
+        }
+    });
+});
+</script>
+{% endblock %}
