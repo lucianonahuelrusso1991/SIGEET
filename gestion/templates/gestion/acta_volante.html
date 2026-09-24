@@ -28,11 +28,19 @@
         <button onclick="window.close()" style="padding: 10px 20px; font-size: 14px; cursor: pointer; background: #6c757d; color: white; border: none; border-radius: 5px; margin-left: 10px;">Cerrar</button>
     </div>
 
-    <div class="header">
-        <h1>Acta Volante de Promoción / Cursada</h1>
-        <p><strong>Materia:</strong> {{ comision.materia.nombre }} | <strong>Año:</strong> {{ comision.ciclo_lectivo }}</p>
-        <p><strong>Profesor/a:</strong> {{ comision.docente.apellido|default:"A designar" }}, {{ comision.docente.nombre|default:"" }}</p>
-        <p><strong>Fecha de Emisión:</strong> {{ fecha_actual|date:"d/m/Y" }}</p>
+        <div class="header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="{% static 'img/logo.png' %}" alt="Logo Don Bosco" style="width: 70px; height: auto;">
+            <div style="text-align: left; border-left: 2px solid #ccc; padding-left: 20px;">
+                <h1 style="font-size: 20px; text-transform: uppercase; margin: 0; color: #111; letter-spacing: 1px;">Profesorado Don Bosco <span style="font-size: 14px; color: #555;">(A-1005)</span></h1>
+                <h2 style="font-size: 16px; font-weight: bold; margin: 5px 0 0 0; color: #444; text-transform: uppercase;">Acta Volante de Promoci&oacute;n / Cursada</h2>
+            </div>
+        </div>
+        <div style="text-align: right; font-size: 13px; color: #333;">
+            <p style="margin: 0 0 5px 0;"><strong>Materia:</strong> {{ comision.materia.nombre }}</p>
+            <p style="margin: 0 0 5px 0;"><strong>Ciclo:</strong> {{ comision.ciclo_lectivo }} | <strong>Fecha:</strong> {{ fecha_actual|date:"d/m/Y" }}</p>
+            <p style="margin: 0;"><strong>Profesor/a:</strong> {{ comision.docente.apellido|default:"A designar" }}, {{ comision.docente.nombre|default:"" }}</p>
+        </div>
     </div>
 
     <div class="table-responsive">
