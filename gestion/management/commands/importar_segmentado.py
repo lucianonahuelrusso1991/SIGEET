@@ -46,14 +46,14 @@ class Command(BaseCommand):
         for row in self.parse_sql_lines(file_path, 'users'):
             try:
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
-                legacy_u[int(parts[0])] = str(parts[4]).strip() # id -> dni
+                legacy_u[int(parts[0])] = str(parts[4]).strip()
             except: pass
             
         legacy_docentes_to_uid = {}
         for row in self.parse_sql_lines(file_path, 'docentes'):
             try:
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
-                legacy_docentes_to_uid[int(parts[0])] = int(parts[1]) # d_id -> u_id
+                legacy_docentes_to_uid[int(parts[0])] = int(parts[1])
             except: pass
             
         legacy_m_names = {}
@@ -97,7 +97,6 @@ class Command(BaseCommand):
             except: pass
 
         alumnos_db = {a.dni: a for a in Alumno.objects.all()}
-        # Docentes por DNI. Buscamos el DNI con legacy_u
         docentes_db = {}
         for d in Docente.objects.all():
             docentes_db[d.dni] = d
@@ -108,11 +107,7 @@ class Command(BaseCommand):
             if not u_id: return None
             dni = legacy_u.get(u_id)
             if not dni: return None
-            # extraemos ultimos chars si tiene formato raro pero asumimos que el dni en bd nueva coincide
-            # limpiamos puntos
             dni_limpio = ''.join(filter(str.isdigit, str(dni).split('.')[0].split(',')[0]))
-            
-            # Buscar directo por dni, o recortado a 15
             doc = docentes_db.get(dni_limpio)
             if doc: return doc
             for d_dni, obj in docentes_db.items():
@@ -146,12 +141,15 @@ class Command(BaseCommand):
                     if not mat_real: continue
                         
                     estado_nuevo = estado_map.get(l_estado, 'REG')
+                    
+                    # HEREDAR tipo_aprobacion de la materia base en lugar de forzar FIN por defecto
+                    tipo_ap = mat_real.tipo_aprobacion if mat_real.tipo_aprobacion else 'FIN'
+                    
                     comision_obj, _ = Comision.objects.get_or_create(
                         materia=mat_real, ciclo_lectivo=anio, cuatrimestre=c_info['cuat'],
-                        defaults={'cerrada': (anio < 2025)}
+                        defaults={'cerrada': (anio < 2025), 'tipo_aprobacion': tipo_ap}
                     )
                     
-                    # Inyectar docente
                     doc_pr = get_docente(c_info['d_id'])
                     doc_aux = get_docente(c_info['p_id'])
                     mod_c = False
