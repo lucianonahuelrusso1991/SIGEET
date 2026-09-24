@@ -885,17 +885,7 @@ def alta_comision(request):
                     hora_fin=h_fin
                 )
                 
-            # Integracion Google Classroom
-            from .services.google_classroom import obtener_o_crear_aula_materia, invitar_equipo_docente
-            
-            aula_id = obtener_o_crear_aula_materia(materia)
-            if aula_id:
-                invitar_equipo_docente(materia, docente)
-                if docente_aux:
-                    invitar_equipo_docente(materia, docente_aux)
-                messages.success(request, f"¡Comisión para {materia.nombre} abierta con éxito y vinculada a Classroom!")
-            else:
-                messages.success(request, f"¡Comisión para {materia.nombre} abierta con éxito! (Nota: No se pudo conectar con Classroom).")
+            messages.success(request, f"🎉 Comisión para {materia.nombre} abierta con éxito. (Aula de Classroom no creada automáticamente).")
             
             return redirect('lista_comisiones')
         except Exception as e:
