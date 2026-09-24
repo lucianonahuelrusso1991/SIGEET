@@ -20,10 +20,10 @@
 <div class="card shadow-sm border-0 mb-4 bg-light">
     <div class="card-body p-3">
         <div class="row g-2 align-items-center">
-            <div class="col-md-4">
+            <div class="col-md-4 mb-2">
                 <input type="text" id="filterText" class="form-control" placeholder="🔍 Buscar por materia o docente...">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mb-2">
                 <select id="filterPlan" class="form-select">
                     <option value="">-- Todas las Carreras --</option>
                     {% for p in planes %}
@@ -31,7 +31,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 mb-2">
                 <select id="filterCiclo" class="form-select">
                     <option value="">-- Ciclo --</option>
                     {% for c in ciclos %}
@@ -39,8 +39,16 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2 text-end">
-                <button type="button" id="btnLimpiar" class="btn btn-outline-light shadow-sm w-100">Limpiar</button>
+            <div class="col-md-2 mb-2">
+                <select id="filterAnioCarrera" class="form-select">
+                    <option value="">-- Año Carrera --</option>
+                    {% for a in anios_carrera_disponibles %}
+                        <option value="{{ a }}">{{ a }}º Año</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-12 text-end mt-2">
+                <button type="button" id="btnLimpiar" class="btn btn-outline-light shadow-sm">Limpiar Filtros</button>
             </div>
         </div>
     </div>
@@ -50,6 +58,7 @@
 <table class="table table-striped mt-3" id="comisionesTable">
     <thead class="border-bottom border-dark border-opacity-25">
         <tr>
+            <th>Año</th>
             <th>Materia</th>
             <th>Docente</th>
             <th>Días y Horarios</th>
@@ -60,7 +69,8 @@
     </thead>
     <tbody>
         {% for comision in comisiones %}
-        <tr class="comision-row" data-plan="{{ comision.materia.plan_id }}" data-ciclo="{{ comision.ciclo_lectivo }}">
+        <tr class="comision-row" data-plan="{{ comision.materia.plan_id }}" data-ciclo="{{ comision.ciclo_lectivo }}" data-aniocarrera="{{ comision.materia.año_dictado }}">
+            <td class="text-center fw-bold">{{ comision.materia.año_dictado }}º</td>
             <td class="fw-bold materia-nombre">{{ comision.materia.nombre }}</td>
             <td class="docente-nombre">
                 {% if comision.docente %}{{ comision.docente.apellido }}, {{ comision.docente.nombre }}{% else %}<span class="text-danger">A designar</span>{% endif %}
@@ -96,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const filterText = document.getElementById('filterText');
     const filterPlan = document.getElementById('filterPlan');
     const filterCiclo = document.getElementById('filterCiclo');
+    const filterAnioCarrera = document.getElementById('filterAnioCarrera');
     const btnLimpiar = document.getElementById('btnLimpiar');
     const rows = document.querySelectorAll('.comision-row');
     const noResultsRow = document.getElementById('noResultsRow');
@@ -104,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const text = filterText.value.toLowerCase();
         const plan = filterPlan.value;
         const ciclo = filterCiclo.value;
+        const anioCarrera = filterAnioCarrera.value;
         let visibleCount = 0;
 
         rows.forEach(row => {
@@ -113,10 +125,12 @@ document.addEventListener("DOMContentLoaded", function() {
             const rowDocente = row.querySelector('.docente-nombre').textContent.toLowerCase();
             
             const matchText = rowMateria.includes(text) || rowDocente.includes(text);
+            const rowAnioCarrera = row.getAttribute('data-aniocarrera');
             const matchPlan = plan === "" || rowPlan === plan;
             const matchCiclo = ciclo === "" || rowCiclo === ciclo;
+            const matchAnioCarrera = anioCarrera === "" || rowAnioCarrera === anioCarrera;
 
-            if (matchText && matchPlan && matchCiclo) {
+            if (matchText && matchPlan && matchCiclo && matchAnioCarrera) {
                 row.style.display = "";
                 visibleCount++;
             } else {
@@ -134,11 +148,13 @@ document.addEventListener("DOMContentLoaded", function() {
     filterText.addEventListener('input', filterTable);
     filterPlan.addEventListener('change', filterTable);
     filterCiclo.addEventListener('change', filterTable);
+    filterAnioCarrera.addEventListener('change', filterTable);
 
     btnLimpiar.addEventListener('click', function() {
         filterText.value = "";
         filterPlan.value = "";
         filterCiclo.value = "";
+        filterAnioCarrera.value = "";
         filterTable();
     });
 });

@@ -707,6 +707,7 @@ def lista_comisiones(request):
     query = request.GET.get('q', '')
     plan_id = request.GET.get('plan', '')
     ciclo = request.GET.get('ciclo', '')
+    anio_carrera = request.GET.get('anio_carrera', '')
     
     if query:
         comisiones = comisiones.filter(materia__nombre__icontains=query)
@@ -714,6 +715,8 @@ def lista_comisiones(request):
         comisiones = comisiones.filter(materia__plan_id=plan_id)
     if ciclo:
         comisiones = comisiones.filter(ciclo_lectivo=ciclo)
+    if anio_carrera:
+        comisiones = comisiones.filter(materia__año_dictado=anio_carrera)
         
     planes = planes.order_by('nombre')
     ciclos_disponibles = Comision.objects.values_list('ciclo_lectivo', flat=True).distinct().order_by('-ciclo_lectivo')
@@ -722,9 +725,11 @@ def lista_comisiones(request):
         'comisiones': comisiones,
         'planes': planes,
         'ciclos': ciclos_disponibles,
+        'anios_carrera_disponibles': [1,2,3,4,5],
         'q': query,
         'plan_id': int(plan_id) if plan_id else '',
         'ciclo_sel': int(ciclo) if ciclo else '',
+        'anio_carrera_sel': int(anio_carrera) if anio_carrera else '',
         'es_tutor': es_solo_tutor(request.user),
     })
 
@@ -1719,10 +1724,39 @@ def lista_mesas(request):
     planes_ids = obtener_planes_visibles(request.user)
     if planes_ids is not None:
         mesas = MesaExamen.objects.filter(materia__plan_id__in=planes_ids).order_by('-ciclo_lectivo', 'fecha_hora')
+        planes = PlanDeEstudio.objects.filter(id__in=planes_ids)
     else:
         # Obtener todas las mesas agrupadas por ciclo lectivo y ordenadas por fecha
         mesas = MesaExamen.objects.all().order_by('-ciclo_lectivo', 'fecha_hora')
-    return render(request, 'gestion/lista_mesas.html', {'mesas': mesas})
+        planes = PlanDeEstudio.objects.all()
+
+    query = request.GET.get('q', '')
+    plan_id = request.GET.get('plan', '')
+    ciclo = request.GET.get('ciclo', '')
+    anio_carrera = request.GET.get('anio_carrera', '')
+
+    if query:
+        mesas = mesas.filter(materia__nombre__icontains=query)
+    if plan_id:
+        mesas = mesas.filter(materia__plan_id=plan_id)
+    if ciclo:
+        mesas = mesas.filter(ciclo_lectivo=ciclo)
+    if anio_carrera:
+        mesas = mesas.filter(materia__año_dictado=anio_carrera)
+
+    planes = planes.order_by('nombre')
+    ciclos_disponibles = MesaExamen.objects.values_list('ciclo_lectivo', flat=True).distinct().order_by('-ciclo_lectivo')
+
+    return render(request, 'gestion/lista_mesas.html', {
+        'mesas': mesas,
+        'planes': planes,
+        'ciclos': ciclos_disponibles,
+        'anios_carrera_disponibles': [1,2,3,4,5],
+        'q': query,
+        'plan_id': int(plan_id) if plan_id else '',
+        'ciclo_sel': int(ciclo) if ciclo else '',
+        'anio_carrera_sel': int(anio_carrera) if anio_carrera else '',
+    })
 
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
