@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% block back_button %}
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-success shadow-sm fw-bold  text-success">&larr; Volver al inicio</a>
+{% endblock %}
+
+
 {% block title %}Solicitudes de Trámites{% endblock %}
 
 {% block content %}

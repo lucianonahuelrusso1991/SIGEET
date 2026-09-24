@@ -1,5 +1,10 @@
 ﻿{% extends "base.html" %}
 
+{% block back_button %}
+<a href="{% url 'login' %}" class="btn btn-sm btn-outline-success shadow-sm fw-bold text-success">&larr; Volver al inicio</a>
+{% endblock %}
+
+
 {% block title %}Formulario de Preinscripción{% endblock %}
 
 {% block navbar %}{% endblock %}
