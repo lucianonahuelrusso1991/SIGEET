@@ -39,6 +39,7 @@ class Command(BaseCommand):
 
         from gestion.models import Alumno, Docente, Materia, Comision, Inscripcion, MesaExamen, InscripcionMesa, Nota
         def normalize(n): return n.lower().strip().replace('ǭ','a').replace('Ǹ','e').replace('','i').replace('','o').replace('ǧ','u').replace('','n').replace(' ', '')
+        def limpiar_dni(d): return ''.join(filter(str.isdigit, str(d).split('.')[0].split(',')[0]))
 
         self.stdout.write(f">> Mapeando datos para Legacy Carrera {carrera_legacy} -> Nuevo Plan {plan_nuevo} | AÑO: {anio}")
         
@@ -46,7 +47,7 @@ class Command(BaseCommand):
         for row in self.parse_sql_lines(file_path, 'users'):
             try:
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
-                legacy_u[int(parts[0])] = str(parts[4]).strip()
+                legacy_u[int(parts[0])] = limpiar_dni(parts[4])
             except: pass
             
         legacy_docentes_to_uid = {}
@@ -107,18 +108,17 @@ class Command(BaseCommand):
                     target_examens[e_id] = {'m_id': m_id, 'fecha': fecha, 'd_id': d_id}
             except: pass
 
-        alumnos_db = {a.dni: a for a in Alumno.objects.all()}
+        alumnos_db = {limpiar_dni(a.dni): a for a in Alumno.objects.all()}
         docentes_db = {}
         for d in Docente.objects.all():
-            docentes_db[d.dni] = d
+            docentes_db[limpiar_dni(d.dni)] = d
             
         def get_docente(legacy_d_id):
             if not legacy_d_id: return None
             u_id = legacy_docentes_to_uid.get(legacy_d_id)
             if not u_id: return None
-            dni = legacy_u.get(u_id)
-            if not dni: return None
-            dni_limpio = ''.join(filter(str.isdigit, str(dni).split('.')[0].split(',')[0]))
+            dni_limpio = legacy_u.get(u_id)
+            if not dni_limpio: return None
             doc = docentes_db.get(dni_limpio)
             if doc: return doc
             for d_dni, obj in docentes_db.items():
@@ -142,8 +142,8 @@ class Command(BaseCommand):
                     
                     if c_id not in target_cursos: continue
                     
-                    dni = legacy_u.get(u_id)
-                    al = alumnos_db.get(dni)
+                    dni_limpio = legacy_u.get(u_id)
+                    al = alumnos_db.get(dni_limpio)
                     if not al: continue
                     
                     c_info = target_cursos[c_id]
@@ -153,7 +153,6 @@ class Command(BaseCommand):
                         
                     estado_nuevo = estado_map.get(l_estado, 'REG')
                     
-                    # HEREDAR tipo_aprobacion de la tabla carreras_materias vieja
                     tipo_ap = target_materias_regimen.get(c_info['m_id'], 'FIN')
                     
                     if mat_real.tipo_aprobacion != tipo_ap and not dry_run:
@@ -211,8 +210,8 @@ class Command(BaseCommand):
                     
                     if e_id not in target_examens: continue
                     
-                    dni = legacy_u.get(u_id)
-                    al = alumnos_db.get(dni)
+                    dni_limpio = legacy_u.get(u_id)
+                    al = alumnos_db.get(dni_limpio)
                     if not al: continue
                     
                     examen_info = target_examens[e_id]
