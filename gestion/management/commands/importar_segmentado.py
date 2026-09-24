@@ -63,6 +63,17 @@ class Command(BaseCommand):
                 legacy_m_names[int(parts[0])] = str(parts[1]).strip()
             except: pass
 
+        target_materias_regimen = {}
+        for row in self.parse_sql_lines(file_path, 'carreras_materias'):
+            try:
+                parts = ast.literal_eval(row.replace('NULL', 'None'))
+                cm_car = int(parts[1])
+                cm_mat = int(parts[2])
+                regimen = str(parts[5]).strip().lower()
+                if cm_car == carrera_legacy:
+                    target_materias_regimen[cm_mat] = 'PROM' if 'promocionable' in regimen else 'FIN'
+            except: pass
+
         target_cursos = {}
         for row in self.parse_sql_lines(file_path, 'cursos'):
             try:
@@ -142,13 +153,20 @@ class Command(BaseCommand):
                         
                     estado_nuevo = estado_map.get(l_estado, 'REG')
                     
-                    # HEREDAR tipo_aprobacion de la materia base en lugar de forzar FIN por defecto
-                    tipo_ap = mat_real.tipo_aprobacion if mat_real.tipo_aprobacion else 'FIN'
+                    # HEREDAR tipo_aprobacion de la tabla carreras_materias vieja
+                    tipo_ap = target_materias_regimen.get(c_info['m_id'], 'FIN')
+                    
+                    if mat_real.tipo_aprobacion != tipo_ap and not dry_run:
+                        mat_real.tipo_aprobacion = tipo_ap
+                        mat_real.save(update_fields=['tipo_aprobacion'])
                     
                     comision_obj, _ = Comision.objects.get_or_create(
                         materia=mat_real, ciclo_lectivo=anio, cuatrimestre=c_info['cuat'],
                         defaults={'cerrada': (anio < 2025), 'tipo_aprobacion': tipo_ap}
                     )
+                    if comision_obj.tipo_aprobacion != tipo_ap and not dry_run:
+                        comision_obj.tipo_aprobacion = tipo_ap
+                        comision_obj.save(update_fields=['tipo_aprobacion'])
                     
                     doc_pr = get_docente(c_info['d_id'])
                     doc_aux = get_docente(c_info['p_id'])
