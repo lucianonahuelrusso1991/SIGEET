@@ -1843,10 +1843,6 @@ def detalle_mesa(request, mesa_id):
     is_authorized = False
     if request.user.is_staff or request.user.is_superuser:
         is_authorized = True
-    elif hasattr(request.user, 'perfil_docente'):
-        docente = request.user.perfil_docente
-        if mesa.presidente_mesa == docente or mesa.vocal_1 == docente or mesa.vocal_2 == docente:
-            is_authorized = True
             
     if not is_authorized:
         messages.error(request, 'No tienes permiso para acceder a esta mesa de examen.')
@@ -2002,10 +1998,6 @@ def cargar_notas_mesa(request, mesa_id):
     is_authorized = False
     if request.user.is_staff or request.user.is_superuser:
         is_authorized = True
-    elif hasattr(request.user, 'perfil_docente'):
-        docente = request.user.perfil_docente
-        if mesa.presidente_mesa == docente or mesa.vocal_1 == docente or mesa.vocal_2 == docente:
-            is_authorized = True
             
     if not is_authorized:
         messages.error(request, 'No tienes permiso para cargar notas en esta mesa de examen.')
@@ -2087,6 +2079,8 @@ def cargar_notas_mesa(request, mesa_id):
     return render(request, 'gestion/cargar_notas_mesa.html', {'mesa': mesa, 'inscriptos': inscriptos})
 
 @login_required
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def cerrar_mesa(request, mesa_id):
     from .models import MesaExamen
     mesa = get_object_or_404(MesaExamen, id=mesa_id)
