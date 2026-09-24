@@ -121,6 +121,7 @@
     </style>
 </head>
 <body>
+{% load static %}
 
 <div class="no-print text-center py-3 bg-dark sticky-top shadow">
     <button onclick="window.print()" class="btn btn-light fw-bold px-4 me-2"><i class="bi bi-printer-fill me-2"></i>Imprimir Analítico (PDF)</button>
@@ -130,16 +131,12 @@
 <div class="hoja-a4">
     <!-- Encabezado con Logo -->
     <div class="header-container">
-        <div class="logo-box"><svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    <path d="M12 8v4"/>
-    <path d="M12 16h.01"/>
-    <path d="M8 12h8"/>
-</svg></div>
+        <div class="logo-box">{% load static %}
+        <img src="{% static 'img/logo.png' %}" alt="Logo Institucional" style="max-height: 85px; object-fit: contain; filter: grayscale(100%);"></div>
         <div class="text-box">
-            <h1>Ministerio de Educación</h1>
-            <h2>Instituto Superior de Formación Académica</h2>
-            <p>Dirección de Educación Superior - Provincia de Buenos Aires</p>
+            <h1>Ministerio de Educaci&oacute;n</h1>
+            <h2>Profesorado Don Bosco (A-1005)</h2>
+            <p>Nivel Superior</p>
         </div>
         <div class="space-box"></div>
     </div>

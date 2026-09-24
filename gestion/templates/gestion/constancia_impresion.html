@@ -31,6 +31,7 @@
     </style>
 </head>
 <body>
+{% load static %}
 
 <div class="no-print text-center py-3 bg-dark sticky-top shadow">
     <button onclick="window.print()" class="btn btn-light fw-bold px-4 me-2"><i class="bi bi-printer-fill me-2"></i>Imprimir Constancia (PDF)</button>
@@ -39,16 +40,12 @@
 
 <div class="hoja-a4">
     <div class="header-container">
-        <div class="logo-box"><svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    <path d="M12 8v4"/>
-    <path d="M12 16h.01"/>
-    <path d="M8 12h8"/>
-</svg></div>
+        <div class="logo-box">{% load static %}
+        <img src="{% static 'img/logo.png' %}" alt="Logo Institucional" style="max-height: 85px; object-fit: contain; filter: grayscale(100%);"></div>
         <div class="text-box">
-            <h1>Ministerio de Educación</h1>
-            <h2>Instituto Superior de Formación Académica</h2>
-            <p>Dirección de Educación Superior - Provincia de Buenos Aires</p>
+            <h1>Ministerio de Educaci&oacute;n</h1>
+            <h2>Profesorado Don Bosco (A-1005)</h2>
+            <p>Nivel Superior</p>
         </div>
         <div class="space-box"></div>
     </div>
@@ -58,7 +55,7 @@
     </div>
 
     <div class="cuerpo-texto">
-        <p>La Dirección del Instituto Superior de Formación Académica hace constar por la presente que <strong>{{ alumno.apellido|upper }}, {{ alumno.nombre }}</strong>, con <strong>D.N.I. Nº {{ alumno.dni }}</strong>, es alumno/a <strong>REGULAR</strong> de esta institución educativa, encontrándose actualmente inscripto/a y cursando estudios correspondientes a la carrera de <strong>{% if alumno.carreras.first %}{{ alumno.carreras.first.nombre }}{% else %}______________{% endif %}</strong> durante el ciclo lectivo en curso.</p>
+        <p>La Dirección del Profesorado Don Bosco (A-1005) hace constar por la presente que <strong>{{ alumno.apellido|upper }}, {{ alumno.nombre }}</strong>, con <strong>D.N.I. Nº {{ alumno.dni }}</strong>, es alumno/a <strong>REGULAR</strong> de esta institución educativa, encontrándose actualmente inscripto/a y cursando estudios correspondientes a la carrera de <strong>{% if alumno.carreras.first %}{{ alumno.carreras.first.nombre }}{% else %}______________{% endif %}</strong> durante el ciclo lectivo en curso.</p>
         
         <p>Se extiende la presente constancia a petición del/la interesado/a y a los efectos de ser presentada ante quien corresponda, en la ciudad de ________________________, a los {% now "d" %} días del mes de {% now "F" %} del año {% now "Y" %}.</p>
     </div>
