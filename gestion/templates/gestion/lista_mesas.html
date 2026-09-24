@@ -85,13 +85,12 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-sm btn-outline-primary">Administrar</a>
-                        {% if not es_tutor %}
-    <div class="d-flex gap-2">
-        <a href="{% url 'apertura_masiva_mesas_csv' %}" class="btn btn-outline-success fw-bold shadow-sm"><i class="bi bi-filetype-csv me-1"></i> Apertura Masiva</a>
-        <a href="{% url 'alta_mesa' %}" class="btn btn-primary fw-bold shadow-sm"><i class="bi bi-plus-circle me-1"></i> Nueva Mesa Manual</a>
-    </div>
-                        {% endif %}
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'detalle_mesa' mesa.id %}" class="btn btn-sm btn-surface border text-primary">Administrar</a>
+                            {% if not es_tutor %}
+                                <a href="{% url 'eliminar_mesa' mesa.id %}" class="btn btn-sm btn-surface border text-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
