@@ -30,7 +30,7 @@ class Command(BaseCommand):
                         is_end = line.endswith(';')
                         if line.endswith(';') or line.endswith(','): line = line[:-1]
                         if line.startswith('('): yield line
-                        if is_end: break
+                        if is_end: in_table = False
 
         for row in parse_sql_lines('users'):
             try:
@@ -74,8 +74,7 @@ class Command(BaseCommand):
                 parts = ast.literal_eval(row.replace('NULL', 'None'))
                 al_id = int(parts[1])
                 c_id = int(parts[2])
-                raw_nota = parts[9]
-                if len(parts) < 10: raw_nota = None
+                raw_nota = parts[9] if len(parts) > 9 else None
                 
                 u_id = legacy_alumnos.get(al_id)
                 if not u_id: continue
