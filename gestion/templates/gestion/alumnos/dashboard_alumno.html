@@ -151,7 +151,7 @@
             {% empty %}
             <div class="card shadow-sm border-0 rounded-4 mb-4 bg-body-tertiary">
                 <div class="card-body p-4 text-center text-muted">
-                    <p class="mb-0">No estǭs inscripto en ninguna carrera todava.</p>
+                    <p class="mb-0">No est&aacute;s inscripto en ninguna carrera todav&iacute;a.</p>
                 </div>
             </div>
             {% endfor %}
@@ -245,6 +245,9 @@
                             </div>
                             {% endif %}
                         </div>
+                        {% empty %}
+                        <p class="text-muted small text-center my-3">No hay solicitudes recientes.</p>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
