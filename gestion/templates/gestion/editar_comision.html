@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
 {% endblock %}
 
 {% block title %}Editar Comisión{% endblock %}
@@ -191,7 +191,7 @@
             </div>
             
             <div class="card-footer bg-body-tertiary d-flex justify-content-between p-3">
-                <a href="{% url 'detalle_comision' comision.id %}" class="btn btn-outline-light">Cancelar</a>
+                <a href="{% url 'detalle_comision' comision.id %}" class="btn btn-outline-secondary">Cancelar</a>
                 <button type="submit" class="btn btn-primary fw-bold px-4">Abrir Comisión</button>
             </div>
         <input type="hidden" name="materia" value="{{ comision.materia.id }}"></form>

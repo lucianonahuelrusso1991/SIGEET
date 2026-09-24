@@ -3,7 +3,7 @@
 {% block title %}Revisar PreinscripciÃ³n - {{ alumno.apellido }}, {{ alumno.nombre }}{% endblock %}
 
 {% block back_button %}
-<a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light btn-sm rounded-pill fw-bold mb-3 shadow-sm hover-lift">
+<a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold mb-3 shadow-sm hover-lift">
     <i class="bi bi-arrow-left me-1"></i> Volver a Lista de Aspirantes
 </a>
 {% endblock %}
@@ -142,7 +142,7 @@
 
                         <!-- Submit -->
                         <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
-                            <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light px-4 fw-bold rounded-pill">Cancelar</a>
+                            <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-secondary px-4 fw-bold rounded-pill">Cancelar</a>
                             <a href="{% url 'imprimir_ficha_preinscripcion' alumno.id %}" target="_blank" class="btn btn-outline-secondary  px-4 fw-bold rounded-pill">
                                 <i class="bi bi-printer me-2"></i> Imprimir Ficha
                             </a>

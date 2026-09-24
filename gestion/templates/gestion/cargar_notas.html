@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al detalle de la comisión</a>
+<a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al detalle de la comisión</a>
 {% endblock %}
 
 {% block title %}Cargar Notas: {{ comision.materia.nombre }}{% endblock %}

@@ -11,7 +11,7 @@
     <h2>📚 Gestión de Comisiones</h2>
     <div>
         {% if not es_tutor %}
-        <a href="{% url 'apertura_masiva' %}" class="btn btn-warning text-main fw-bold shadow-sm me-2">⚡ Apertura Masiva</a>
+        <a href="{% url 'apertura_masiva' %}" class="btn btn-warning text-dark fw-bold shadow-sm me-2">⚡ Apertura Masiva</a>
         <a href="{% url 'alta_comision' %}" class="btn btn-primary shadow-sm">➕ Nueva Comisión Individual</a>
         {% endif %}
     </div>
@@ -48,7 +48,7 @@
                 </select>
             </div>
             <div class="col-md-12 text-end mt-2">
-                <button type="button" id="btnLimpiar" class="btn btn-outline-light shadow-sm">Limpiar Filtros</button>
+                <button type="button" id="btnLimpiar" class="btn btn-outline-secondary shadow-sm">Limpiar Filtros</button>
             </div>
         </div>
     </div>
@@ -86,7 +86,7 @@
             </td>
             <td>{{ comision.get_tipo_aprobacion_display }}</td>
             <td>
-                <a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-info text-white shadow-sm">Ver Detalle</a>
+                <a href="{% url 'detalle_comision' comision.id %}" class="btn btn-sm btn-info text-dark shadow-sm">Ver Detalle</a>
             </td>
         </tr>
         {% empty %}

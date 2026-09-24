@@ -2,9 +2,9 @@
 
 {% block back_button %}
 {% if user.is_staff %}
-    <a href="{% url 'lista_comisiones' %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
+    <a href="{% url 'lista_comisiones' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al listado de comisiones</a>
 {% else %}
-    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al Panel Principal</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al Panel Principal</a>
 {% endif %}
 {% endblock %}
 
@@ -53,7 +53,7 @@
                     <a href="{% url 'cargar_asistencia' comision.id %}" class="btn btn-outline-primary shadow-sm">📋 Tomar Asistencia</a>
                     <a href="{% url 'cargar_notas' comision.id %}" class="btn btn-outline-info shadow-sm">📝 Cargar Notas</a>
                     {% if comision.modalidad == 'P' or comision.modalidad == 'B' %}
-                        <a href="{% url 'imprimir_lista_asistencia' comision.id %}" target="_blank" class="btn btn-outline-light shadow-sm">🖨️ Lista de Asistencia Física</a>
+                        <a href="{% url 'imprimir_lista_asistencia' comision.id %}" target="_blank" class="btn btn-outline-secondary shadow-sm">🖨️ Lista de Asistencia Física</a>
                     {% endif %}
                     <a href="{% url 'acta_volante' comision.id %}" target="_blank" class="btn btn-dark shadow-sm">📑 Acta Volante</a>
                     <a href="{% url 'subir_programa' comision.id %}" class="btn btn-outline-success shadow-sm">📚 Subir Programa de Estudios</a>
@@ -66,7 +66,7 @@
             <div class="card-body">
                 <h6 class="text-main fw-bold mb-3"><i class="bi bi-google text-warning"></i> Google Classroom</h6>
                 {% if comision.materia.google_classroom_id %}
-                    <a href="{{ comision.materia.google_classroom_url }}" target="_blank" class="btn btn-warning text-main shadow-sm w-100 fw-bold mb-2">
+                    <a href="{{ comision.materia.google_classroom_url }}" target="_blank" class="btn btn-warning text-dark shadow-sm w-100 fw-bold mb-2">
                         <i class="bi bi-box-arrow-up-right me-2"></i>Ir al Aula Virtual
                     </a>
                     <small class="text-muted d-block text-center">Esta aula es compartida por la materia.</small>
@@ -124,7 +124,7 @@
             <div class="card-body">
                 <h6 class="text-danger fw-bold mb-3"><i class="bi bi-gear-fill"></i> Administración Avanzada</h6>
                 <div class="d-flex flex-wrap gap-2">
-                    <a href="{% url 'editar_comision' comision.id %}" class="btn btn-outline-light btn-sm shadow-sm">✏️ Editar Datos</a>
+                    <a href="{% url 'editar_comision' comision.id %}" class="btn btn-outline-secondary btn-sm shadow-sm">✏️ Editar Datos</a>
                     <a href="{% url 'inscribir_alumno_comision' comision.id %}" class="btn btn-success btn-sm shadow-sm">➕ Inscribir Alumno</a>
                     
                     <a href="{% url 'toggle_inscripcion_comision' comision.id %}" class="btn btn-{% if comision.inscripciones_abiertas %}warning{% else %}success{% endif %} btn-sm shadow-sm">

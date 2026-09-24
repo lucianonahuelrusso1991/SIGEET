@@ -1,7 +1,7 @@
 ﻿{% extends "base.html" %}
 
 {% block back_button %}
-<a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-outline-light shadow-sm fw-bold">⬅ Volver al legajo del alumno</a>
+<a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-outline-secondary shadow-sm fw-bold">⬅ Volver al legajo del alumno</a>
 {% endblock %}
 
 {% block content %}
@@ -198,7 +198,7 @@
             </div>
             
             <div class="card-footer  d-flex justify-content-end py-3">
-                <button type="submit" class="btn btn-warning px-5 fw-bold text-main">Guardar Cambios</button>
+                <button type="submit" class="btn btn-warning px-5 fw-bold text-dark">Guardar Cambios</button>
             </div>
         </form>
     </div>
