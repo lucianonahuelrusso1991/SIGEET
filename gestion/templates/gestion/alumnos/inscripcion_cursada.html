@@ -35,7 +35,7 @@
                         <div class="card border border-light-subtle rounded-3 h-100 hover-lift shadow-sm">
                             <div class="card-body p-3 d-flex flex-column">
                                 <div class="mb-2">
-                                    <span class="badge bg-body-tertiary text-primary border rounded-pill small mb-2">{{ item.comision.materia.plan.nombre|truncatechars:30 }}</span>
+                                    <span class="badge bg-body-tertiary text-primary border rounded-3 small mb-2">{{ item.comision.materia.plan.nombre|truncatechars:30 }}</span>
                                     <h6 class="fw-bold text-main mb-1">{{ item.comision.materia.nombre }}</h6>
                                 </div>
                                 <div class="text-muted small mb-3 flex-grow-1">
@@ -56,7 +56,7 @@
                                         <form method="post" action="{% url 'alumno_inscripcion_cursada' %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="comision_id" value="{{ item.comision.id }}">
-                                            <button type="submit" class="btn btn-outline-primary w-100 fw-bold rounded-pill shadow-sm" onclick="return confirm('¿Confirmar inscripción a {{ item.comision.materia.nombre }}?');">
+                                            <button type="submit" class="btn btn-primary w-100 fw-bold rounded-3 shadow-sm" onclick="return confirm('¿Confirmar inscripción a {{ item.comision.materia.nombre }}?');">
                                                 <i class="bi bi-plus-circle me-1"></i> Inscribirse
                                             </button>
                                         </form>
