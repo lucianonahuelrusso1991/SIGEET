@@ -178,29 +178,49 @@
                     </div>
                     
                     <hr class="my-4 text-muted">
-                    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-shield-lock me-2"></i>Permisos de Gestión (Opcional)</h5>
+                    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-shield-lock me-2"></i>Rol Principal (Administrativo)</h5>
                     <div class="row align-items-start mb-4">
                         <div class="col-md-2 text-md-end">
-                            <label class="form-label fw-bold mb-0 mt-2">Coordinador</label>
+                            <label class="form-label fw-bold mb-0 mt-2">Rol del Sistema</label>
                         </div>
-                        <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="col-md-10 mb-3 mb-md-0">
+                            <select name="rol_principal" id="rol_principal" class="form-select bg-light fw-bold text-primary border-primary">
+                                <option value="docente" {% if rol_actual == 'docente' %}selected{% endif %}>Ninguno (Solo Docente)</option>
+                                <option value="tutor" {% if rol_actual == 'tutor' %}selected{% endif %}>Docente + Tutor de Carrera</option>
+                                <option value="coordinador" {% if rol_actual == 'coordinador' %}selected{% endif %}>Docente + Coordinador de Carrera</option>
+                                <option value="bedel" {% if rol_actual == 'bedel' %}selected{% endif %}>Bedel / Secretaría (Gestión Global)</option>
+                                <option value="contable" {% if rol_actual == 'contable' %}selected{% endif %}>Contable / Tesorería (Gestión Pagos)</option>
+                                <option value="director" {% if rol_actual == 'director' %}selected{% endif %}>Director / Admin (Acceso Total)</option>
+                            </select>
+                            <div class="form-text small text-muted">El rol seleccionado le otorgará permisos extra en su cuenta. Todos pueden ser asignados a dar clases sin importar el rol.</div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-start mb-4" id="div_carreras_coordinadas" style="display: none;">
+                        <div class="col-md-2 text-md-end">
+                            <label class="form-label fw-bold mb-0 mt-2">Coordina Carreras</label>
+                        </div>
+                        <div class="col-md-10 mb-3 mb-md-0">
                             <select name="carreras_coordinadas" class="form-select select2-multiple" multiple>
                                 {% for plan in planes %}
                                     <option value="{{ plan.id }}" {% if plan in docente.carreras_coordinadas.all %}selected{% endif %}>{{ plan.nombre }}</option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text small text-muted">Acceso total (Edición). Ctrl+Clic para varias.</div>
+                            <div class="form-text small text-muted">Seleccione qué carreras administrará (Tendrá permisos de edición total sobre ellas).</div>
                         </div>
+                    </div>
+                    
+                    <div class="row align-items-start mb-4" id="div_carreras_tutoriadas" style="display: none;">
                         <div class="col-md-2 text-md-end">
-                            <label class="form-label fw-bold mb-0 mt-2">Tutor</label>
+                            <label class="form-label fw-bold mb-0 mt-2">Tutorea Carreras</label>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-10">
                             <select name="carreras_tutoriadas" class="form-select select2-multiple" multiple>
                                 {% for plan in planes %}
                                     <option value="{{ plan.id }}" {% if plan in docente.carreras_tutoriadas.all %}selected{% endif %}>{{ plan.nombre }}</option>
                                 {% endfor %}
                             </select>
-                            <div class="form-text small text-muted">Acceso Solo Lectura. Ctrl+Clic para varias.</div>
+                            <div class="form-text small text-muted">Seleccione qué carreras supervisará (Tendrá permisos de lectura para ver alumnos, legajos y notas).</div>
                         </div>
                     </div>
                     
@@ -254,6 +274,23 @@
             allowClear: true,
             width: '100%'
         });
+        
+        function toggleCarreras() {
+            var rol = $('#rol_principal').val();
+            if (rol === 'coordinador') {
+                $('#div_carreras_coordinadas').slideDown();
+                $('#div_carreras_tutoriadas').slideUp();
+            } else if (rol === 'tutor') {
+                $('#div_carreras_tutoriadas').slideDown();
+                $('#div_carreras_coordinadas').slideUp();
+            } else {
+                $('#div_carreras_coordinadas').slideUp();
+                $('#div_carreras_tutoriadas').slideUp();
+            }
+        }
+        
+        $('#rol_principal').change(toggleCarreras);
+        toggleCarreras(); // Ejecutar al inicio
     });
 </script>
 {% endblock %}

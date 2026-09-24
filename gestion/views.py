@@ -685,7 +685,28 @@ def editar_docente(request, docente_id):
             messages.error(request, f"Error al actualizar: {e}")
             
     planes = PlanDeEstudio.objects.all()
-    return render(request, 'gestion/editar_docente.html', {'docente': docente, 'provincias': Docente.PROVINCIAS, 'sexo_choices': Docente.SEXO_CHOICES, 'planes': planes})
+    
+    # Determinar rol actual
+    rol_actual = 'docente'
+    if docente.usuario:
+        if docente.usuario.is_superuser:
+            rol_actual = 'director'
+        elif docente.usuario.groups.filter(name='Secretaria').exists():
+            rol_actual = 'bedel'
+        elif docente.usuario.groups.filter(name='Contable').exists():
+            rol_actual = 'contable'
+        elif docente.carreras_coordinadas.exists():
+            rol_actual = 'coordinador'
+        elif docente.carreras_tutoriadas.exists():
+            rol_actual = 'tutor'
+
+    return render(request, 'gestion/editar_docente.html', {
+        'docente': docente, 
+        'provincias': Docente.PROVINCIAS, 
+        'sexo_choices': Docente.SEXO_CHOICES, 
+        'planes': planes,
+        'rol_actual': rol_actual
+    })
 
 @login_required
 def legajo_docente(request, docente_id):
