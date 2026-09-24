@@ -3255,3 +3255,61 @@ def gestionar_historial_alumno(request, alumno_id):
         'finales': finales,
     }
     return render(request, 'gestion/historial_admin.html', context)
+
+import csv
+from django.http import HttpResponse
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def descargar_plantilla_mesa_csv(request, mesa_id):
+    from .models import MesaExamen
+    mesa = get_object_or_404(MesaExamen, id=mesa_id)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="plantilla_mesa_{mesa.id}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['DNI', 'Apellido', 'Nombre', 'Nota'])
+    
+    for insc in mesa.inscriptos.all().select_related('alumno'):
+        nota = insc.nota_final if insc.nota_final is not None else ''
+        writer.writerow([insc.alumno.dni, insc.alumno.apellido, insc.alumno.nombre, nota])
+        
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def cargar_notas_mesa_csv(request, mesa_id):
+    from .models import MesaExamen, InscripcionMesa
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        mesa = get_object_or_404(MesaExamen, id=mesa_id)
+        if mesa.cerrada:
+            messages.error(request, 'La mesa esta cerrada.')
+            return redirect('detalle_mesa', mesa_id=mesa.id)
+            
+        csv_file = request.FILES['csv_file']
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        
+        cargadas = 0
+        for row in reader:
+            dni = row.get('DNI')
+            nota_str = row.get('Nota', '').strip()
+            if dni:
+                try:
+                    insc = InscripcionMesa.objects.get(mesa=mesa, alumno__dni=dni)
+                    if not nota_str:
+                        insc.nota_final = None
+                        insc.estado = 'AUS'
+                    else:
+                        nota = int(float(nota_str))
+                        insc.nota_final = nota
+                        insc.estado = 'APR' if nota >= 4 else 'REP'
+                    insc.save()
+                    cargadas += 1
+                except (InscripcionMesa.DoesNotExist, ValueError):
+                    pass
+                    
+        messages.success(request, f'Se cargaron masivamente {cargadas} notas desde el archivo CSV.')
+        return redirect('cargar_notas_mesa', mesa_id=mesa.id)
+    return redirect('cargar_notas_mesa', mesa_id=mesa_id)
+
