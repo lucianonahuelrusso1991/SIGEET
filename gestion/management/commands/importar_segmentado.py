@@ -171,7 +171,7 @@ class Command(BaseCommand):
                     
                     comision_obj, _ = Comision.objects.get_or_create(
                         materia=mat_real, ciclo_lectivo=anio, cuatrimestre=c_info['cuat'],
-                        defaults={'cerrada': (anio < 2025), 'tipo_aprobacion': tipo_ap}
+                        defaults={'cerrada': (anio < 2026), 'tipo_aprobacion': tipo_ap}
                     )
                     if comision_obj.tipo_aprobacion != tipo_ap and not dry_run:
                         comision_obj.tipo_aprobacion = tipo_ap
