@@ -95,11 +95,11 @@ def dashboard(request):
             porcentaje_avance = (total_acreditadas / total_materias * 100) if total_materias > 0 else 0
             
             # Materias cursando EN ESTE PLAN
-            cursando_raw = alumno.inscripciones.filter(estado='REG', comision__materia__plan=plan).select_related('comision__materia')
+            cursando_raw = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False, comision__materia__plan=plan).select_related('comision__materia')
             cursando = [c for c in cursando_raw if c.comision.materia_id not in acreditadas_ids]
             
             # Materias regularizadas EN ESTE PLAN
-            cursadas_aprobadas_raw = alumno.inscripciones.filter(estado='APR', comision__cerrada=True, comision__materia__plan=plan).select_related('comision__materia')
+            cursadas_aprobadas_raw = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=True, comision__materia__plan=plan).select_related('comision__materia')
             cursadas_aprobadas = [c for c in cursadas_aprobadas_raw if c.comision.materia_id not in acreditadas_ids]
             
             carreras_info.append({
@@ -294,8 +294,8 @@ def legajo_alumno(request, alumno_id):
     todas_prom = alumno.inscripciones.filter(estado='PROM').select_related('comision__materia__plan').prefetch_related('notas')
     todas_apr = alumno.mesas_inscriptas.filter(estado='APR').select_related('mesa__materia__plan')
     
-    todas_reg = alumno.inscripciones.filter(estado='REG').select_related('comision__materia__plan')
-    todas_apr_cursada = alumno.inscripciones.filter(estado='APR', comision__cerrada=True).select_related('comision__materia__plan')
+    todas_reg = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False).select_related('comision__materia__plan')
+    todas_apr_cursada = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=True).select_related('comision__materia__plan')
     todas_libres = alumno.inscripciones.filter(estado='LIB').select_related('comision__materia__plan')
 
     from datetime import date, timedelta
