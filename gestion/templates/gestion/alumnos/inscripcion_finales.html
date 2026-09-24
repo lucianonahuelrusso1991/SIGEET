@@ -9,7 +9,7 @@
             <i class="bi bi-arrow-left text-secondary"></i>
         </a>
         <div>
-            <h3 class="fw-bold text-dark mb-0">Inscripción a Finales</h3>
+            <h3 class="fw-bold text-body-emphasis mb-0">Inscripción a Finales</h3>
             <p class="text-muted small mb-0">Mesas de Examen Abiertas</p>
         </div>
     </div>
@@ -23,9 +23,9 @@
         {% endfor %}
     {% endif %}
 
-    <div class="card border-0 shadow-sm rounded-4 bg-white fade-in-up" style="animation-delay: 0.1s;">
+    <div class="card border-0 shadow-sm rounded-4  fade-in-up" style="animation-delay: 0.1s;">
         <div class="card-body p-4">
-            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-award me-2 text-danger"></i>Mesas Disponibles</h6>
+            <h6 class="fw-bold text-body-emphasis mb-4"><i class="bi bi-award me-2 text-danger"></i>Mesas Disponibles</h6>
 
             {% if mesas_disponibles %}
                 <div class="row g-3">
@@ -34,8 +34,8 @@
                         <div class="card border border-light-subtle rounded-3 h-100 hover-lift shadow-sm">
                             <div class="card-body p-3 d-flex flex-column">
                                 <div class="mb-2">
-                                    <span class="badge bg-light text-danger border rounded-pill small mb-2">Mesa de Examen</span>
-                                    <h6 class="fw-bold text-dark mb-1">{{ item.mesa.materia.nombre }}</h6>
+                                    <span class="badge bg-body-tertiary text-danger border rounded-pill small mb-2">Mesa de Examen</span>
+                                    <h6 class="fw-bold text-body-emphasis mb-1">{{ item.mesa.materia.nombre }}</h6>
                                 </div>
                                 <div class="text-muted small mb-3 flex-grow-1">
                                     <div class="mb-1"><i class="bi bi-calendar-event me-1 text-danger"></i><strong>{{ item.mesa.fecha|date:"d/m/Y" }}</strong> a las {{ item.mesa.hora|time:"H:i" }}</div>
@@ -49,7 +49,7 @@
                                             <i class="bi bi-check-circle-fill me-1"></i> Ya inscripto
                                         </div>
                                     {% elif item.bloqueado_correlativas %}
-                                        <div class="alert alert-warning py-2 mb-0 text-center rounded-3 border-0 small text-dark">
+                                        <div class="alert alert-warning py-2 mb-0 text-center rounded-3 border-0 small text-body-emphasis">
                                             <i class="bi bi-exclamation-triangle-fill me-1"></i> Faltan correlativas o regularidad
                                         </div>
                                     {% else %}

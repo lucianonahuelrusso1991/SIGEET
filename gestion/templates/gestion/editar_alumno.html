@@ -9,7 +9,7 @@
     <div class="col-md-10">
         <form method="post" class="card shadow-sm border-0 mb-5">
             {% csrf_token %}
-            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center py-3">
+            <div class="card-header bg-warning text-body-emphasis d-flex justify-content-between align-items-center py-3">
                 <h4 class="mb-0 fw-bold">✏️ Editar Datos de: {{ alumno.nombre }} {{ alumno.apellido }}</h4>
             </div>
             
@@ -167,7 +167,7 @@
                 </div>
 
                 <h5 class="text-warning border-bottom pb-2 mb-3 mt-4">3. Documentación Entregada</h5>
-                <div class="row bg-light p-3 rounded">
+                <div class="row bg-body-tertiary p-3 rounded">
                     <div class="col-md-4">
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="doc_dni" id="checkDni" {% if alumno.doc_dni %}checked{% endif %}>
@@ -197,7 +197,7 @@
                 </div>
             </div>
             
-            <div class="card-footer bg-white d-flex justify-content-end py-3">
+            <div class="card-footer  d-flex justify-content-end py-3">
                 <button type="submit" class="btn btn-warning px-5 fw-bold text-dark">Guardar Cambios</button>
             </div>
         </form>

@@ -18,7 +18,7 @@
                     <p class="mb-0 text-white-50 mt-1">VerificÃ¡ los datos cargados por el postulante y tildÃ¡ la documentaciÃ³n entregada antes de darle de alta definitivamente.</p>
                 </div>
                 
-                <div class="card-body p-4 p-md-5 bg-light">
+                <div class="card-body p-4 p-md-5 bg-body-tertiary">
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
@@ -113,13 +113,13 @@
                                     <div class="col-md-6">
                                         <div class="form-check form-switch fs-5 mb-2">
                                             {{ form.doc_dni }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_dni.id_for_label }}">Fotocopia DNI</label>
+                                            <label class="form-check-label text-body-emphasis" for="{{ form.doc_dni.id_for_label }}">Fotocopia DNI</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check form-switch fs-5 mb-2">
                                             {{ form.doc_primaria }}
-                                            <label class="form-check-label text-dark" for="{{ form.doc_primaria.id_for_label }}">Título Secundario</label>
+                                            <label class="form-check-label text-body-emphasis" for="{{ form.doc_primaria.id_for_label }}">Título Secundario</label>
                                         </div>
                                     </div>
                                 </div>
@@ -135,7 +135,7 @@
                         </div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-12">
-                                <label class="form-label fw-bold text-dark fs-5">Correo Institucional (Genera el usuario final)</label>
+                                <label class="form-label fw-bold text-body-emphasis fs-5">Correo Institucional (Genera el usuario final)</label>
                                 {{ form.correo_institucional }}
                             </div>
                         </div>
@@ -143,7 +143,7 @@
                         <!-- Submit -->
                         <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
                             <a href="{% url 'lista_preinscriptos' %}" class="btn btn-outline-light px-4 fw-bold rounded-pill">Cancelar</a>
-                            <a href="{% url 'imprimir_ficha_preinscripcion' alumno.id %}" target="_blank" class="btn btn-outline-secondary bg-white px-4 fw-bold rounded-pill">
+                            <a href="{% url 'imprimir_ficha_preinscripcion' alumno.id %}" target="_blank" class="btn btn-outline-secondary  px-4 fw-bold rounded-pill">
                                 <i class="bi bi-printer me-2"></i> Imprimir Ficha
                             </a>
                             <button type="submit" class="btn btn-success px-5 fw-bold rounded-pill shadow-sm hover-lift">

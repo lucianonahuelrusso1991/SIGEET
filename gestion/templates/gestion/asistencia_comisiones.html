@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card shadow-sm border-0 mb-4 bg-body-tertiary">
             <div class="card-body p-3">
                 <input type="text" id="filterText" class="form-control" placeholder="🔍 Buscar materia, docente o ciclo lectivo...">
             </div>
@@ -40,7 +40,7 @@
                             {% if not comision.cerrada %}
                             <tr class="comision-row">
                                 <td class="ps-4 search-target">
-                                    <span class="fw-bold text-dark">{{ comision.materia.nombre }}</span>
+                                    <span class="fw-bold text-body-emphasis">{{ comision.materia.nombre }}</span>
                                     <br>
                                     <small class="text-muted">{{ comision.materia.plan.nombre }}</small>
                                 </td>

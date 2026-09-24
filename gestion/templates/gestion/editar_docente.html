@@ -10,7 +10,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-10">
         <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-warning text-dark text-center py-3 rounded-top-4">
+            <div class="card-header bg-warning text-body-emphasis text-center py-3 rounded-top-4">
                 <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Editar Datos de Docente</h4>
             </div>
             
@@ -24,13 +24,13 @@
                             <label class="form-label fw-bold mb-0">Nombre/s</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="nombre" class="form-control bg-light" value="{{ docente.nombre }}" required>
+                            <input type="text" name="nombre" class="form-control bg-body-tertiary" value="{{ docente.nombre }}" required>
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Apellido/s</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="apellido" class="form-control bg-light" value="{{ docente.apellido }}" required>
+                            <input type="text" name="apellido" class="form-control bg-body-tertiary" value="{{ docente.apellido }}" required>
                         </div>
                     </div>
                     
@@ -40,13 +40,13 @@
                             <label class="form-label fw-bold mb-0">Email Pers.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="email" name="email" class="form-control bg-light" value="{{ docente.email|default_if_none:'' }}">
+                            <input type="email" name="email" class="form-control bg-body-tertiary" value="{{ docente.email|default_if_none:'' }}">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Email Inst.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="email" name="correo_institucional" class="form-control bg-light" value="{{ docente.correo_institucional|default_if_none:'' }}" placeholder="@pioix.edu.ar">
+                            <input type="email" name="correo_institucional" class="form-control bg-body-tertiary" value="{{ docente.correo_institucional|default_if_none:'' }}" placeholder="@pioix.edu.ar">
                         </div>
                     </div>
                     
@@ -56,26 +56,26 @@
                             <label class="form-label fw-bold mb-0">Tel&eacute;f.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="telefono" class="form-control bg-light" value="{{ docente.telefono|default_if_none:'' }}">
+                            <input type="text" name="telefono" class="form-control bg-body-tertiary" value="{{ docente.telefono|default_if_none:'' }}">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Celular</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="celular" class="form-control bg-light" value="{{ docente.celular|default_if_none:'' }}">
+                            <input type="text" name="celular" class="form-control bg-body-tertiary" value="{{ docente.celular|default_if_none:'' }}">
                         </div>
                     </div>
                         <div class="col-md-1 text-md-end">
                             <label class="form-label fw-bold mb-0">Teléf.</label>
                         </div>
                         <div class="col-md-2 mb-3 mb-md-0">
-                            <input type="text" name="telefono" class="form-control bg-light" value="{{ docente.telefono|default_if_none:'' }}">
+                            <input type="text" name="telefono" class="form-control bg-body-tertiary" value="{{ docente.telefono|default_if_none:'' }}">
                         </div>
                         <div class="col-md-1 text-md-end">
                             <label class="form-label fw-bold mb-0">Cel.</label>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="celular" class="form-control bg-light" value="{{ docente.celular|default_if_none:'' }}">
+                            <input type="text" name="celular" class="form-control bg-body-tertiary" value="{{ docente.celular|default_if_none:'' }}">
                         </div>
                     </div>
 
@@ -85,13 +85,13 @@
                             <label class="form-label fw-bold mb-0">DNI</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="dni" class="form-control bg-light" value="{{ docente.dni }}" required>
+                            <input type="text" name="dni" class="form-control bg-body-tertiary" value="{{ docente.dni }}" required>
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Nacionalidad</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="nacionalidad" class="form-control bg-light" value="{{ docente.nacionalidad|default_if_none:'Argentina' }}">
+                            <input type="text" name="nacionalidad" class="form-control bg-body-tertiary" value="{{ docente.nacionalidad|default_if_none:'Argentina' }}">
                         </div>
                     </div>
 
@@ -101,7 +101,7 @@
                             <label class="form-label fw-bold mb-0">Domicilio</label>
                         </div>
                         <div class="col-md-10">
-                            <input type="text" name="direccion" class="form-control bg-light" value="{{ docente.direccion|default_if_none:'' }}" placeholder="Calle, Número, Piso, Depto">
+                            <input type="text" name="direccion" class="form-control bg-body-tertiary" value="{{ docente.direccion|default_if_none:'' }}" placeholder="Calle, Número, Piso, Depto">
                         </div>
                     </div>
 
@@ -111,13 +111,13 @@
                             <label class="form-label fw-bold mb-0">Cód. Postal</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="codigo_postal" class="form-control bg-light" value="{{ docente.codigo_postal|default_if_none:'' }}">
+                            <input type="text" name="codigo_postal" class="form-control bg-body-tertiary" value="{{ docente.codigo_postal|default_if_none:'' }}">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Comuna/Zona</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="comuna_zona" class="form-control bg-light" value="{{ docente.comuna_zona|default_if_none:'' }}" placeholder="Nro de Comuna o Zona">
+                            <input type="text" name="comuna_zona" class="form-control bg-body-tertiary" value="{{ docente.comuna_zona|default_if_none:'' }}" placeholder="Nro de Comuna o Zona">
                         </div>
                     </div>
 
@@ -127,7 +127,7 @@
                             <label class="form-label fw-bold mb-0">Provincia</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <select name="provincia" class="form-select bg-light">
+                            <select name="provincia" class="form-select bg-body-tertiary">
                                 <option value="">-- Seleccionar --</option>
                                 {% for val, label in provincias %}
                                 <option value="{{ val }}" {% if docente.provincia == val %}selected{% endif %}>{{ label }}</option>
@@ -138,7 +138,7 @@
                             <label class="form-label fw-bold mb-0">Localidad</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="localidad" class="form-control bg-light" value="{{ docente.localidad|default_if_none:'' }}">
+                            <input type="text" name="localidad" class="form-control bg-body-tertiary" value="{{ docente.localidad|default_if_none:'' }}">
                         </div>
                     </div>
 
@@ -167,13 +167,13 @@
                             <label class="form-label fw-bold mb-0">Fecha de Nac.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="date" name="fecha_nacimiento" class="form-control bg-light" value="{{ docente.fecha_nacimiento|date:'Y-m-d'|default_if_none:'' }}">
+                            <input type="date" name="fecha_nacimiento" class="form-control bg-body-tertiary" value="{{ docente.fecha_nacimiento|date:'Y-m-d'|default_if_none:'' }}">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Lugar de Nac.</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="lugar_nacimiento" class="form-control bg-light" value="{{ docente.lugar_nacimiento|default_if_none:'' }}">
+                            <input type="text" name="lugar_nacimiento" class="form-control bg-body-tertiary" value="{{ docente.lugar_nacimiento|default_if_none:'' }}">
                         </div>
                     </div>
                     
@@ -184,7 +184,7 @@
                             <label class="form-label fw-bold mb-0 mt-2">Rol del Sistema</label>
                         </div>
                         <div class="col-md-10 mb-3 mb-md-0">
-                            <select name="rol_principal" id="rol_principal" class="form-select bg-light fw-bold text-primary border-primary">
+                            <select name="rol_principal" id="rol_principal" class="form-select bg-body-tertiary fw-bold text-primary border-primary">
                                 <option value="docente" {% if rol_actual == 'docente' %}selected{% endif %}>Ninguno (Solo Docente)</option>
                                 <option value="tutor" {% if rol_actual == 'tutor' %}selected{% endif %}>Docente + Tutor de Carrera</option>
                                 <option value="coordinador" {% if rol_actual == 'coordinador' %}selected{% endif %}>Docente + Coordinador de Carrera</option>

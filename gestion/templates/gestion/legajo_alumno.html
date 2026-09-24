@@ -166,7 +166,7 @@
                 <div class="modal-content border-0 shadow">
                   <form method="post" action="{% url 'editar_libro_matriz' c_info.inscripcion_carrera.id %}">
                       {% csrf_token %}
-                      <div class="modal-header border-bottom-0 bg-light">
+                      <div class="modal-header border-bottom-0 bg-body-tertiary">
                         <h5 class="modal-title fw-bold text-primary"><i class="bi bi-journal-bookmark-fill me-2"></i>Libro Matriz</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
@@ -180,7 +180,7 @@
                               <input type="text" name="folio_matriz" class="form-control" value="{{ c_info.inscripcion_carrera.folio_matriz|default:'' }}">
                           </div>
                       </div>
-                      <div class="modal-footer border-top-0 bg-light">
+                      <div class="modal-footer border-top-0 bg-body-tertiary">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                       </div>
@@ -199,7 +199,7 @@
                             <h1 class="display-4 fw-bold mb-0">{{ c_info.porcentaje_avance }}%</h1>
                             <p class="fs-5 mb-0">Carrera Completada</p>
                             <div class="progress mt-3" style="height: 10px;">
-                                <div class="progress-bar bg-light text-dark fw-bold" role="progressbar" style="width: {{ c_info.porcentaje_avance|stringformat:'s' }}%;" aria-valuenow="{{ c_info.porcentaje_avance|stringformat:'s' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar bg-body-tertiary text-body-emphasis fw-bold" role="progressbar" style="width: {{ c_info.porcentaje_avance|stringformat:'s' }}%;" aria-valuenow="{{ c_info.porcentaje_avance|stringformat:'s' }}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>

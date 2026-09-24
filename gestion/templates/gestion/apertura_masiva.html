@@ -17,7 +17,7 @@
                 <form method="POST" id="aperturaForm">
                     {% csrf_token %}
                     
-                    <div class="row g-3 bg-light p-4 rounded mb-4 border">
+                    <div class="row g-3 bg-body-tertiary p-4 rounded mb-4 border">
                         <div class="col-md-5">
                             <label class="form-label fw-bold">Plan de Estudio</label>
                             <select name="plan" id="planSelect" class="form-select form-select-lg" required>
@@ -102,7 +102,7 @@
             
             let cardHtml = `
             <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0 bg-light">
+                <div class="card h-100 shadow-sm border-0 bg-body-tertiary">
                     <div class="card-header bg-secondary text-white fw-bold py-2">
                         ${anio}º Año
                     </div>

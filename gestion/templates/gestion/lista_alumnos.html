@@ -3,7 +3,7 @@
 {% block title %}Listado de Alumnos{% endblock %}
 
 {% block back_button %}
-<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-success shadow-sm fw-bold bg-white text-success">⬅ Volver al inicio</a>
+<a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-success shadow-sm fw-bold  text-success">⬅ Volver al inicio</a>
 {% endblock %}
 
 {% block content %}
@@ -27,7 +27,7 @@
             <div class="d-flex flex-wrap justify-content-xl-end gap-2 align-items-center">
                 <!-- Filtros -->
                 <div class="input-group shadow-sm" style="width: auto; max-width: 100%;">
-                    <select id="filterEstado" class="form-select border-0 bg-light" style="max-width: 140px;">
+                    <select id="filterEstado" class="form-select border-0 bg-body-tertiary" style="max-width: 140px;">
                         <option value="">Todos los Est.</option>
                         <option value="ACT">Activos</option>
                         <option value="INA">Inactivos</option>
@@ -36,7 +36,7 @@
                         <option value="COND_PAG">Cond. (Pago)</option>
                     </select>
                     
-                    <select id="filterCarrera" class="form-select border-0 bg-light border-start border-white" style="max-width: 200px;">
+                    <select id="filterCarrera" class="form-select border-0 bg-body-tertiary border-start border-white" style="max-width: 200px;">
                         <option value="">Todas las Carreras</option>
                         {% for p in planes %}
                         <option value="{{ p.id }}">{{ p.nombre|truncatechars:30 }}</option>

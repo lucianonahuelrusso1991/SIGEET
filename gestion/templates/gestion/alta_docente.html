@@ -24,13 +24,13 @@
                             <label class="form-label fw-bold mb-0">Nombre/s</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="nombre" class="form-control bg-light" required>
+                            <input type="text" name="nombre" class="form-control bg-body-tertiary" required>
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Apellido/s</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="apellido" class="form-control bg-light" required>
+                            <input type="text" name="apellido" class="form-control bg-body-tertiary" required>
                         </div>
                     </div>
                     
@@ -40,19 +40,19 @@
                             <label class="form-label fw-bold mb-0">Email</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="email" name="email" class="form-control bg-light" required>
+                            <input type="email" name="email" class="form-control bg-body-tertiary" required>
                         </div>
                         <div class="col-md-1 text-md-end">
                             <label class="form-label fw-bold mb-0">Teléf.</label>
                         </div>
                         <div class="col-md-2 mb-3 mb-md-0">
-                            <input type="text" name="telefono" class="form-control bg-light">
+                            <input type="text" name="telefono" class="form-control bg-body-tertiary">
                         </div>
                         <div class="col-md-1 text-md-end">
                             <label class="form-label fw-bold mb-0">Cel.</label>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="celular" class="form-control bg-light">
+                            <input type="text" name="celular" class="form-control bg-body-tertiary">
                         </div>
                     </div>
 
@@ -62,13 +62,13 @@
                             <label class="form-label fw-bold mb-0">DNI</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="dni" class="form-control bg-light" required>
+                            <input type="text" name="dni" class="form-control bg-body-tertiary" required>
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Nacionalidad</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="nacionalidad" class="form-control bg-light" value="Argentina">
+                            <input type="text" name="nacionalidad" class="form-control bg-body-tertiary" value="Argentina">
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@
                             <label class="form-label fw-bold mb-0">Domicilio</label>
                         </div>
                         <div class="col-md-10">
-                            <input type="text" name="direccion" class="form-control bg-light" placeholder="Calle, Número, Piso, Depto">
+                            <input type="text" name="direccion" class="form-control bg-body-tertiary" placeholder="Calle, Número, Piso, Depto">
                         </div>
                     </div>
 
@@ -88,13 +88,13 @@
                             <label class="form-label fw-bold mb-0">Cód. Postal</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="text" name="codigo_postal" class="form-control bg-light">
+                            <input type="text" name="codigo_postal" class="form-control bg-body-tertiary">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Comuna/Zona</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="comuna_zona" class="form-control bg-light" placeholder="Nro de Comuna o Zona">
+                            <input type="text" name="comuna_zona" class="form-control bg-body-tertiary" placeholder="Nro de Comuna o Zona">
                         </div>
                     </div>
 
@@ -104,7 +104,7 @@
                             <label class="form-label fw-bold mb-0">Provincia</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <select name="provincia" class="form-select bg-light">
+                            <select name="provincia" class="form-select bg-body-tertiary">
                                 <option value="">-- Seleccionar --</option>
                                 {% for val, label in provincias %}
                                 <option value="{{ val }}">{{ label }}</option>
@@ -115,7 +115,7 @@
                             <label class="form-label fw-bold mb-0">Localidad</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="localidad" class="form-control bg-light">
+                            <input type="text" name="localidad" class="form-control bg-body-tertiary">
                         </div>
                     </div>
 
@@ -144,13 +144,13 @@
                             <label class="form-label fw-bold mb-0">Fecha de Nac.</label>
                         </div>
                         <div class="col-md-4 mb-3 mb-md-0">
-                            <input type="date" name="fecha_nacimiento" class="form-control bg-light">
+                            <input type="date" name="fecha_nacimiento" class="form-control bg-body-tertiary">
                         </div>
                         <div class="col-md-2 text-md-end">
                             <label class="form-label fw-bold mb-0">Lugar de Nac.</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="lugar_nacimiento" class="form-control bg-light">
+                            <input type="text" name="lugar_nacimiento" class="form-control bg-body-tertiary">
                         </div>
                     </div>
                     
@@ -161,7 +161,7 @@
                             <label class="form-label fw-bold mb-0 mt-2">Rol del Sistema</label>
                         </div>
                         <div class="col-md-10 mb-3 mb-md-0">
-                            <select name="rol_principal" id="rol_principal" class="form-select bg-light fw-bold text-primary border-primary">
+                            <select name="rol_principal" id="rol_principal" class="form-select bg-body-tertiary fw-bold text-primary border-primary">
                                 <option value="docente">Ninguno (Solo Docente)</option>
                                 <option value="tutor">Docente + Tutor de Carrera</option>
                                 <option value="coordinador">Docente + Coordinador de Carrera</option>

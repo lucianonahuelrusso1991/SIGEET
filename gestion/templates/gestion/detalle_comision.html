@@ -46,7 +46,7 @@
             </div>
         </div>
         
-        <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card shadow-sm border-0 mb-4 bg-body-tertiary">
             <div class="card-body">
                 <h6 class="text-primary fw-bold mb-3"><i class="bi bi-calendar-check"></i> Gestión Diaria</h6>
                 <div class="d-grid gap-2">
@@ -62,9 +62,9 @@
         </div>
 
         <!-- Google Classroom -->
-        <div class="card shadow-sm border-0 mb-4 bg-white border-top border-warning border-4">
+        <div class="card shadow-sm border-0 mb-4  border-top border-warning border-4">
             <div class="card-body">
-                <h6 class="text-dark fw-bold mb-3"><i class="bi bi-google text-warning"></i> Google Classroom</h6>
+                <h6 class="text-body-emphasis fw-bold mb-3"><i class="bi bi-google text-warning"></i> Google Classroom</h6>
                 {% if comision.materia.google_classroom_id %}
                     <a href="{{ comision.materia.google_classroom_url }}" target="_blank" class="btn btn-warning text-dark shadow-sm w-100 fw-bold mb-2">
                         <i class="bi bi-box-arrow-up-right me-2"></i>Ir al Aula Virtual
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Programa y Libro de Temas -->
-        <div class="card shadow-sm border-0 mb-4 bg-white border-top border-success border-4">
+        <div class="card shadow-sm border-0 mb-4  border-top border-success border-4">
             <div class="card-body">
                 <h6 class="text-success fw-bold mb-3"><i class="bi bi-book-half"></i> Academia y Temas</h6>
                 
@@ -99,13 +99,13 @@
 
                 <hr>
 
-                <h6 class="fw-bold text-dark mt-3">Libro de Temas Recientes</h6>
+                <h6 class="fw-bold text-body-emphasis mt-3">Libro de Temas Recientes</h6>
                 <ul class="list-group list-group-flush mt-2">
                     {% for planilla in comision.planillas_asistencia.all|dictsortreversed:"fecha" %}
                         {% if planilla.tema_dictado %}
                         <li class="list-group-item px-0 py-2 border-bottom">
                             <small class="text-muted fw-bold d-block"><i class="bi bi-calendar-event me-1"></i>{{ planilla.fecha|date:"d/m/Y" }}</small>
-                            <span class="text-dark">{{ planilla.tema_dictado }}</span>
+                            <span class="text-body-emphasis">{{ planilla.tema_dictado }}</span>
                         </li>
                         {% endif %}
                     {% empty %}
@@ -120,7 +120,7 @@
     <div class="col-md-8">
         <!-- Panel de Administración Avanzada -->
         {% if user.is_staff %}
-        <div class="card shadow-sm border-0 mb-4 bg-white border border-danger border-opacity-25">
+        <div class="card shadow-sm border-0 mb-4  border border-danger border-opacity-25">
             <div class="card-body">
                 <h6 class="text-danger fw-bold mb-3"><i class="bi bi-gear-fill"></i> Administración Avanzada</h6>
                 <div class="d-flex flex-wrap gap-2">
@@ -182,12 +182,12 @@
                             </tr>
                             <tr class="collapse" id="historial-{{ insc.id }}">
                                 <td colspan="5" class="p-0 border-0">
-                                    <div class="bg-light p-3 border-start border-4 border-info">
+                                    <div class="bg-body-tertiary p-3 border-start border-4 border-info">
                                         <h6 class="fw-bold text-muted mb-2">Notas Cargadas:</h6>
                                         {% if insc.notas.all %}
                                             <ul class="list-group list-group-flush shadow-sm rounded">
                                             {% for nota in insc.notas.all %}
-                                                <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+                                                <li class="list-group-item d-flex justify-content-between align-items-center ">
                                                     <span><strong>{{ nota.instancia }}</strong> <span class="text-muted small ms-2">({{ nota.fecha|date:"d/m/Y" }})</span></span>
                                                     <span class="d-flex align-items-center">
                                                         <span class="badge {% if nota.valor_nota >= 7 %}bg-success{% elif nota.valor_nota >= 4 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill fs-6 me-3">{{ nota.valor_nota }}</span>
