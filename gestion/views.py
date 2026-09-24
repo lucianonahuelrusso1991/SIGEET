@@ -88,6 +88,7 @@ def dashboard(request):
             acreditadas_ids = (
                 list(alumno.equivalencias.filter(materia__plan=plan).values_list('materia_id', flat=True)) +
                 list(alumno.inscripciones.filter(estado='PROM', comision__materia__plan=plan).values_list('comision__materia_id', flat=True)) +
+                list(alumno.inscripciones.filter(estado='APR', comision__materia__tipo_aprobacion='PROM', comision__materia__plan=plan).values_list('comision__materia_id', flat=True)) +
                 list(alumno.mesas_inscriptas.filter(estado='APR', mesa__materia__plan=plan).values_list('mesa__materia_id', flat=True))
             )
             
@@ -291,7 +292,10 @@ def legajo_alumno(request, alumno_id):
     carreras_data = []
     
     todas_eq = alumno.equivalencias.select_related('materia__plan').all()
-    todas_prom = alumno.inscripciones.filter(estado='PROM').select_related('comision__materia__plan').prefetch_related('notas')
+    from django.db.models import Q
+    todas_prom = alumno.inscripciones.filter(
+        Q(estado='PROM') | Q(estado='APR', comision__materia__tipo_aprobacion='PROM')
+    ).select_related('comision__materia__plan').prefetch_related('notas')
     todas_apr = alumno.mesas_inscriptas.filter(estado='APR').select_related('mesa__materia__plan')
     
     todas_reg = alumno.inscripciones.filter(estado__in=['REG', 'APR'], comision__cerrada=False).select_related('comision__materia__plan')
@@ -2213,7 +2217,11 @@ def analitico_alumno(request, alumno_id):
     # Traer todos los registros aprobatorios del alumno
     equivalencias = Equivalencia.objects.filter(alumno=alumno)
     finales_aprobados = InscripcionMesa.objects.filter(alumno=alumno, estado='APR').select_related('mesa')
-    cursadas_promocionadas = Inscripcion.objects.filter(alumno=alumno, estado='PROM').select_related('comision')
+    from django.db.models import Q
+    cursadas_promocionadas = Inscripcion.objects.filter(
+        Q(alumno=alumno),
+        Q(estado='PROM') | Q(estado='APR', comision__materia__tipo_aprobacion='PROM')
+    ).select_related('comision')
     
     # Crear diccionarios para búsqueda rápida por materia_id
     dict_equiv = {eq.materia_id: eq for eq in equivalencias}
@@ -2461,7 +2469,11 @@ def libro_matriz_alumno(request):
     # Traer todos los registros aprobatorios
     equivalencias = Equivalencia.objects.filter(alumno=alumno)
     finales_aprobados = InscripcionMesa.objects.filter(alumno=alumno, estado='APR').select_related('mesa')
-    cursadas_promocionadas = Inscripcion.objects.filter(alumno=alumno, estado='PROM').select_related('comision')
+    from django.db.models import Q
+    cursadas_promocionadas = Inscripcion.objects.filter(
+        Q(alumno=alumno),
+        Q(estado='PROM') | Q(estado='APR', comision__materia__tipo_aprobacion='PROM')
+    ).select_related('comision')
     
     dict_equiv = {eq.materia_id: eq for eq in equivalencias}
     dict_finales = {fin.mesa.materia_id: fin for fin in finales_aprobados}
