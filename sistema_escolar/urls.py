@@ -13,8 +13,8 @@ from gestion.views import (
     detalle_plan, api_chatbot, calendario_general, calendario_alumno, calendario_docente, limpiar_alumnos_classroom, crear_aula_materia_manual, diagnostico_classroom,
     alta_evento_calendario,
     imprimir_lista_asistencia, acta_volante,
-    lista_mesas, alta_mesa, detalle_mesa, eliminar_mesa,
-    inscribir_alumno_mesa, cargar_notas_mesa, cerrar_mesa,
+    lista_mesas, alta_mesa, detalle_mesa, eliminar_mesa, apertura_masiva_mesas_csv, descargar_plantilla_mesas_csv,
+    inscribir_alumno_mesa, cargar_notas_mesa, cerrar_mesa, cargar_notas_mesa_csv, descargar_plantilla_mesa_csv,
     acta_examen,
     alta_equivalencia, analitico_alumno,
     redactar_comunicado, mis_notificaciones, leer_notificacion,
@@ -108,11 +108,15 @@ urlpatterns = [
 
     # MESAS DE EXAMEN (FINALES)
     path('mesas/', lista_mesas, name='lista_mesas'),
+    path('mesas/apertura-masiva-csv/', apertura_masiva_mesas_csv, name='apertura_masiva_mesas_csv'),
+    path('mesas/plantilla-csv/<int:plan_id>/', descargar_plantilla_mesas_csv, name='descargar_plantilla_mesas_csv'),
     path('mesas/nueva/', alta_mesa, name='alta_mesa'),
     path('mesas/<int:mesa_id>/', detalle_mesa, name='detalle_mesa'),
     path('mesas/<int:mesa_id>/eliminar/', eliminar_mesa, name='eliminar_mesa'),
     path('mesas/<int:mesa_id>/inscribir/', inscribir_alumno_mesa, name='inscribir_alumno_mesa'),
     path('mesas/<int:mesa_id>/notas/', cargar_notas_mesa, name='cargar_notas_mesa'),
+    path('mesas/<int:mesa_id>/descargar-plantilla-notas-csv/', descargar_plantilla_mesa_csv, name='descargar_plantilla_mesa_csv'),
+    path('mesas/<int:mesa_id>/subir-notas-csv/', cargar_notas_mesa_csv, name='cargar_notas_mesa_csv'),
     path('mesas/<int:mesa_id>/cerrar/', cerrar_mesa, name='cerrar_mesa'),
     path('mesas/<int:mesa_id>/acta/', acta_examen, name='acta_examen'),
 
