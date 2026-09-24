@@ -50,6 +50,13 @@ class Command(BaseCommand):
                 legacy_u[int(parts[0])] = limpiar_dni(parts[4])
             except: pass
             
+        legacy_alumnos = {}
+        for row in self.parse_sql_lines(file_path, 'alumnos'):
+            try:
+                parts = ast.literal_eval(row.replace('NULL', 'None'))
+                legacy_alumnos[int(parts[0])] = int(parts[5]) # alumno_id -> user_id
+            except: pass
+            
         legacy_docentes_to_uid = {}
         for row in self.parse_sql_lines(file_path, 'docentes'):
             try:
@@ -136,11 +143,14 @@ class Command(BaseCommand):
             for row in self.parse_sql_lines(file_path, 'alumnos_cursos'):
                 try:
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
-                    u_id = int(parts[1])
+                    al_id = int(parts[1]) # Este es alumno_id, no user_id!
                     c_id = int(parts[2])
                     l_estado = str(parts[6]).strip().lower() 
                     
                     if c_id not in target_cursos: continue
+                    
+                    u_id = legacy_alumnos.get(al_id)
+                    if not u_id: continue
                     
                     dni_limpio = legacy_u.get(u_id)
                     al = alumnos_db.get(dni_limpio)
@@ -203,12 +213,15 @@ class Command(BaseCommand):
             for row in self.parse_sql_lines(file_path, 'alumnos_examens'):
                 try:
                     parts = ast.literal_eval(row.replace('NULL', 'None'))
-                    u_id = int(parts[1])
+                    al_id = int(parts[1])
                     e_id = int(parts[2])
                     l_estado = str(parts[3]).strip().lower()
                     raw_nota = parts[4]
                     
                     if e_id not in target_examens: continue
+                    
+                    u_id = legacy_alumnos.get(al_id)
+                    if not u_id: continue
                     
                     dni_limpio = legacy_u.get(u_id)
                     al = alumnos_db.get(dni_limpio)
