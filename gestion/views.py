@@ -2557,9 +2557,35 @@ def alumno_inscripcion_cursada(request):
                 if ya_inscripto:
                     messages.error(request, f'Ya estás inscripto en una comisión de {comision.materia.nombre} este año.')
                 else:
-                    Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
-                    messages.success(request, f'Te inscribiste correctamente en {comision.materia.nombre}.')
-                        
+                    # VALIDACION STRICTA DE CORRELATIVAS EN BACKEND
+                    from .models import Correlatividad, InscripcionMesa, Equivalencia
+                    correlativas = Correlatividad.objects.filter(materia=comision.materia)
+                    cumple_correlativas = True
+                    motivo = ""
+                    
+                    for corr in correlativas:
+                        req_materia = corr.requisito
+                        if corr.tipo == 'CUR':
+                            tiene_cursada = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado__in=['REG', 'APR', 'PROM']).exists()
+                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                            if not (tiene_cursada or tiene_equiv):
+                                cumple_correlativas = False
+                                motivo = f"Requiere cursar {req_materia.nombre}"
+                                break
+                        elif corr.tipo == 'APR':
+                            tiene_prom = Inscripcion.objects.filter(alumno=alumno, comision__materia=req_materia, estado='PROM').exists()
+                            tiene_final = InscripcionMesa.objects.filter(alumno=alumno, mesa__materia=req_materia, estado='APR').exists()
+                            tiene_equiv = Equivalencia.objects.filter(alumno=alumno, materia=req_materia).exists()
+                            if not (tiene_prom or tiene_final or tiene_equiv):
+                                cumple_correlativas = False
+                                motivo = f"Requiere aprobar final de {req_materia.nombre}"
+                                break
+                                
+                    if cumple_correlativas:
+                        Inscripcion.objects.create(alumno=alumno, comision=comision, estado='REG')
+                        messages.success(request, f'Te inscribiste correctamente en {comision.materia.nombre}.')
+                    else:
+                        messages.error(request, f'Inscripción rechazada. {motivo}.')                        
         except Comision.DoesNotExist:
             messages.error(request, 'La comisión no existe o ya cerró su inscripción.')
             
