@@ -102,7 +102,7 @@
                                 <td>
                                     {% if tram.estado == 'APROBADO' %}
                                         <span class="badge bg-success">Aprobado</span>
-                                        {% if not tram.esta_vigente %}<span class="badge bg-warning text-dark ms-1">Vencido</span>{% endif %}
+                                        {% if not tram.esta_vigente %}<span class="badge bg-warning text-main ms-1">Vencido</span>{% endif %}
                                     {% elif tram.estado == 'RECHAZADO' %}
                                         <span class="badge bg-danger">Rechazado</span>
                                     {% endif %}

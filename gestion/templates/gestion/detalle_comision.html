@@ -21,7 +21,7 @@
                 {% if comision.cerrada %}
                     <span class="badge bg-danger mb-2">COMISIÓN CERRADA</span>
                 {% elif not comision.inscripciones_abiertas %}
-                    <span class="badge bg-warning text-dark mb-2">INSCRIPCIONES CERRADAS</span>
+                    <span class="badge bg-warning text-main mb-2">INSCRIPCIONES CERRADAS</span>
                 {% else %}
                     <span class="badge bg-success mb-2">ACTIVA</span>
                 {% endif %}
@@ -64,16 +64,16 @@
         <!-- Google Classroom -->
         <div class="card shadow-sm border-0 mb-4  border-top border-warning border-4">
             <div class="card-body">
-                <h6 class="text-body-emphasis fw-bold mb-3"><i class="bi bi-google text-warning"></i> Google Classroom</h6>
+                <h6 class="text-main fw-bold mb-3"><i class="bi bi-google text-warning"></i> Google Classroom</h6>
                 {% if comision.materia.google_classroom_id %}
-                    <a href="{{ comision.materia.google_classroom_url }}" target="_blank" class="btn btn-warning text-dark shadow-sm w-100 fw-bold mb-2">
+                    <a href="{{ comision.materia.google_classroom_url }}" target="_blank" class="btn btn-warning text-main shadow-sm w-100 fw-bold mb-2">
                         <i class="bi bi-box-arrow-up-right me-2"></i>Ir al Aula Virtual
                     </a>
                     <small class="text-muted d-block text-center">Esta aula es compartida por la materia.</small>
                 {% else %}
                     {% if user.is_staff %}
                         <p class="text-muted small mb-3">Esta materia a&uacute;n no tiene un aula virtual generada en Google Classroom.</p>
-                        <a href="{% url 'crear_aula_materia_manual' comision.materia.id %}" class="btn btn-outline-warning text-dark shadow-sm w-100 fw-bold">
+                        <a href="{% url 'crear_aula_materia_manual' comision.materia.id %}" class="btn btn-outline-warning text-main shadow-sm w-100 fw-bold">
                             <i class="bi bi-plus-circle me-2"></i>Crear Aula Virtual
                         </a>
                     {% else %}
@@ -99,13 +99,13 @@
 
                 <hr>
 
-                <h6 class="fw-bold text-body-emphasis mt-3">Libro de Temas Recientes</h6>
+                <h6 class="fw-bold text-main mt-3">Libro de Temas Recientes</h6>
                 <ul class="list-group list-group-flush mt-2">
                     {% for planilla in comision.planillas_asistencia.all|dictsortreversed:"fecha" %}
                         {% if planilla.tema_dictado %}
                         <li class="list-group-item px-0 py-2 border-bottom">
                             <small class="text-muted fw-bold d-block"><i class="bi bi-calendar-event me-1"></i>{{ planilla.fecha|date:"d/m/Y" }}</small>
-                            <span class="text-body-emphasis">{{ planilla.tema_dictado }}</span>
+                            <span class="text-main">{{ planilla.tema_dictado }}</span>
                         </li>
                         {% endif %}
                     {% empty %}
@@ -190,7 +190,7 @@
                                                 <li class="list-group-item d-flex justify-content-between align-items-center ">
                                                     <span><strong>{{ nota.instancia }}</strong> <span class="text-muted small ms-2">({{ nota.fecha|date:"d/m/Y" }})</span></span>
                                                     <span class="d-flex align-items-center">
-                                                        <span class="badge {% if nota.valor_nota >= 7 %}bg-success{% elif nota.valor_nota >= 4 %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill fs-6 me-3">{{ nota.valor_nota }}</span>
+                                                        <span class="badge {% if nota.valor_nota >= 7 %}bg-success{% elif nota.valor_nota >= 4 %}bg-warning text-main{% else %}bg-danger{% endif %} rounded-pill fs-6 me-3">{{ nota.valor_nota }}</span>
                                                         
                                                         {% if not comision.cerrada %}
                                                         <form method="POST" action="{% url 'eliminar_nota' nota.id %}" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar esta nota?');">

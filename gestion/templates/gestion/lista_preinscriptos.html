@@ -50,7 +50,7 @@
                         <tbody>
                             {% for asp in aspirantes %}
                             <tr>
-                                <td class="ps-4 fw-bold text-body-emphasis">{{ asp.apellido }}, {{ asp.nombre }}</td>
+                                <td class="ps-4 fw-bold text-main">{{ asp.apellido }}, {{ asp.nombre }}</td>
                                 <td class="text-muted">{{ asp.dni }}</td>
                                 <td class="text-muted">{{ asp.fecha_nacimiento|date:"d/m/Y" }}</td>
                                 <td>
@@ -63,7 +63,7 @@
                                     {% for c in asp.carreras.all %}
                                         <span class="badge bg-secondary">{{ c.nombre }}</span><br>
                                     {% empty %}
-                                        <span class="badge bg-warning text-dark">Sin asignar</span>
+                                        <span class="badge bg-warning text-main">Sin asignar</span>
                                     {% endfor %}
                                 </td>
                                 <td class="text-end pe-4">
@@ -111,7 +111,7 @@
                         <tbody>
                             {% for asp in aspirantes_esperando_correo %}
                             <tr>
-                                <td class="ps-4 fw-bold text-body-emphasis">{{ asp.apellido }}, {{ asp.nombre }}</td>
+                                <td class="ps-4 fw-bold text-main">{{ asp.apellido }}, {{ asp.nombre }}</td>
                                 <td class="text-muted">{{ asp.dni }}</td>
                                 <td>
                                     <div class="small">
@@ -123,13 +123,13 @@
                                     {% for c in asp.carreras.all %}
                                         <span class="badge bg-secondary">{{ c.nombre }}</span><br>
                                     {% empty %}
-                                        <span class="badge bg-warning text-dark">Sin asignar</span>
+                                        <span class="badge bg-warning text-main">Sin asignar</span>
                                     {% endfor %}
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-2">
                                         {% if not es_tutor %}
-                                        <a href="{% url 'validar_preinscripto' asp.id %}" class="btn btn-sm btn-warning fw-bold shadow-sm text-dark">
+                                        <a href="{% url 'validar_preinscripto' asp.id %}" class="btn btn-sm btn-warning fw-bold shadow-sm text-main">
                                             <i class="bi bi-envelope-plus me-1"></i> Asignar Correo e Inscribir
                                         </a>
                                         {% else %}
@@ -166,12 +166,12 @@
                         <tbody>
                             {% for ins in aspirantes_internos %}
                             <tr>
-                                <td class="ps-4 fw-bold text-body-emphasis">{{ ins.alumno.apellido }}, {{ ins.alumno.nombre }}</td>
+                                <td class="ps-4 fw-bold text-main">{{ ins.alumno.apellido }}, {{ ins.alumno.nombre }}</td>
                                 <td class="text-muted">{{ ins.alumno.dni }}</td>
                                 <td>
                                     {% for cursando in ins.alumno.inscripciones_carreras.all %}
                                         {% if cursando.estado != 'PREINSCRIPTO' %}
-                                            <span class="badge bg-info text-dark mb-1">{{ cursando.plan.nombre }} ({{ cursando.get_estado_display }})</span><br>
+                                            <span class="badge bg-info text-main mb-1">{{ cursando.plan.nombre }} ({{ cursando.get_estado_display }})</span><br>
                                         {% endif %}
                                     {% endfor %}
                                 </td>

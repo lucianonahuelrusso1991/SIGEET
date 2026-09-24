@@ -13,7 +13,7 @@
             <div class="card-header  border-bottom p-4">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h3 class="mb-0 text-primary">{{ notificacion.comunicado.titulo }}</h3>
-                    <span class="badge bg-body-tertiary text-dark border"><i class="bi bi-clock me-1"></i> {{ notificacion.comunicado.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                    <span class="badge bg-body-tertiary text-main border"><i class="bi bi-clock me-1"></i> {{ notificacion.comunicado.fecha_creacion|date:"d/m/Y H:i" }}</span>
                 </div>
                 <div class="text-muted small">
                     <i class="bi bi-person-circle me-1"></i> De: <strong>{{ notificacion.comunicado.autor.first_name }} {{ notificacion.comunicado.autor.last_name }}</strong> ({{ notificacion.comunicado.autor.username }})<br>

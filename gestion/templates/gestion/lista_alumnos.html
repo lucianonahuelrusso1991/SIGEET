@@ -83,11 +83,11 @@
                                 {% elif alumno.estado_alumno == 'INA' %}
                                     <span class="badge bg-danger ms-2">Inactivo</span>
                                 {% elif alumno.estado_alumno == 'EGR' %}
-                                    <span class="badge bg-info text-dark ms-2">Egresado</span>
+                                    <span class="badge bg-info text-main ms-2">Egresado</span>
                                 {% elif alumno.estado_alumno == 'COND_DOC' %}
-                                    <span class="badge bg-warning text-dark ms-2" title="Falta Documentación">Cond. (Doc)</span>
+                                    <span class="badge bg-warning text-main ms-2" title="Falta Documentación">Cond. (Doc)</span>
                                 {% elif alumno.estado_alumno == 'COND_PAG' %}
-                                    <span class="badge bg-warning text-dark ms-2" title="Falta de Pago">Cond. (Pago)</span>
+                                    <span class="badge bg-warning text-main ms-2" title="Falta de Pago">Cond. (Pago)</span>
                                 {% endif %}
                             </td>
                             <td class="alumno-dni">{{ alumno.dni }}</td>
@@ -104,8 +104,8 @@
                             </td>
                             <td class="text-end pe-4 text-nowrap">
                                 <div class="btn-group shadow-sm">
-                                    <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-light border text-primary fw-bold" title="Ver Legajo"><i class="bi bi-folder2-open me-1"></i>Legajo</a>
-                                    {% if not es_tutor %}<a href="{% url 'eliminar_alumno' alumno.id %}" class="btn btn-sm btn-light border text-danger" title="Borrar"><i class="bi bi-trash"></i></a>{% endif %}
+                                    <a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-surface border text-primary fw-bold" title="Ver Legajo"><i class="bi bi-folder2-open me-1"></i>Legajo</a>
+                                    {% if not es_tutor %}<a href="{% url 'eliminar_alumno' alumno.id %}" class="btn btn-sm btn-surface border text-danger" title="Borrar"><i class="bi bi-trash"></i></a>{% endif %}
                                 </div>
                             </td>
                         </tr>

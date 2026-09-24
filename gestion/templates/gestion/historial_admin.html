@@ -2,7 +2,7 @@
 {% block title %}Modificar Historial - {{ alumno.apellido }}{% endblock %}
 
 {% block back_button %}
-<a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-light border text-secondary shadow-sm fw-bold">⬅ Volver al legajo</a>
+<a href="{% url 'legajo_alumno' alumno.id %}" class="btn btn-sm btn-surface border text-secondary shadow-sm fw-bold">⬅ Volver al legajo</a>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +23,7 @@
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-body-emphasis fw-bold mb-0">Historial de {{ alumno.apellido }}, {{ alumno.nombre }}</h2>
+        <h2 class="text-main fw-bold mb-0">Historial de {{ alumno.apellido }}, {{ alumno.nombre }}</h2>
     </div>
 
     <div class="row">
@@ -119,7 +119,7 @@
                                                 <input type="hidden" name="action" value="edit_final">
                                                 <input type="hidden" name="insc_id" value="{{ f.id }}">
                                                 <div class="modal-header border-bottom-0 bg-body-tertiary">
-                                                    <h5 class="modal-title fw-bold text-body-emphasis">Editar Registro</h5>
+                                                    <h5 class="modal-title fw-bold text-main">Editar Registro</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">

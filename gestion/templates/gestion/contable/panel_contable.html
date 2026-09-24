@@ -55,11 +55,11 @@
                                     {% elif alumno.estado_alumno == 'INA' %}
                                         <span class="badge bg-danger shadow-sm px-3 py-2">Inactivo</span>
                                     {% elif alumno.estado_alumno == 'EGR' %}
-                                        <span class="badge bg-info text-dark shadow-sm px-3 py-2">Egresado</span>
+                                        <span class="badge bg-info text-main shadow-sm px-3 py-2">Egresado</span>
                                     {% elif alumno.estado_alumno == 'COND_DOC' %}
-                                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2" title="Falta Documentación">Condicionado (Doc)</span>
+                                        <span class="badge bg-warning text-main shadow-sm px-3 py-2" title="Falta Documentación">Condicionado (Doc)</span>
                                     {% elif alumno.estado_alumno == 'COND_PAG' %}
-                                        <span class="badge bg-warning text-dark shadow-sm px-3 py-2" title="Falta de Pago">Condicionado (Pago)</span>
+                                        <span class="badge bg-warning text-main shadow-sm px-3 py-2" title="Falta de Pago">Condicionado (Pago)</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
@@ -72,7 +72,7 @@
                                         {% endif %}
                                         
                                         {% if alumno.estado_alumno != 'COND_PAG' %}
-                                            <button type="submit" name="nuevo_estado" value="COND_PAG" class="btn btn-sm btn-outline-warning fw-bold text-dark" onclick="return confirm('¿Marcar como condicionado por pago?');">Condicionar (Pago)</button>
+                                            <button type="submit" name="nuevo_estado" value="COND_PAG" class="btn btn-sm btn-outline-warning fw-bold text-main" onclick="return confirm('¿Marcar como condicionado por pago?');">Condicionar (Pago)</button>
                                         {% endif %}
                                         
                                         {% if alumno.estado_alumno != 'INA' %}

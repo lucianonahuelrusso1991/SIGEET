@@ -3,7 +3,7 @@
 {% block title %}Legajo - {{ alumno.apellido }}{% endblock %}
 
 {% block back_button %}
-<a href="{% url 'lista_alumnos' %}" class="btn btn-sm btn-light border text-secondary shadow-sm fw-bold">⬅ Volver al listado de alumnos</a>
+<a href="{% url 'lista_alumnos' %}" class="btn btn-sm btn-surface border text-secondary shadow-sm fw-bold">⬅ Volver al listado de alumnos</a>
 {% endblock %}
 
 {% block content %}
@@ -27,11 +27,11 @@
                 {% elif alumno.estado_alumno == 'INA' %}
                     <span class="badge bg-danger ms-2 fs-6 align-middle">Inactivo</span>
                 {% elif alumno.estado_alumno == 'EGR' %}
-                    <span class="badge bg-info text-dark ms-2 fs-6 align-middle">Egresado</span>
+                    <span class="badge bg-info text-main ms-2 fs-6 align-middle">Egresado</span>
                 {% elif alumno.estado_alumno == 'COND_DOC' %}
-                    <span class="badge bg-warning text-dark ms-2 fs-6 align-middle" title="Falta Documentación">Condicionado (Doc)</span>
+                    <span class="badge bg-warning text-main ms-2 fs-6 align-middle" title="Falta Documentación">Condicionado (Doc)</span>
                 {% elif alumno.estado_alumno == 'COND_PAG' %}
-                    <span class="badge bg-warning text-dark ms-2 fs-6 align-middle" title="Falta de Pago">Condicionado (Pago)</span>
+                    <span class="badge bg-warning text-main ms-2 fs-6 align-middle" title="Falta de Pago">Condicionado (Pago)</span>
                 {% endif %}
             </h2>
             <p class="text-muted mb-0">DNI: {{ alumno.dni }} | Nacimiento: {{ alumno.fecha_nacimiento|date:"d/m/Y" }}</p>
@@ -199,7 +199,7 @@
                             <h1 class="display-4 fw-bold mb-0">{{ c_info.porcentaje_avance }}%</h1>
                             <p class="fs-5 mb-0">Carrera Completada</p>
                             <div class="progress mt-3" style="height: 10px;">
-                                <div class="progress-bar bg-body-tertiary text-body-emphasis fw-bold" role="progressbar" style="width: {{ c_info.porcentaje_avance|stringformat:'s' }}%;" aria-valuenow="{{ c_info.porcentaje_avance|stringformat:'s' }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar bg-body-tertiary text-main fw-bold" role="progressbar" style="width: {{ c_info.porcentaje_avance|stringformat:'s' }}%;" aria-valuenow="{{ c_info.porcentaje_avance|stringformat:'s' }}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>
@@ -266,7 +266,7 @@
                                                 {% elif item.tipo == 'Final' %}
                                                     <span class="badge bg-primary">Final Aprobado</span>
                                                 {% elif item.tipo == 'Equivalencia' %}
-                                                    <span class="badge bg-info text-dark">Equivalencia</span>
+                                                    <span class="badge bg-info text-main">Equivalencia</span>
                                                 {% endif %}
                                             </td>
                                             <td class="text-center fw-bold fs-5">{{ item.nota }}</td>
