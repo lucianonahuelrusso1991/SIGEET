@@ -105,7 +105,7 @@ def invitar_equipo_docente(materia, docente_titular):
     # 3. Tutores / Coordinadores
     tutores = Docente.objects.filter(carreras_coordinadas=materia.plan)
     for tutor in tutores:
-        if hasattr(tutor, 'correo_institucional') and tutor.correo_institucional and tutor != docente_principal:
+        if hasattr(tutor, 'correo_institucional') and tutor.correo_institucional and tutor != docente_titular:
             invitar_usuario_a_aula(materia.google_classroom_id, tutor.correo_institucional, role='TEACHER')
 
 def invitar_alumno_a_aula(materia, alumno):
