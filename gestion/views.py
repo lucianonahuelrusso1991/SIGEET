@@ -3014,13 +3014,20 @@ def crear_aula_materia_manual(request, materia_id):
             # Invitar a Secretaria y Coordinadores pasandole un docente vacio
             invitar_equipo_docente(materia, None)
             
-            # Y si ya hay comisiones activas, invitar a sus docentes
+            # Y si ya hay comisiones activas, invitar a sus docentes y alumnos
+            from .services.google_classroom import invitar_alumno_a_aula
+            
             for comision in materia.comisiones.filter(cerrada=False):
                 invitar_equipo_docente(materia, comision.docente)
                 if comision.docente_auxiliar:
                     invitar_equipo_docente(materia, comision.docente_auxiliar)
+                
+                # Invitar a los alumnos que ya estaban inscriptos
+                inscripciones = comision.alumnos_inscriptos.filter(estado__in=['REG', 'APR'])
+                for inscripcion in inscripciones:
+                    invitar_alumno_a_aula(materia, inscripcion.alumno)
                     
-            messages.success(request, f'Aula virtual creada exitosamente para {materia.nombre} y profesores invitados.')
+            messages.success(request, f'Aula virtual creada exitosamente para {materia.nombre}, y todo el equipo docente y alumnos fueron invitados.')
         else:
             messages.error(request, f'Hubo un problema al comunicarse con Google para crear el aula de {materia.nombre}.')
     else:
